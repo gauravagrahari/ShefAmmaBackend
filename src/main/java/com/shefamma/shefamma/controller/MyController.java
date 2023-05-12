@@ -2,7 +2,6 @@ package com.shefamma.shefamma.controller;
 
 import com.google.maps.model.GeocodingResult;
 import com.shefamma.shefamma.HostRepository.*;
-import com.shefamma.shefamma.config.GeocodingService;
 import com.shefamma.shefamma.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +10,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/geocode")
+
 public class MyController {
     @Autowired
     private Host host;
@@ -28,13 +27,13 @@ public class MyController {
 //    **************************************Geocode controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
 
-    @Autowired
-    private GeocodingService geocodingService;
-
-    @GetMapping("/{address}")
-    public GeocodingResult[] geocode(@PathVariable String address) throws Exception {
-        return geocodingService.geocode(address);
-    }
+//    @Autowired
+//    private GeocodingService geocodingService;
+//
+//    @GetMapping("/{address}")
+//    public GeocodingResult[] geocode(@PathVariable String address) throws Exception {
+//        return geocodingService.geocode(address);
+//    }
 
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************Host controllers******************************************
@@ -44,7 +43,7 @@ public class MyController {
         return host.saveHost(hostentity);
     }
 
-    //    @PatchMapping("/host")
+//    @PatchMapping("/host")
 //    public HostEntity updateHost( @RequestBody HostEntity hostEntity) {
 //       return host.updateHostAttribute("city", hostEntity);
 //    }
@@ -52,13 +51,39 @@ public class MyController {
 //    public HostEntity getHost()
     @GetMapping("/guest/host")
     public HostEntity getHost(@RequestBody HostEntity hostentity) {
-        return host.getHost(hostentity.getHostId(), hostentity.getNameHost());
+        return host.getHost(hostentity.getUuidHost(), hostentity.getNameHost());
+    }
+
+    @GetMapping("/guest/hosts")
+    public HostEntity getHosts(@RequestBody HostEntity hostentity) {
+        return host.getHost(hostentity.getUuidHost(), hostentity.getNameHost());
     }
 
     @PutMapping("/host")
     public HostEntity updateHost(@RequestBody HostEntity hostentity) {
-        return host.update(hostentity.getHostId(), hostentity.getNameHost(), hostentity);
+        return host.update(hostentity.getUuidHost(), hostentity.getNameHost(), hostentity);
     }
+
+
+
+    //  /guest/host?item=val
+//    @GetMapping("/guest/host")
+//    public List<HostEntity> getHostsItemSearchFilter(@RequestParam("item") String itemValue,@RequestBody HostEntity hostentity) {
+//        return host.getHostsItemSearchFilter(itemValue, hostentity);
+//    }
+
+    //    /guest/host?category=val
+//    @GetMapping("/guest/host")
+//    public List<HostEntity> getHostsCategorySearchFilter(@RequestParam("category") String categoryValue,@RequestBody HostEntity hostentity) {
+//        return host.getHostsCategorySearchFilter(categoryValue,hostentity);
+//    }
+
+    //    /guest/host?startTime=val&endTime=val
+//    @GetMapping("/guest/host")
+//    public List<HostEntity> getHostsTimeSlotSearchFilter(@RequestParam String startTime,@RequestParam String endTime,@RequestBody HostEntity hostentity) {
+//        return host.getHostsTimeSlotSearchFilter(startTime,endTime, hostentity);
+//    }
+
 
 //    ------------------------------------------------------------------------------------------------------
 //    **************************************Guest controllers******************************************
@@ -71,12 +96,12 @@ public class MyController {
 
     @GetMapping("/host/guest")
     public GuestEntity getGuest(@RequestBody GuestEntity guestentity) {
-        return guest.getGuest(guestentity.getGuestId(), guestentity.getNameGuest());
+        return guest.getGuest(guestentity.getUuidGuest(), guestentity.getGeocode());
     }
 
     @PutMapping("/guest")
     public GuestEntity updateGuest(@RequestBody GuestEntity guestentity) {
-        return guest.updateGuest(guestentity.getGuestId(), guestentity.getNameGuest(), guestentity);
+        return guest.updateGuest(guestentity.getUuidGuest(), guestentity.getGeocode(), guestentity);
     }
 
     //    ------------------------------------------------------------------------------------------------------
@@ -89,17 +114,17 @@ public class MyController {
 
     @PutMapping("/host/menuItem")
     public ItemEntity updateItem(@RequestBody ItemEntity itementity) {
-        return item.updateItem(itementity.getHostId_Item(), itementity.getNameItem(), itementity);
+        return item.updateItem(itementity.getUuidItem(), itementity.getNameItem(), itementity);
     }
 
     @GetMapping("/guest/host/menuItems")
     public List<ItemEntity> getItems(@RequestBody ItemEntity itementity) {
-        return item.getItems(itementity.getHostId_Item(), itementity);
+        return item.getItems(itementity.getUuidItem(), itementity);
     }
 
     @GetMapping("/host/menuItem")
     public ItemEntity getItem(@RequestBody ItemEntity itementity) {
-        return item.getItem(itementity.getHostId_Item(), itementity.getNameItem(), itementity);
+        return item.getItem(itementity.getUuidItem(), itementity.getNameItem(), itementity);
     }
 
     //    ------------------------------------------------------------------------------------------------------
@@ -112,14 +137,13 @@ public class MyController {
 
     @GetMapping("/guest/host/time-slot")
     public TimeSlotEntity getTimeSlot(@RequestBody TimeSlotEntity timeentity) {
-        return timeSlot.getTimeSlot(timeentity.getHostId_Time(), timeentity);
+        return timeSlot.getTimeSlot(timeentity.getUuidTime(), timeentity);
     }
 
     @PutMapping("/host/time-slot")
     public TimeSlotEntity updateTimeSlot(@RequestBody TimeSlotEntity timeentity) {
-        return timeSlot.updateTimeSlot(timeentity.getHostId_Time(), timeentity);
+        return timeSlot.updateTimeSlot(timeentity.getUuidTime(), timeentity);
     }
-
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************Order controllers******************************************
 //    ------------------------------------------------------------------------------------------------------

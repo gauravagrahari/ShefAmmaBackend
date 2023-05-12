@@ -18,7 +18,7 @@ public class ItemImpl implements Item{
     private DynamoDBMapper dynamoDBMapper;
     @Override
     public ItemEntity saveItem(ItemEntity itementity) {
-        itementity.setHostId_Item(itementity.getHostId_Item()+"#item");
+//        itementity.setHostId_Item(itementity.getHostId_Item()+"#item");
         dynamoDBMapper.save(itementity);
         return itementity;
     }

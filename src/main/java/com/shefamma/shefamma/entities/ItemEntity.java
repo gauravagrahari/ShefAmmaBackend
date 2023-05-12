@@ -1,9 +1,6 @@
 package com.shefamma.shefamma.entities;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,20 +10,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @DynamoDBTable(tableName = "ShefAmma")
 public class ItemEntity {
+    public void setUuidItem(String uuidItem) {
+        this.uuidItem = uuidItem+"#item";
+    }
+
     @DynamoDBHashKey(attributeName = "pk")
-    private String hostId_Item;//h_id
+    private String uuidItem;
     @DynamoDBRangeKey(attributeName = "sk")
-    private String nameItem;//hName
-    @DynamoDBAttribute(attributeName = "ctgry")
-    private String category;//hEmail
+    @DynamoDBIndexHashKey
+    private String nameItem;
+    @DynamoDBIndexRangeKey(attributeName = "gsk")
+    private String dishcategory;
     @DynamoDBAttribute(attributeName = "DP")
-    private String DP;//hPhone
+    private String DP;
     @DynamoDBAttribute(attributeName = "stts")
-    private String status;//hPhone
+    private String status;
      @DynamoDBAttribute(attributeName = "desc")
     private String description;
     @DynamoDBAttribute(attributeName = "veg")
-    private String vegetarian;
+    private Boolean vegetarian;
     @DynamoDBAttribute(attributeName = "amnt")
-    private String amount;//hPhone
+    private String amount;
 }

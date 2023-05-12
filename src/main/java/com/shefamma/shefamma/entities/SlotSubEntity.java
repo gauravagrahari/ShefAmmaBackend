@@ -12,7 +12,9 @@ import lombok.NoArgsConstructor;
 @DynamoDBDocument
 public class SlotSubEntity {
     @DynamoDBAttribute
-    private String slotTime;
+    private String id;
     @DynamoDBAttribute
-    private String capacity;
+    private String startTIme;
+    @DynamoDBAttribute
+    private int capacity;
 }

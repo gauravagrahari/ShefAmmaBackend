@@ -17,7 +17,8 @@ public class ShefAmmaDynamoDbConfig {
     public DynamoDBMapper dynamoDBMapper() {
         return new DynamoDBMapper(buildAmazonDynamoDB());
     }
-
+//    GeoDataManagerConfiguration config = new GeoDataManagerConfiguration(ddb, "geo-test");
+//    GeoDataManager geoIndexManager = new GeoDataManager(config);
     private AmazonDynamoDB buildAmazonDynamoDB() {
         return AmazonDynamoDBClientBuilder
                 .standard()

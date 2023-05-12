@@ -8,6 +8,8 @@ import com.shefamma.shefamma.entities.HostEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public class HostImpl implements Host {
 
@@ -17,11 +19,17 @@ public class HostImpl implements Host {
 
     public HostEntity saveHost(HostEntity host) {
         dynamoDBMapper.save(host);
+
         return host;
     }
 
     public HostEntity getHost(String hostId, String sort) {
         return dynamoDBMapper.load(HostEntity.class, hostId, sort);
+    }
+
+    @Override
+    public HostEntity getHosts(String hostId, String sort) {
+        return null;
     }
 
     @Override
@@ -31,8 +39,26 @@ public class HostImpl implements Host {
                 .withExpectedEntry("sk", new ExpectedAttributeValue(new AttributeValue(sort)));
 
         dynamoDBMapper.save(hostentity, saveExpression);
+        System.out.println("yes");
         return hostentity;
     }
+
+    @Override
+    public List<HostEntity> getHostsItemSearchFilter(String itemValue, HostEntity hostentity) {
+        return null;
+    }
+
+    @Override
+    public List<HostEntity> getHostsCategorySearchFilter(String categoryValue, HostEntity hostentity) {
+        return null;
+    }
+
+    @Override
+    public List<HostEntity> getHostsTimeSlotSearchFilter(String startTime, String endTime, HostEntity hostentity) {
+        return null;
+    }
+
+
 }
 
 //import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
@@ -41,8 +67,7 @@ public class HostImpl implements Host {
 //        import java.util.Map;
 //
 //public class CommonImpl {
-//
-//    private DynamoDBMapper dynamoDBMapper;
+
 //
 //    public void updateAttribute(String attributeName, String partitionKey, String sortKey, Object value) {
 //        Map<String, AttributeValue> key = new HashMap<>();
