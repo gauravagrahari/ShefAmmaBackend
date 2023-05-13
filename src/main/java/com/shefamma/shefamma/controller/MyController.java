@@ -65,24 +65,23 @@ public class MyController {
     }
 
 
+ //  /guest/host?item=val
+    @GetMapping("/guest/host/itemFilter")
+    public List<HostEntity> getHostsItemSearchFilter(@RequestParam("item") String itemValue) {
+        return host.getHostsItemSearchFilter(itemValue);
+    }
 
-    //  /guest/host?item=val
-//    @GetMapping("/guest/host")
-//    public List<HostEntity> getHostsItemSearchFilter(@RequestParam("item") String itemValue,@RequestBody HostEntity hostentity) {
-//        return host.getHostsItemSearchFilter(itemValue, hostentity);
-//    }
+//        /guest/host?category=val
+    @GetMapping("/guest/host/categoryFilter")
+    public List<HostEntity> getHostsCategorySearchFilter(@RequestParam("category") String categoryValue) {
+        return host.getHostsCategorySearchFilter(categoryValue);
+    }
 
-    //    /guest/host?category=val
-//    @GetMapping("/guest/host")
-//    public List<HostEntity> getHostsCategorySearchFilter(@RequestParam("category") String categoryValue,@RequestBody HostEntity hostentity) {
-//        return host.getHostsCategorySearchFilter(categoryValue,hostentity);
-//    }
-
-    //    /guest/host?startTime=val&endTime=val
-//    @GetMapping("/guest/host")
-//    public List<HostEntity> getHostsTimeSlotSearchFilter(@RequestParam String startTime,@RequestParam String endTime,@RequestBody HostEntity hostentity) {
-//        return host.getHostsTimeSlotSearchFilter(startTime,endTime, hostentity);
-//    }
+//        /guest/host?startTime=val&endTime=val
+    @GetMapping("/guest/host/slotFilter")
+    public List<HostEntity> getHostsTimeSlotSearchFilter(@RequestParam String startTime,@RequestParam String endTime,@RequestParam String timeDuration) {
+        return host.getHostsTimeSlotSearchFilter(Integer.parseInt(startTime),Integer.parseInt(endTime), timeDuration);
+    }
 
 
 //    ------------------------------------------------------------------------------------------------------

@@ -14,7 +14,8 @@ public class SlotSubEntity {
     @DynamoDBAttribute
     private String id;
     @DynamoDBAttribute
-    private String startTIme;
+    private int startTIme;
+
     @DynamoDBAttribute
     private int capacity;
 }

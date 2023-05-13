@@ -12,11 +12,11 @@ public interface Host {
     HostEntity getHosts(String hostId,String sort);
     HostEntity update(String hostId,String sort, HostEntity hostentity);
 
-    List<HostEntity> getHostsItemSearchFilter(String itemValue, HostEntity hostentity);
+    List<HostEntity> getHostsItemSearchFilter(String itemValue);
 
-    List<HostEntity> getHostsCategorySearchFilter(String categoryValue, HostEntity hostentity);
+    List<HostEntity> getHostsCategorySearchFilter(String categoryValue);
 
-    List<HostEntity> getHostsTimeSlotSearchFilter(String startTime, String endTime, HostEntity hostentity);
+    List<HostEntity> getHostsTimeSlotSearchFilter(int startTime, int endTime, String timeDuration);
 
 //    HostEntity updateHostAttribute(String attributName, HostEntity host);
 }
