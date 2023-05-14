@@ -1,7 +1,8 @@
 package com.shefamma.shefamma.controller;
 
-import com.google.maps.model.GeocodingResult;
 import com.shefamma.shefamma.HostRepository.*;
+import com.shefamma.shefamma.HostRepository.GuestAccount;
+import com.shefamma.shefamma.HostRepository.HostAccount;
 import com.shefamma.shefamma.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,11 +23,14 @@ public class MyController {
     private TimeSlot timeSlot;
     @Autowired
     private Order order;
+    @Autowired
+    private HostAccount hostAccount;
+    @Autowired
+    private GuestAccount guestAccount;
 
 //    ------------------------------------------------------------------------------------------------------
 //    **************************************Geocode controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
-
 //    @Autowired
 //    private GeocodingService geocodingService;
 //
@@ -36,14 +40,39 @@ public class MyController {
 //    }
 
     //    ------------------------------------------------------------------------------------------------------
+//    **************************************HostAccount controllers******************************************
+//    ------------------------------------------------------------------------------------------------------
+    @PostMapping("/hostSignup")
+    public HostAccountEntity saveHostSignup(@RequestBody HostAccountEntity hostentity) {
+        return hostAccount.saveHostSignup(hostentity);
+    }
+
+    @PostMapping("/hostLogin")
+    public HostEntity getHostLogin(@RequestBody HostEntity hostentity) {
+        return hostAccount.getHostLogin(hostentity);
+    }
+
+    //    ------------------------------------------------------------------------------------------------------
+//    **************************************GuestAccount controllers******************************************
+//    ------------------------------------------------------------------------------------------------------
+    @PostMapping("/guestSignup")
+    public GuestAccountEntity saveGuestSignup(@RequestBody GuestAccountEntity guestentity) {
+        return guestAccount.saveGuestSignup(guestentity);
+    }
+
+    @PostMapping("/guestLogin")
+    public GuestEntity getGuestLogin(@RequestBody GuestEntity guestentity) {
+        return guestAccount.getGuestLogin(guestentity);
+    }
+
+//    ------------------------------------------------------------------------------------------------------
 //    **************************************Host controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
     @PostMapping("/host")
     public HostEntity saveHost(@RequestBody HostEntity hostentity) {
         return host.saveHost(hostentity);
     }
-
-//    @PatchMapping("/host")
+    //    @PatchMapping("/host")
 //    public HostEntity updateHost( @RequestBody HostEntity hostEntity) {
 //       return host.updateHostAttribute("city", hostEntity);
 //    }
@@ -65,22 +94,22 @@ public class MyController {
     }
 
 
- //  /guest/host?item=val
+    //  /guest/host?item=val
     @GetMapping("/guest/host/itemFilter")
     public List<HostEntity> getHostsItemSearchFilter(@RequestParam("item") String itemValue) {
         return host.getHostsItemSearchFilter(itemValue);
     }
 
-//        /guest/host?category=val
+    //        /guest/host?category=val
     @GetMapping("/guest/host/categoryFilter")
     public List<HostEntity> getHostsCategorySearchFilter(@RequestParam("category") String categoryValue) {
         return host.getHostsCategorySearchFilter(categoryValue);
     }
 
-//        /guest/host?startTime=val&endTime=val
+    //        /guest/host?startTime=val&endTime=val
     @GetMapping("/guest/host/slotFilter")
-    public List<HostEntity> getHostsTimeSlotSearchFilter(@RequestParam String startTime,@RequestParam String endTime,@RequestParam String timeDuration) {
-        return host.getHostsTimeSlotSearchFilter(Integer.parseInt(startTime),Integer.parseInt(endTime), timeDuration);
+    public List<HostEntity> getHostsTimeSlotSearchFilter(@RequestParam String startTime, @RequestParam String endTime, @RequestParam String timeDuration) {
+        return host.getHostsTimeSlotSearchFilter(Integer.parseInt(startTime), Integer.parseInt(endTime), timeDuration);
     }
 
 
@@ -143,6 +172,7 @@ public class MyController {
     public TimeSlotEntity updateTimeSlot(@RequestBody TimeSlotEntity timeentity) {
         return timeSlot.updateTimeSlot(timeentity.getUuidTime(), timeentity);
     }
+
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************Order controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
