@@ -22,7 +22,7 @@ public class OrderiImpl implements Order{
     private GuestEntity guestEntity;
     @Override
     public OrderEntity createOrder(OrderEntity orderEntity) {
-        orderEntity.setGuestId_Order(orderEntity.getGuestId_Order()+"#order");
+        orderEntity.setUuidOrder(orderEntity.getUuidOrder()+"#order");
          dynamoDBMapper.save(orderEntity);
          return orderEntity;
     }
@@ -36,10 +36,10 @@ public class OrderiImpl implements Order{
 
     @Override
     public List<OrderEntity> getGuestOrders(OrderEntity orderEntity) {
-        String guestId = orderEntity.getGuestId_Order();
+        String guestId = orderEntity.getUuidOrder();
 
         OrderEntity keyCondition = new OrderEntity();
-        keyCondition.setGuestId_Order(guestId);
+        keyCondition.setUuidOrder(guestId);
         DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
                 .withHashKeyValues(keyCondition)
                 .withConsistentRead(false);
@@ -49,7 +49,7 @@ public class OrderiImpl implements Order{
 
     @Override
     public OrderEntity cancelOrder(OrderEntity orderEntity) {
-        String partition=orderEntity.getGuestId_Order();
+        String partition=orderEntity.getUuidOrder();
         String sort=orderEntity.getTimeStamp();
             DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression()
             .withExpectedEntry("pk", new ExpectedAttributeValue(new AttributeValue(partition)))

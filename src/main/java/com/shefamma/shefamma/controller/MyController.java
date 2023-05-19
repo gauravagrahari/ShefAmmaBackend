@@ -4,14 +4,27 @@ import com.shefamma.shefamma.HostRepository.*;
 import com.shefamma.shefamma.HostRepository.GuestAccount;
 import com.shefamma.shefamma.HostRepository.HostAccount;
 import com.shefamma.shefamma.entities.*;
+import com.shefamma.shefamma.services.JwtServices;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @RestController
-
 public class MyController {
     @Autowired
     private Host host;
@@ -27,47 +40,21 @@ public class MyController {
     private HostAccount hostAccount;
     @Autowired
     private GuestAccount guestAccount;
+    @Autowired
+    private UserDetailsService userDetailsService;
+    @Autowired
+    private HostAccountEntity hostAccountEntity;
 
-//    ------------------------------------------------------------------------------------------------------
-//    **************************************Geocode controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
-//    @Autowired
-//    private GeocodingService geocodingService;
-//
-//    @GetMapping("/{address}")
-//    public GeocodingResult[] geocode(@PathVariable String address) throws Exception {
-//        return geocodingService.geocode(address);
-//    }
+    @Autowired
+    private AuthenticationManager authenticationManager;
+    @Autowired
+    private JwtServices jwtServices;
 
     //    ------------------------------------------------------------------------------------------------------
-//    **************************************HostAccount controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
-    @PostMapping("/hostSignup")
-    public HostAccountEntity saveHostSignup(@RequestBody HostAccountEntity hostentity) {
-        return hostAccount.saveHostSignup(hostentity);
-    }
-
-    @PostMapping("/hostLogin")
-    public HostEntity getHostLogin(@RequestBody HostEntity hostentity) {
-        return hostAccount.getHostLogin(hostentity);
-    }
-
-    //    ------------------------------------------------------------------------------------------------------
-//    **************************************GuestAccount controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
-    @PostMapping("/guestSignup")
-    public GuestAccountEntity saveGuestSignup(@RequestBody GuestAccountEntity guestentity) {
-        return guestAccount.saveGuestSignup(guestentity);
-    }
-
-    @PostMapping("/guestLogin")
-    public GuestEntity getGuestLogin(@RequestBody GuestEntity guestentity) {
-        return guestAccount.getGuestLogin(guestentity);
-    }
-
-//    ------------------------------------------------------------------------------------------------------
 //    **************************************Host controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
+//    @PreAuthorize("isAuthenticated()")
+
     @PostMapping("/host")
     public HostEntity saveHost(@RequestBody HostEntity hostentity) {
         return host.saveHost(hostentity);
@@ -195,5 +182,76 @@ public class MyController {
     public OrderEntity cancelOrder(@RequestBody OrderEntity orderEntity) {
         return order.cancelOrder(orderEntity);
     }
+
+
+   //    ------------------------------------------------------------------------------------------------------
+//    **************************************HostAccount controllers******************************************
+//    ------------------------------------------------------------------------------------------------------
+    @PostMapping("/hostSignup")
+    public ResponseEntity<String> getUser(@RequestBody HostAccountEntity hostentity) {
+        try {
+            userDetailsService.loadUserByUsername(hostentity.getHostPhone());
+
+            String errorMessage = "User already exists for phone: " + hostentity.getHostPhone();
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
+        } catch (UsernameNotFoundException e) {
+            // User doesn't exist, proceed with saving the details
+//            String savedHost = hostAccount.saveHostSignup(hostentity);
+            String x =hostAccount.saveHostSignup(hostentity);
+            return ResponseEntity.ok(x);
+        }
+    }
+
+    @PostMapping("/hostLogin")
+    public ResponseEntity<?> hostLogin(@RequestBody HostAccountEntity authRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authRequest.getHostPhone(), authRequest.getPassword()));
+
+            if (authentication.isAuthenticated()) {
+                String token = jwtServices.generateToken(authRequest.getHostPhone());
+                String x=hostAccount.storeHostUuid();
+                Map<String, Object> response = new HashMap<>();
+                response.put("x", x);
+                response.put("token", token);
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            }
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+        }
+    }
+//    @PostMapping("/hostLogin")
+//    public ResponseEntity<?> login(@RequestBody HostAccountEntity hostentity) {
+//        try {
+//            // Perform authentication
+//            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+//                    hostentity.getHostPhone(), hostentity.getPassword());
+//            Authentication authentication = authenticationManager.authenticate(authenticationToken);
+//            // Set authenticated authentication in SecurityContextHolder
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            UserDetails userDetails = userDetailsService.loadUserByUsername(hostentity.getHostPhone());
+//
+//            String x=hostAccount.storeHostUuid();
+//            return ResponseEntity.ok(x);
+//        } catch (AuthenticationException e) {
+//            // Authentication failed, return error response
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login failed");
+//        }
+//    }
+//
+//    //    ------------------------------------------------------------------------------------------------------
+////    **************************************GuestAccount controllers******************************************
+////    ------------------------------------------------------------------------------------------------------
+//    @PostMapping("/guestSignup")
+//    public ResponseEntity<GuestAccountEntity>  saveGuestSignup(@RequestBody GuestAccountEntity guestentity) {
+//        return guestAccount.saveGuestSignup(guestentity);
+//    }
+//
+//    @PostMapping("/guestLogin")
+//    public ResponseEntity<GuestAccountEntity> getGuestLogin(@RequestBody GuestEntity guestentity) {
+//        return guestAccount.getGuestLogin(guestentity);
+//    }
 
 }

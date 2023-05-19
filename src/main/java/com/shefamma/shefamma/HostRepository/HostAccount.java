@@ -1,13 +1,16 @@
 package com.shefamma.shefamma.HostRepository;
 
+import com.shefamma.shefamma.entities.GuestAccountEntity;
 import com.shefamma.shefamma.entities.HostAccountEntity;
 import com.shefamma.shefamma.entities.HostEntity;
+import org.springframework.http.ResponseEntity;
 
 public interface HostAccount {
 
-    HostAccountEntity saveHostSignup(HostAccountEntity hostentity);
+    String saveHostSignup(HostAccountEntity hostAccountEntity);
+//    ResponseEntity<HostAccountEntity> saveHostSignup(HostAccountEntity hostAccountEntity);
 
-    HostEntity getHostLogin(HostEntity hostentity);
+    String storeHostUuid();
 
 
 }

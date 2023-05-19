@@ -18,8 +18,13 @@ import java.util.List;
 @NoArgsConstructor
 @DynamoDBTable(tableName = "ShefAmma")
 public class OrderEntity  {
+//    @DynamoDBHashKey(attributeName = "pk")
+//    private String guestId_Order;
+    public  void setUuidOrder(String uuidOrder) {
+        this.uuidOrder = uuidOrder+"#order";
+    }
     @DynamoDBHashKey(attributeName = "pk")
-    private String guestId_Order;
+    private String uuidOrder;
     @DynamoDBRangeKey(attributeName = "sk")
     private String timeStamp;
     @DynamoDBAttribute(attributeName = "gs1sk1")

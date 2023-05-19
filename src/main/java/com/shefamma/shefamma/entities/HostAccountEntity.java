@@ -7,17 +7,19 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
-@Data
+@Data 
 @AllArgsConstructor
 @NoArgsConstructor
 @DynamoDBTable(tableName = "ShefAmma")
 public class HostAccountEntity {
     @DynamoDBHashKey(attributeName = "pk")
-    private String hostEmail;
-    @DynamoDBRangeKey(attributeName = "sk")
-    @DynamoDBIndexHashKey
     private String hostPhone;
-    @DynamoDBIndexRangeKey(globalSecondaryIndexName = "gsk")
+    @DynamoDBRangeKey(attributeName = "sk")
+//    @DynamoDBIndexHashKey
+//    @DynamoDBAttribute(attributeName = "email")
+    private String hostEmail;
+//    @DynamoDBIndexRangeKey(globalSecondaryIndexName = "gsk")
+
     private String timeStamp;
     @DynamoDBAttribute(attributeName = "pass")
     private String password;
