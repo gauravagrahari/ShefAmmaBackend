@@ -25,10 +25,10 @@ public class HostSignUp {
 //    }
 
 
-    @PostMapping("/hostLogin")
-    public ResponseEntity<HostEntity> getHostLogin(@RequestBody HostEntity hostentity) {
-        return hostAccount.getHostLogin(hostentity);
-    }
+//    @PostMapping("/hostLogin")
+//    public ResponseEntity<HostEntity> getHostLogin(@RequestBody HostEntity hostentity) {
+//        return hostAccount.getHostLogin(hostentity);
+//    }
 
 
 }

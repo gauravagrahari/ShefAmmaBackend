@@ -56,7 +56,7 @@ public class HostAccountImpl implements HostAccount, UserDetailsService {
     }
     @Override
     public String storeHostUuid() {
-        return storedUuid;
+        return storedUuid+"#host";
     }
 
     public void setStoredUuid(String storedUuid) {
