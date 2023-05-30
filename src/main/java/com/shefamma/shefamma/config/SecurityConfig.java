@@ -1,5 +1,6 @@
 package com.shefamma.shefamma.config;
 
+import com.shefamma.shefamma.HostRepository.GuestAccountImpl;
 import com.shefamma.shefamma.HostRepository.HostAccountImpl;
 import com.shefamma.shefamma.filter.JwtAuthFilter;
 import com.shefamma.shefamma.services.JwtServices;
@@ -37,10 +38,19 @@ public class SecurityConfig {
         return new HostAccountImpl();
     }
 
+    @Bean
+    public UserDetailsService userDetailsServiceGuest() {
+        return new GuestAccountImpl();
+    }
+
 
     @Bean
     public JwtAuthFilter jwtAuthFilter() {
         return new JwtAuthFilter(jwtService, userDetailsService());
+    }
+    @Bean
+    public JwtAuthFilter jwtAuthFilterGuest() {
+        return new JwtAuthFilter(jwtService, userDetailsServiceGuest());
     }
 
     @Bean
@@ -57,6 +67,7 @@ public class SecurityConfig {
                 .and()
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
+//                .addFilterBefore(jwtAuthFilterGuest(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 

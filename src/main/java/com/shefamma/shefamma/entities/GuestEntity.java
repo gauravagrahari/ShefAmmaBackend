@@ -25,5 +25,8 @@ public class GuestEntity {
     private String DP;//hDP
     @DynamoDBAttribute(attributeName = "adr")
     private AdressSubEntity addressGuest;//hAdrress
-
+    @DynamoDBAttribute(attributeName = "dob")
+    private String dob;//hDP
+@DynamoDBAttribute(attributeName = "gen")
+    private String gender;//hDP
 }

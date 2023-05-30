@@ -15,11 +15,7 @@ public class HostAccountEntity {
     @DynamoDBHashKey(attributeName = "pk")
     private String hostPhone;
     @DynamoDBRangeKey(attributeName = "sk")
-//    @DynamoDBIndexHashKey
-//    @DynamoDBAttribute(attributeName = "email")
     private String hostEmail;
-//    @DynamoDBIndexRangeKey(globalSecondaryIndexName = "gsk")
-
     private String timeStamp;
     @DynamoDBAttribute(attributeName = "pass")
     private String password;

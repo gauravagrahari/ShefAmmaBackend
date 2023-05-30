@@ -13,10 +13,10 @@ import org.springframework.stereotype.Component;
 @DynamoDBTable(tableName = "ShefAmma")
 public class GuestAccountEntity {
     @DynamoDBHashKey(attributeName = "pk")
-    private String guestEmail;
+    private String guestPhone;
     @DynamoDBRangeKey(attributeName = "sk")
     @DynamoDBIndexHashKey
-    private String guestPhone;
+    private String guestEmail;
     @DynamoDBIndexRangeKey(globalSecondaryIndexName = "gsk")
     private String timeStamp;
     @DynamoDBAttribute(attributeName = "pass")

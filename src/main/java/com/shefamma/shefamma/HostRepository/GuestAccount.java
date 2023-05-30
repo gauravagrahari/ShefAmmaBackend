@@ -5,6 +5,6 @@ import com.shefamma.shefamma.entities.GuestEntity;
 import org.springframework.http.ResponseEntity;
 
 public interface GuestAccount {
-    ResponseEntity<GuestAccountEntity>  saveGuestSignup(GuestAccountEntity guestEntity);
-    ResponseEntity<GuestAccountEntity> getGuestLogin(GuestEntity guestentity);
+    String saveGuestSignup(GuestAccountEntity guestEntity);
+    String storeHostUuid();
 }

@@ -11,11 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @DynamoDBDocument
 public class SlotSubEntity {
-    @DynamoDBAttribute
-    private String id;
-    @DynamoDBAttribute
+    @DynamoDBAttribute(attributeName = "stTm")
     private int startTIme;
 
-    @DynamoDBAttribute
+    @DynamoDBAttribute(attributeName = "cap")
     private int capacity;
 }

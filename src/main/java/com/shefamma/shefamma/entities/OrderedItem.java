@@ -14,6 +14,6 @@ public class OrderedItem {
     @DynamoDBAttribute
     private String itemId;
      @DynamoDBAttribute
-    private String quantity;
+    private String noOfServing;
     
 }

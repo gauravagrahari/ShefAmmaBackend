@@ -12,13 +12,13 @@ import org.springframework.web.bind.annotation.RestController;
 //@Controller
 public class GuestSignUp {
     public GuestAccount guestAccount;
-    @PostMapping("/guestSignup")
-    public ResponseEntity<GuestAccountEntity> saveGuestSignup(@RequestBody GuestAccountEntity guestentity) {
-        return guestAccount.saveGuestSignup(guestentity);
-    }
-
-    @PostMapping("/guestLogin")
-    public ResponseEntity<GuestAccountEntity> getGuestLogin(@RequestBody GuestEntity guestentity) {
-        return guestAccount.getGuestLogin(guestentity);
-    }
+//    @PostMapping("/guestSignup")
+//    public ResponseEntity<GuestAccountEntity> saveGuestSignup(@RequestBody GuestAccountEntity guestentity) {
+//        return guestAccount.saveGuestSignup(guestentity);
+//    }
+//
+//    @PostMapping("/guestLogin")
+//    public ResponseEntity<GuestAccountEntity> getGuestLogin(@RequestBody GuestEntity guestentity) {
+//        return guestAccount.getGuestLogin(guestentity);
+//    }
 }

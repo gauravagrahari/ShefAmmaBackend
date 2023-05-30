@@ -8,18 +8,12 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.shefamma.shefamma.entities.OrderEntity;
 
 @Configuration
 public class ShefAmmaDynamoDbConfig {
 
     @Bean
-    public DynamoDBMapper dynamoDBMapper() {
-        return new DynamoDBMapper(buildAmazonDynamoDB());
-    }
-//    GeoDataManagerConfiguration config = new GeoDataManagerConfiguration(ddb, "geo-test");
-//    GeoDataManager geoIndexManager = new GeoDataManager(config);
-    private AmazonDynamoDB buildAmazonDynamoDB() {
+    public AmazonDynamoDB amazonDynamoDB() {
         return AmazonDynamoDBClientBuilder
                 .standard()
                 .withEndpointConfiguration(
@@ -39,4 +33,8 @@ public class ShefAmmaDynamoDbConfig {
                 .build();
     }
 
+    @Bean
+    public DynamoDBMapper dynamoDBMapper() {
+        return new DynamoDBMapper(amazonDynamoDB());
+    }
 }

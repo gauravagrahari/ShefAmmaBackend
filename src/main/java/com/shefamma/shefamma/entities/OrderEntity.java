@@ -36,7 +36,15 @@ public class OrderEntity  {
     @DynamoDBAttribute(attributeName = "itQuan")
     private String itemQuantity;
     @DynamoDBAttribute(attributeName = "nOG")
-    private String noOfGuest;
+    private int noOfGuest;
+    @DynamoDBAttribute(attributeName = "rat")
+    private String rating;
+    @DynamoDBAttribute(attributeName="rev")
+    private String review;
+    @DynamoDBAttribute(attributeName = "pkUp")
+    private String pickUp;
+    @DynamoDBAttribute(attributeName = "stTm")
+    private int startTime;
     @DynamoDBAttribute(attributeName = "ordItms")
     private List<OrderedItem> orderedItems;
 

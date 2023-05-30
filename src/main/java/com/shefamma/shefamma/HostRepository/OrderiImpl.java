@@ -1,16 +1,31 @@
 package com.shefamma.shefamma.HostRepository;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import com.shefamma.shefamma.entities.GuestEntity;
 import com.shefamma.shefamma.entities.OrderEntity;
+import com.shefamma.shefamma.entities.SlotSubEntity;
+import com.shefamma.shefamma.entities.TimeSlotEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.expression.Expression;
 import org.springframework.stereotype.Repository;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
+import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
+import software.amazon.awssdk.enhanced.dynamodb.Expression;
+import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
+import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
+//import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
+
+
 
 import java.util.List;
+import java.util.Map;
+
 @Repository
 public class OrderiImpl implements Order{
 
@@ -20,11 +35,26 @@ public class OrderiImpl implements Order{
     private OrderEntity orderEntity;
     @Autowired
     private GuestEntity guestEntity;
+
+    @Autowired
+    private CommonMethods commonMethods;
+
+
     @Override
     public OrderEntity createOrder(OrderEntity orderEntity) {
-        orderEntity.setUuidOrder(orderEntity.getUuidOrder()+"#order");
-         dynamoDBMapper.save(orderEntity);
-         return orderEntity;
+        orderEntity.setUuidOrder(orderEntity.getUuidOrder() + "#order");
+        dynamoDBMapper.save(orderEntity);
+
+        // Update the capacity of the specific SlotSubEntity
+        String orderPk[]=orderEntity.getUuidOrder().split("#");
+        String timeSlotpk=orderPk[0]+"#time";
+
+        // create a new class entity to recieve order entiy from
+        String uniqueAttrValue= String.valueOf(orderEntity.getStartTime());
+        String noOfGuests= String.valueOf(orderEntity.getNoOfGuest());
+
+        commonMethods.updateSpecificAttribute("ShefAmma","pk", timeSlotpk,"slots","capacity","startTime",uniqueAttrValue,noOfGuests);
+        return orderEntity;
     }
 
     @Override

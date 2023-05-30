@@ -31,6 +31,9 @@ public class HostEntity {
     private String DP;//hDP
     @DynamoDBAttribute(attributeName = "dsec")
     private String descriptionHost;//hDP
+    @DynamoDBAttribute(attributeName = "curMes")
+    private String currentMessage;//hDP
+
     @DynamoDBAttribute(attributeName = "adr")
     private AdressSubEntity addressHost;//hAdrress
 

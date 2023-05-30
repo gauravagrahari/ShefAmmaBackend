@@ -2,13 +2,10 @@ package com.shefamma.shefamma.config;
 
 import com.shefamma.shefamma.entities.GuestAccountEntity;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Collections;
 
 
 public class GuestAccountEntityUserDetails implements UserDetails {
@@ -16,10 +13,15 @@ public class GuestAccountEntityUserDetails implements UserDetails {
 
     private String name;
     private String password;
-    private List<GrantedAuthority> authorities;
 
-    public void UserInfoUserDetails(GuestAccountEntity userInfo) {
-        name=userInfo.getGuestEmail();
+    public GuestAccountEntityUserDetails(GuestAccountEntity guestAccount) {
+        name=guestAccount.getGuestPhone();
+        password=guestAccount.getPassword();
+    }
+
+
+    public void GuestAccountEntityUserDetails(GuestAccountEntity userInfo) {
+        name=userInfo.getGuestPhone();
         password=userInfo.getPassword();
 //        authorities= Arrays.stream(userInfo.getRoles().split(","))
 //                .map(SimpleGrantedAuthority::new)
@@ -28,7 +30,8 @@ public class GuestAccountEntityUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+//        return authorities;
+        return Collections.emptyList();
     }
 
     @Override

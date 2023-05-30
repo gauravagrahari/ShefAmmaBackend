@@ -15,7 +15,6 @@ public class TimeSlotEntity {
     public void setUuidTime(String uuidTime) {
         this.uuidTime = uuidTime+"time";
     }
-
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidTime;
     @DynamoDBRangeKey(attributeName = "sk")
