@@ -5,9 +5,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.shefamma.shefamma.config.HostAccountEntityUserDetails;
 import com.shefamma.shefamma.entities.HostAccountEntity;
-import com.shefamma.shefamma.entities.HostEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,7 +27,7 @@ public class HostAccountImpl implements HostAccount, UserDetailsService {
     public String saveHostSignup(HostAccountEntity hostAccountEntity) {
         hostAccountEntity.setPassword(passwordEncoder.encode(hostAccountEntity.getPassword()));
         dynamoDBMapper.save(hostAccountEntity);
-        return hostAccountEntity.getHostUuid() + "#host";
+        return "host#"+hostAccountEntity.getHostUuid();
     }
 
     @Override
@@ -56,7 +54,7 @@ public class HostAccountImpl implements HostAccount, UserDetailsService {
     }
     @Override
     public String storeHostUuid() {
-        return storedUuid+"#host";
+        return "host#"+storedUuid;
     }
 
     public void setStoredUuid(String storedUuid) {

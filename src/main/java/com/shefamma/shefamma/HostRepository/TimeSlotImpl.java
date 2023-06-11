@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
+import com.shefamma.shefamma.entities.SlotSubEntity;
 import com.shefamma.shefamma.entities.TimeSlotEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -12,6 +13,10 @@ import org.springframework.stereotype.Repository;
 public class TimeSlotImpl implements TimeSlot{
     @Autowired
     private DynamoDBMapper dynamoDBMapper;
+    @Autowired
+    private CommonMethods commonMethods;
+    @Autowired
+    private SlotSubEntity slotSubEntity;
     @Override
     public TimeSlotEntity saveSlotTime(TimeSlotEntity timeentity) {
          dynamoDBMapper.save(timeentity);
@@ -31,6 +36,28 @@ public class TimeSlotImpl implements TimeSlot{
         dynamoDBMapper.save(timeentity, saveExpression);
             return timeentity;
     }
+
+    @Override
+    public TimeSlotEntity updateAttributeTimeSlot(String partition, String attributeName, TimeSlotEntity timeentity) {
+        String value = null;
+        // Get the value of the specified attribute
+        switch (attributeName) {
+            case "descriptionHost":
+                value = String.valueOf(slotSubEntity.getStartTIme());
+                break;
+            case "currentMessage":
+                value = String.valueOf(slotSubEntity.getCapacity());
+                break;
+            // Add more cases for other attributes if needed
+            default:
+                // Invalid attribute name provided
+                throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
+        }
+//        commonMethods.updateAttribute(partition,attributeName,value);
+//need to create a map function to update multiple nested jsons
+            return timeentity;
+    }
+
 }
 
 //public GuestEntity updateGuest(String partition, String sort, GuestEntity guestEntity) {

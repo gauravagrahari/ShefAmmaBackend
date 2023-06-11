@@ -1,9 +1,6 @@
 package com.shefamma.shefamma.entities;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,17 +15,17 @@ import java.util.List;
 @NoArgsConstructor
 @DynamoDBTable(tableName = "ShefAmma")
 public class OrderEntity  {
-//    @DynamoDBHashKey(attributeName = "pk")
-//    private String guestId_Order;
     public  void setUuidOrder(String uuidOrder) {
-        this.uuidOrder = uuidOrder+"#order";
+        this.uuidOrder = "order"+uuidOrder;
     }
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidOrder;
     @DynamoDBRangeKey(attributeName = "sk")
+    @DynamoDBIndexRangeKey(globalSecondaryIndexName = "gsisk")
     private String timeStamp;
-    @DynamoDBAttribute(attributeName = "gs1sk1")
+    @DynamoDBIndexHashKey(attributeName = "gsk", globalSecondaryIndexName = "gsipk")
     private String hostId;
+
     @DynamoDBAttribute(attributeName = "stts")
     private String status;
     @DynamoDBAttribute(attributeName = "amt")
@@ -53,3 +50,8 @@ public class OrderEntity  {
 //        this.s = s;
     }
 }
+//    @DynamoDBRangeKey(attributeName = "sk")
+//    @DynamoDBIndexHashKey
+//    private String timeStamp;
+//    @DynamoDBIndexRangeKey(attributeName = "gsk")
+//    private String hostId;

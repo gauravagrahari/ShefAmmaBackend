@@ -15,9 +15,8 @@ public class GuestAccountEntity {
     @DynamoDBHashKey(attributeName = "pk")
     private String guestPhone;
     @DynamoDBRangeKey(attributeName = "sk")
-    @DynamoDBIndexHashKey
     private String guestEmail;
-    @DynamoDBIndexRangeKey(globalSecondaryIndexName = "gsk")
+    @DynamoDBAttribute(attributeName = "tmStmp")
     private String timeStamp;
     @DynamoDBAttribute(attributeName = "pass")
     private String password;

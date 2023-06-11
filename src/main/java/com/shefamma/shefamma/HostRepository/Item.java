@@ -12,4 +12,6 @@ public interface Item {
     List<ItemEntity> getItems(String hostId, ItemEntity itementity);
 
     ItemEntity getItem(String hostId, String nameItem, ItemEntity itementity);
+
+    ItemEntity updateItemAttribute(String partition, String sort, String attributeName, ItemEntity itemEntity);
 }

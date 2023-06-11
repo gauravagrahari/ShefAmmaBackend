@@ -2,9 +2,9 @@ package com.shefamma.shefamma.HostRepository;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
+import com.shefamma.shefamma.entities.HostCardEntity;
 import com.shefamma.shefamma.entities.HostEntity;
 import com.shefamma.shefamma.entities.ItemEntity;
 import com.shefamma.shefamma.entities.TimeSlotEntity;
@@ -12,12 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class HostImpl implements Host {
 
     @Autowired
     private DynamoDBMapper dynamoDBMapper;
+
+    @Autowired
+    private CommonMethods commonMethods;
+    @Autowired
+    private HostCardEntity hostCardEntity;
 
 
     public HostEntity saveHost(HostEntity host) {
@@ -36,40 +42,164 @@ public class HostImpl implements Host {
     }
 
     @Override
-    public HostEntity update(String partition, String sort, HostEntity hostentity) {
-        DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression()
-                .withExpectedEntry("pk", new ExpectedAttributeValue(new AttributeValue(partition)))
-                .withExpectedEntry("sk", new ExpectedAttributeValue(new AttributeValue(sort)));
-
-        dynamoDBMapper.save(hostentity, saveExpression);
-        System.out.println("yes");
+    public HostEntity update(String partition, String sort, String attributeName, HostEntity hostentity) {
+        String value = null;
+        // Get the value of the specified attribute
+        switch (attributeName) {
+            case "geocode":
+                value = hostentity.getGeocode();
+                break;
+            case "dineCategory":
+                value = hostentity.getDineCategory();
+                break;
+//            case "DDP":
+//                value = hostentity.getDDP();
+//                break;
+            case "nameHost":
+                value = hostentity.getNameHost();
+                break;
+//            case "DP":
+//                value = hostentity.getDP();
+//                break;
+            case "descriptionHost":
+                value = hostentity.getDescriptionHost();
+                break;
+            case "currentMessage":
+                value = hostentity.getCurrentMessage();
+                break;
+            // Add more cases for other attributes if needed
+            default:
+                // Invalid attribute name provided
+                throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
+        }
+        commonMethods.updateAttribute(partition,attributeName,value);
         return hostentity;
     }
+    @Override
+    public List<HostCardEntity> findRestaurantsWithinRadius(double latitude, double longitude, double radius) {
+        Map<String, AttributeValue> eav = new HashMap<>();
+        eav.put(":gpk", new AttributeValue().withS("h"));
+        eav.put(":gsk", new AttributeValue().withS("host#"));
+
+        DynamoDBQueryExpression<HostEntity> queryExpression = new DynamoDBQueryExpression<HostEntity>()
+                .withIndexName("gsi1")
+                .withKeyConditionExpression("gpk = :gpk AND begins_with(gsk, :gsk)")
+                .withExpressionAttributeValues(eav)
+                .withConsistentRead(false);
+
+        PaginatedQueryList<HostEntity> queryResult = dynamoDBMapper.query(HostEntity.class, queryExpression);
+
+
+        return queryResult.stream()
+                .filter(restaurant -> {
+                    String[] geocode = restaurant.getGeocode().split(",");
+                    double lat = Double.parseDouble(geocode[0]);
+                    double lng = Double.parseDouble(geocode[1]);
+
+                    double distance = haversineDistance(latitude, longitude, lat, lng);
+                    return distance <= radius;
+                })
+                .map(host -> {
+                    String hostId = host.getUuidHost();
+                    String[] hostIdString = hostId.split("#");
+                    String itemId = "item#" + hostIdString[1];
+
+                    DynamoDBQueryExpression<ItemEntity> itemQueryExpression = new DynamoDBQueryExpression<ItemEntity>()
+                            .withConsistentRead(false)
+                            .withKeyConditionExpression("pk=:pk")
+                            .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
+                                put(":pk", new AttributeValue().withS(itemId));
+                            }})
+                            .withScanIndexForward(true);
+
+                    List<ItemEntity> items = dynamoDBMapper.query(ItemEntity.class, itemQueryExpression);
+                    List<String> itemNames = items.stream().map(ItemEntity::getNameItem).collect(Collectors.toList());
+
+                    return new HostCardEntity(host, itemNames);
+                })
+                .collect(Collectors.toList());
+    }
+
+    private double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
+        final int R = 6371; // Earth's radius in km
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        lat1 = Math.toRadians(lat1);
+        lat2 = Math.toRadians(lat2);
+
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.sin(dLon / 2) * Math.sin(dLon / 2) * Math.cos(lat1) * Math.cos(lat2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    }
+
 
     @Override
-    public List<HostEntity> getHostsItemSearchFilter(String itemValue) {
-        DynamoDBQueryExpression<ItemEntity> queryExpression = new DynamoDBQueryExpression<ItemEntity>()
-                .withConsistentRead(false)
-                .withKeyConditionExpression("ends_with(pk, :pk) AND dishCategory = :val")
-                .withProjectionExpression("uuidItem")
-                .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
-                    put(":pk", new AttributeValue().withS("#item"));
-                    put(":val", new AttributeValue().withS(itemValue));
-                }})
-                .withScanIndexForward(true);
+    public List<HostCardEntity> getHostsItemSearchFilter(double latitude, double longitude, double radius, String itemValue) {
+//        Map<String, AttributeValue> eav = new HashMap<>();
+//        eav.put(":pk", new AttributeValue().withS("#host"));
+        Map<String, AttributeValue> eav = new HashMap<>();
+        eav.put(":gpk", new AttributeValue().withS("h"));
+        eav.put(":gsk", new AttributeValue().withS("host#"));
 
-        List<ItemEntity> items = dynamoDBMapper.query(ItemEntity.class, queryExpression);
+        DynamoDBQueryExpression<HostEntity> queryExpression = new DynamoDBQueryExpression<HostEntity>()
+                .withIndexName("gsi1")
+                .withKeyConditionExpression("gpk = :gpk AND begins_with(gsk, :gsk)")
+                .withExpressionAttributeValues(eav)
+                .withConsistentRead(false);
 
-        List<HostEntity> hosts = new ArrayList<>();
-        for (ItemEntity item : items) {
-            String id;
-            String[] splitted;
-           id=item.getUuidItem();
-           splitted=id.split("#");
-            hosts.add(dynamoDBMapper.load(HostEntity.class, splitted[0]+"#host"));
-        }
-        return hosts;
+        PaginatedQueryList<HostEntity> queryResult = dynamoDBMapper.query(HostEntity.class, queryExpression);
+
+        return queryResult.stream()
+                .filter(host -> {
+                    String[] geocode = host.getGeocode().split(",");
+                    double hostLat = Double.parseDouble(geocode[0]);
+                    double hostLng = Double.parseDouble(geocode[1]);
+
+                    double distance = haversineDistance(latitude, longitude, hostLat, hostLng);
+                    return distance <= radius;
+                })
+                .filter(host -> {
+                    String hostId=host.getUuidHost();
+
+                    String[] hostIdString =hostId.split("#");
+                   String  itemId="item#"+hostIdString[1];
+
+                    DynamoDBQueryExpression<ItemEntity> itemQueryExpression = new DynamoDBQueryExpression<ItemEntity>()
+                            .withConsistentRead(false)
+                            .withKeyConditionExpression("pk=:pk AND sk = :val")
+                            .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
+                                put(":pk", new AttributeValue().withS(itemId));
+                                put(":val", new AttributeValue().withS(itemValue));
+                            }})
+                            .withScanIndexForward(true);
+
+                    List<ItemEntity> items = dynamoDBMapper.query(ItemEntity.class, itemQueryExpression);
+                    return !items.isEmpty();
+                })
+                .map(host -> {
+                    String hostId = host.getUuidHost();
+                    String[] hostIdString = hostId.split("#");
+                    String itemId = "item#" + hostIdString[1];
+
+                    DynamoDBQueryExpression<ItemEntity> itemQueryExpression = new DynamoDBQueryExpression<ItemEntity>()
+                            .withConsistentRead(false)
+                            .withKeyConditionExpression("pk=:pk AND begins_with(sk, :val)")
+                            .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
+                                put(":pk", new AttributeValue().withS(itemId));
+                                put(":val", new AttributeValue().withS(itemValue));
+                            }})
+                            .withScanIndexForward(true);
+
+                    List<ItemEntity> items = dynamoDBMapper.query(ItemEntity.class, itemQueryExpression);
+                    List<String> itemNames = items.stream().map(ItemEntity::getNameItem).collect(Collectors.toList());
+
+
+                    return new HostCardEntity(host, itemNames);
+                })
+                .collect(Collectors.toList());
     }
+
 
     @Override
     public List<HostEntity> getHostsCategorySearchFilter(String dineCategoryValue) {
@@ -84,9 +214,31 @@ public class HostImpl implements Host {
                 .withScanIndexForward(true);
         return dynamoDBMapper.query(HostEntity.class, queryExpression);
     }
-
     @Override
-    public List<HostEntity> getHostsTimeSlotSearchFilter(int t1, int t2,String timeDuration ) {
+    public List<HostEntity> getHostsCategorySearchFilter(double latitude, double longitude, double radius, String dineCategoryValue) {
+        Map<String, AttributeValue> eav = new HashMap<>();
+        eav.put(":pk", new AttributeValue().withS("#host"));
+        eav.put(":val", new AttributeValue().withS(dineCategoryValue));
+
+        DynamoDBQueryExpression<HostEntity> queryExpression = new DynamoDBQueryExpression<HostEntity>()
+                .withKeyConditionExpression("ends_with(pk, :pk) AND dineCategory = :val")
+                .withExpressionAttributeValues(eav);
+
+        PaginatedQueryList<HostEntity> queryResult = dynamoDBMapper.query(HostEntity.class, queryExpression);
+
+        return queryResult.stream()
+                .filter(host -> {
+                    String[] geocode = host.getGeocode().split(",");
+                    double hostLat = Double.parseDouble(geocode[0]);
+                    double hostLng = Double.parseDouble(geocode[1]);
+
+                    double distance = haversineDistance(latitude, longitude, hostLat, hostLng);
+                    return distance <= radius;
+                })
+                .collect(Collectors.toList());
+    }
+    @Override
+    public List<HostEntity> getHostsTimeSlotSearchFilter(int t1, int t2, String timeDuration) {
         DynamoDBQueryExpression<TimeSlotEntity> queryExpression = new DynamoDBQueryExpression<TimeSlotEntity>()
                 .withConsistentRead(false)
                 .withKeyConditionExpression("ends_with(pk, :pk) and #duration = :duration")
@@ -105,16 +257,25 @@ public class HostImpl implements Host {
 
         List<TimeSlotEntity> items = dynamoDBMapper.query(TimeSlotEntity.class, queryExpression);
 
-        List<HostEntity> hosts = new ArrayList<>();
+        List<String> hostIds = new ArrayList<>();
         for (TimeSlotEntity item : items) {
             String id;
             String[] splitted;
-            id=item.getUuidTime();
-            splitted=id.split("#");
-            hosts.add(dynamoDBMapper.load(HostEntity.class, splitted[0]+"#host"));
+            id = item.getUuidTime();
+            splitted = id.split("#");
+            hostIds.add(splitted[0] + "#host");
         }
+
+        Map<String, List<Object>> resultMap = dynamoDBMapper.batchLoad((Iterable<? extends Object>) Collections.singletonMap(HostEntity.class, hostIds));
+        List<HostEntity> hosts = resultMap.values().stream()
+                .flatMap(Collection::stream)
+                .map(obj -> (HostEntity) obj)
+                .collect(Collectors.toList());
+
         return hosts;
     }
+
+
 
 }
 //    @Override

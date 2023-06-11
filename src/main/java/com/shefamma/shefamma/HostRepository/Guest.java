@@ -8,5 +8,5 @@ public interface Guest {
 
     GuestEntity getGuest(String guestId, String nameGuest);
 
-    GuestEntity updateGuest(String guestId, String nameGuest, GuestEntity guestentity);
+    GuestEntity updateGuest(String guestId, String nameGuest,String attributeName, GuestEntity guestentity);
 }

@@ -11,15 +11,13 @@ import lombok.NoArgsConstructor;
 @DynamoDBTable(tableName = "ShefAmma")
 public class ItemEntity {
     public void setUuidItem(String uuidItem) {
-        this.uuidItem = uuidItem+"#item";
+        this.uuidItem = "item#"+uuidItem;
     }
-
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidItem;
     @DynamoDBRangeKey(attributeName = "sk")
-    @DynamoDBIndexHashKey
     private String nameItem;
-    @DynamoDBIndexRangeKey(attributeName = "gsk")
+    @DynamoDBAttribute(attributeName = "gsk")
     private String dishcategory;
     @DynamoDBAttribute(attributeName = "DP")
     private String DP;
@@ -28,7 +26,7 @@ public class ItemEntity {
      @DynamoDBAttribute(attributeName = "desc")
     private String description;
     @DynamoDBAttribute(attributeName = "veg")
-    private Boolean vegetarian;
+    private String vegetarian;
     @DynamoDBAttribute(attributeName = "amnt")
     private String amount;
 }

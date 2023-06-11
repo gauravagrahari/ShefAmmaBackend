@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @DynamoDBTable(tableName = "ShefAmma")
 public class GuestEntity {
     public void setUuidGuest(String uuidGuest) {
-        this.uuidGuest = uuidGuest+"guest";
+        this.uuidGuest = "guest#" + uuidGuest;
     }
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidGuest;//h_id
@@ -22,11 +22,11 @@ public class GuestEntity {
     @DynamoDBAttribute(attributeName = "name")
     private String name;//hEmail
     @DynamoDBAttribute(attributeName = "DP")
-    private String DP;//hDP
+    private byte[] DP;//hDP
     @DynamoDBAttribute(attributeName = "adr")
     private AdressSubEntity addressGuest;//hAdrress
     @DynamoDBAttribute(attributeName = "dob")
     private String dob;//hDP
-@DynamoDBAttribute(attributeName = "gen")
+    @DynamoDBAttribute(attributeName = "gen")
     private String gender;//hDP
 }

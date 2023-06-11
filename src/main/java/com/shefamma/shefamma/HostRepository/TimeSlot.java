@@ -9,4 +9,6 @@ public interface TimeSlot {
     TimeSlotEntity getTimeSlot(String timehostId, TimeSlotEntity timeentity);
 
     TimeSlotEntity updateTimeSlot(String timehostId, TimeSlotEntity timeentity);
+
+    TimeSlotEntity updateAttributeTimeSlot(String partition,String attributeName, TimeSlotEntity timeentity);
 }

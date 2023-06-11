@@ -57,10 +57,10 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/hostSignup", "/hostLogin","/logins").permitAll()
+                .requestMatchers("/hostSignup", "/hostLogin","/logins","/home","/**").permitAll()
                 .and()
 //                .authorizeHttpRequests().requestMatchers("/guest/**","/host/**")
-                .authorizeHttpRequests().requestMatchers("/**")
+                .authorizeHttpRequests().requestMatchers("/gaurav")
                 .authenticated().and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

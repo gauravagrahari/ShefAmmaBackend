@@ -1,30 +1,16 @@
 package com.shefamma.shefamma.HostRepository;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapperConfig;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import com.shefamma.shefamma.entities.GuestEntity;
 import com.shefamma.shefamma.entities.OrderEntity;
-import com.shefamma.shefamma.entities.SlotSubEntity;
-import com.shefamma.shefamma.entities.TimeSlotEntity;
 import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.expression.Expression;
 import org.springframework.stereotype.Repository;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbEnhancedClient;
-import software.amazon.awssdk.enhanced.dynamodb.DynamoDbTable;
-import software.amazon.awssdk.enhanced.dynamodb.Expression;
-import software.amazon.awssdk.enhanced.dynamodb.TableSchema;
-import software.amazon.awssdk.enhanced.dynamodb.model.UpdateItemEnhancedRequest;
-//import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.UpdateItemRequest;
-
-
 
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public class OrderiImpl implements Order{
@@ -53,7 +39,7 @@ public class OrderiImpl implements Order{
         String uniqueAttrValue= String.valueOf(orderEntity.getStartTime());
         String noOfGuests= String.valueOf(orderEntity.getNoOfGuest());
 
-        commonMethods.updateSpecificAttribute("ShefAmma","pk", timeSlotpk,"slots","capacity","startTime",uniqueAttrValue,noOfGuests);
+        commonMethods.updateSpecificAttributeOrderEntity("pk", timeSlotpk,"slots","capacity","startTime",uniqueAttrValue,noOfGuests);
         return orderEntity;
     }
 
@@ -78,16 +64,32 @@ public class OrderiImpl implements Order{
     }
 
     @Override
+//    public void cancelOrder(String partition, String sort, String attributeName, String status) {
+    public OrderEntity cancelOrder(String partition, String sort, String attributeName, OrderEntity orderEntity) {
+        String value = null;
+//         Get the value of the specified attribute
+        switch (attributeName) {
+            case "status":
+                value = orderEntity.getStatus();
+                break;
+            // Add more cases for other attributes if needed
+            default:
+                // Invalid attribute name provided
+                throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
+        }
+        commonMethods.updateAttribute(partition,attributeName,value);
+        return orderEntity;
+    }
+    @Override
     public OrderEntity cancelOrder(OrderEntity orderEntity) {
         String partition=orderEntity.getUuidOrder();
         String sort=orderEntity.getTimeStamp();
-            DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression()
-            .withExpectedEntry("pk", new ExpectedAttributeValue(new AttributeValue(partition)))
-            .withExpectedEntry("sk", new ExpectedAttributeValue(new AttributeValue(sort)));
+        DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression()
+                .withExpectedEntry("pk", new ExpectedAttributeValue(new AttributeValue(partition)))
+                .withExpectedEntry("sk", new ExpectedAttributeValue(new AttributeValue(sort)));
 
-    dynamoDBMapper.save(orderEntity, saveExpression);
-
-    return orderEntity;
+        dynamoDBMapper.save(orderEntity, saveExpression);
+        return orderEntity;
     }
 }
 

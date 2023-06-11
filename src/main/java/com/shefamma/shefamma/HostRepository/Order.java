@@ -11,5 +11,8 @@ public interface Order {
 
     List<OrderEntity> getGuestOrders(OrderEntity orderEntity);
 
+    OrderEntity cancelOrder(String partition, String sort, String attributeName, OrderEntity orderEntity);
+
     OrderEntity cancelOrder(OrderEntity orderEntity);
+
 }

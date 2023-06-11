@@ -13,22 +13,43 @@ import lombok.NoArgsConstructor;
 @DynamoDBTable(tableName = "ShefAmma")
 public class HostEntity {
     public void setUuidHost(String uuidHost) {
-        this.uuidHost = uuidHost+"#host";
+        if (uuidHost.startsWith("host#")) {
+            this.uuidHost = uuidHost;
+        } else {
+            this.uuidHost = "host#" + uuidHost;
+        }
+    }
+
+    public void setUuidHostGsi(String uuidHostGsi) {
+        if (uuidHostGsi.startsWith("host#")) {
+            this.uuidHostGsi = uuidHostGsi;
+        } else {
+            this.uuidHostGsi = "host#" + uuidHostGsi;
+        }
+    }
+
+    public void setGsiPk(String gsiPk) {
+        this.gsiPk = "h";
     }
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidHost;
     @DynamoDBRangeKey(attributeName = "sk")
-    @DynamoDBIndexHashKey
     private String geocode;//hName
-    @DynamoDBIndexRangeKey(attributeName = "gsk")
-    private String dineCategory;//hEmail
+    @DynamoDBIndexHashKey(attributeName = "gpk",globalSecondaryIndexName = "gsi1")
+    private String gsiPk;
+
+    @DynamoDBIndexRangeKey(attributeName = "gsk",globalSecondaryIndexName = "gsi1")
+    private String uuidHostGsi;
+
+    @DynamoDBAttribute(attributeName = "dCat")
+    private String dineCategory;
     @DynamoDBAttribute(attributeName = "DDP")
-    private String DDP;//DDP
+    private byte[] DDP;//DDP
      @DynamoDBAttribute(attributeName = "name")
     private String nameHost;//DDP
 
     @DynamoDBAttribute(attributeName = "DP")
-    private String DP;//hDP
+    private byte[] DP;//hDP
     @DynamoDBAttribute(attributeName = "dsec")
     private String descriptionHost;//hDP
     @DynamoDBAttribute(attributeName = "curMes")

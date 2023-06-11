@@ -35,7 +35,7 @@ public class GuestAccountImpl implements GuestAccount,UserDetailsService{
     public String saveGuestSignup(GuestAccountEntity guestAccountEntity) {
         guestAccountEntity.setPassword(passwordEncoder.encode(guestAccountEntity.getPassword()));
         dynamoDBMapper.save(guestAccountEntity);
-        return guestAccountEntity.getGuestUuid() + "#guest";
+        return  "guest#"+guestAccountEntity.getGuestUuid();
     }
 
     @Override
@@ -61,8 +61,8 @@ public class GuestAccountImpl implements GuestAccount,UserDetailsService{
         return users.isEmpty() ? null : users.get(0);
     }
     @Override
-    public String storeHostUuid() {
-        return storedUuid+"#host";
+    public String storeGuestUuid() {
+        return "guest#"+storedUuid;
     }
 
     public void setStoredUuid(String storedUuid) {

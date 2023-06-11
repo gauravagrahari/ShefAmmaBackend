@@ -6,5 +6,5 @@ import org.springframework.http.ResponseEntity;
 
 public interface GuestAccount {
     String saveGuestSignup(GuestAccountEntity guestEntity);
-    String storeHostUuid();
+    String storeGuestUuid();
 }

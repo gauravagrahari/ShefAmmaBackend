@@ -21,5 +21,17 @@ public class AdressSubEntity {
     private String state;
     @DynamoDBAttribute
     private String pinCode;
+    public String convertToString() {
+        String stringBuilder = street +
+                ", " +
+                houseName +
+                ", " +
+                city +
+                ", " +
+                state +
+                ", " +
+                pinCode;
 
+        return stringBuilder;
+    }
 }
