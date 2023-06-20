@@ -1,18 +1,16 @@
 package com.shefamma.shefamma.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.maps.model.GeocodingResult;
 import com.shefamma.shefamma.HostRepository.*;
 import com.shefamma.shefamma.HostRepository.GuestAccount;
 import com.shefamma.shefamma.HostRepository.HostAccount;
 import com.shefamma.shefamma.config.GeocodingService;
+import com.shefamma.shefamma.config.PinpointService;
 import com.shefamma.shefamma.entities.*;
 import com.shefamma.shefamma.services.JwtServices;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -20,10 +18,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -63,12 +58,21 @@ public class MyController {
     @Autowired
     private GeocodingService geocodingService;
 
+//    private PinpointService pinpointService;
+
+
+
     @CrossOrigin(origins = "*")
     @PostMapping("/home")
     public String home(@RequestBody String message) {
         System.out.println(message);
         return homeEntity.getFName();
     }
+//    ---------------------------------------------------------
+//@PostMapping("/host/otp")
+//public void sendSms(@RequestParam String phoneNumber) {
+//    pinpointService.sendSms(phoneNumber, "your otp is 2929");
+//}
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************Host controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
@@ -128,25 +132,31 @@ public class MyController {
 //    ------------------------------------------------------------------------------------------------------
 //    **************************************Guest controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
+//@PostMapping("/guest")
+//public GuestEntity saveGuest(
+//        @RequestPart("uuidGuest") String uuidGuest,
+//        @RequestPart("geocode") String geocode,
+//        @RequestPart("name") String name
+//        @RequestPart("DP") MultipartFile DP
+//        @RequestPart("addressGuest") String addressGuestJson
+//)
+//        throws IOException {
+//
+//    ObjectMapper objectMapper = new ObjectMapper();
+//    AdressSubEntity addressGuest = objectMapper.readValue(addressGuestJson, AdressSubEntity.class);
+//
+//    GuestEntity guestEntity = new GuestEntity();
+//    guestEntity.setUuidGuest(uuidGuest);
+//    guestEntity.setGeocode(geocode);
+//    guestEntity.setName(name);
+//    guestEntity.setDP(DP.getBytes());
+//    guestEntity.setAddressGuest(addressGuest);
+//
+//    return guest.saveGuest(guestEntity);
+//}
 @PostMapping("/guest")
-public GuestEntity saveGuest(
-        @RequestPart("uuidGuest") String uuidGuest,
-        @RequestPart("geocode") String geocode,
-        @RequestPart("name") String name,
-        @RequestPart("DP") MultipartFile DP,
-        @RequestPart("addressGuest") String addressGuestJson) throws IOException {
-
-    ObjectMapper objectMapper = new ObjectMapper();
-    AdressSubEntity addressGuest = objectMapper.readValue(addressGuestJson, AdressSubEntity.class);
-
-    GuestEntity guestEntity = new GuestEntity();
-    guestEntity.setUuidGuest(uuidGuest);
-    guestEntity.setGeocode(geocode);
-    guestEntity.setName(name);
-    guestEntity.setDP(DP.getBytes());
-    guestEntity.setAddressGuest(addressGuest);
-
-    return guest.saveGuest(guestEntity);
+public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity){
+        return guest.saveGuest(guestEntity);
 }
 
 
@@ -174,8 +184,9 @@ public GuestEntity saveGuest(
     }
 
     @GetMapping("/guest/host/menuItems")
-    public List<ItemEntity> getItems(@RequestBody ItemEntity itementity) {
-        return item.getItems(itementity.getUuidItem(), itementity);
+    public List<ItemEntity> getItems(@RequestParam String ids) {
+        String[] idSplit= ids.split("#");
+        return item.getItems("item#"+idSplit[1]);
     }
 
     @GetMapping("/host/menuItem")
@@ -192,8 +203,9 @@ public GuestEntity saveGuest(
     }
 
     @GetMapping("/guest/host/timeSlot")
-    public TimeSlotEntity getTimeSlot(@RequestBody TimeSlotEntity timeentity) {
-        return timeSlot.getTimeSlot(timeentity.getUuidTime(), timeentity);
+    public TimeSlotEntity getTimeSlot(@RequestParam String id) {
+        String[] idSplit= id.split("#");
+        return timeSlot.getTimeSlot("time#"+idSplit[1]);
     }
 
     @PutMapping("/host/timeSlot")

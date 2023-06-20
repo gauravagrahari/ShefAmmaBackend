@@ -28,15 +28,14 @@ public class ItemImpl implements Item {
     }
 
     @Override
-    public List<ItemEntity> getItems(String hostId, ItemEntity itementity) {
+    public List<ItemEntity> getItems(String hostId) {
         Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
         expressionAttributeValues.put(":pk", new AttributeValue().withS(hostId));
-        expressionAttributeValues.put(":sk", new AttributeValue().withS("#item"));
+
 
         DynamoDBQueryExpression<ItemEntity> queryExpression = new DynamoDBQueryExpression<ItemEntity>()
-                .withKeyConditionExpression("pk = :pk and begins_with(sk, :sk)") //we need to use the attribute available in the dynamodbtable
+                .withKeyConditionExpression("pk = :pk") //we need to use the attribute available in the dynamodbtable
                 .withExpressionAttributeValues(expressionAttributeValues);
-
         return dynamoDBMapper.query(ItemEntity.class, queryExpression);
     }
 

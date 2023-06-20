@@ -72,12 +72,17 @@ public class OrderiImpl implements Order{
             case "status":
                 value = orderEntity.getStatus();
                 break;
-            // Add more cases for other attributes if needed
+            case "review":
+                value = orderEntity.getReview();
+                break;
+            case "rating":
+                value=orderEntity.getRating();
+                break;
             default:
                 // Invalid attribute name provided
                 throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
-        commonMethods.updateAttribute(partition,attributeName,value);
+        commonMethods.updateAttributeWithSortKey(partition,sort,attributeName,value);
         return orderEntity;
     }
     @Override

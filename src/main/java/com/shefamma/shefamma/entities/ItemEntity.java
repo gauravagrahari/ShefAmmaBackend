@@ -10,8 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @DynamoDBTable(tableName = "ShefAmma")
 public class ItemEntity {
+
     public void setUuidItem(String uuidItem) {
-        this.uuidItem = "item#"+uuidItem;
+        if (uuidItem.startsWith("item#")) {
+            this.uuidItem = uuidItem;
+        } else {
+            this.uuidItem = "item#" + uuidItem;
+        }
     }
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidItem;
@@ -29,4 +34,6 @@ public class ItemEntity {
     private String vegetarian;
     @DynamoDBAttribute(attributeName = "amnt")
     private String amount;
+    @DynamoDBAttribute(attributeName = "ser")
+    private String serveQuantity;
 }

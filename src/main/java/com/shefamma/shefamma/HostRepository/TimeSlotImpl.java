@@ -24,7 +24,7 @@ public class TimeSlotImpl implements TimeSlot{
     }
 
     @Override
-    public TimeSlotEntity getTimeSlot(String timehostId, TimeSlotEntity timeentity) {
+    public TimeSlotEntity getTimeSlot(String timehostId) {
         return dynamoDBMapper.load(TimeSlotEntity.class,timehostId);
     }
 
@@ -43,10 +43,10 @@ public class TimeSlotImpl implements TimeSlot{
         // Get the value of the specified attribute
         switch (attributeName) {
             case "descriptionHost":
-                value = String.valueOf(slotSubEntity.getStartTIme());
+                value = String.valueOf(slotSubEntity.getStartTime());
                 break;
             case "currentMessage":
-                value = String.valueOf(slotSubEntity.getCapacity());
+                value = String.valueOf(slotSubEntity.getCurrentCapacity());
                 break;
             // Add more cases for other attributes if needed
             default:

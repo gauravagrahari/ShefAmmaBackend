@@ -14,8 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class SlotSubEntity {
     @DynamoDBAttribute(attributeName = "stTm")
-    private int startTIme;
-
-    @DynamoDBAttribute(attributeName = "cap")
-    private int capacity;
+    private int startTime;
+    @DynamoDBAttribute(attributeName = "ccap")
+    private int currentCapacity;
 }

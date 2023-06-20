@@ -15,8 +15,12 @@ import java.util.List;
 @NoArgsConstructor
 @DynamoDBTable(tableName = "ShefAmma")
 public class OrderEntity  {
-    public  void setUuidOrder(String uuidOrder) {
-        this.uuidOrder = "order"+uuidOrder;
+    public void setUuidItem(String uuidOrder) {
+        if (uuidOrder.startsWith("order#")) {
+            this.uuidOrder = uuidOrder;
+        } else {
+            this.uuidOrder = "order#" + uuidOrder;
+        }
     }
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidOrder;
@@ -50,8 +54,30 @@ public class OrderEntity  {
 //        this.s = s;
     }
 }
-//    @DynamoDBRangeKey(attributeName = "sk")
-//    @DynamoDBIndexHashKey
-//    private String timeStamp;
-//    @DynamoDBIndexRangeKey(attributeName = "gsk")
-//    private String hostId;
+//{
+//        "uuidOrder": "order123",
+//        "timeStamp": "2023-06-11T10:00:00.000Z",
+//        "hostId": "host123",
+//        "status": "placed",
+//        "amount": "100.00",
+//        "itemQuantity": "3",
+//        "noOfGuest": 2,
+//        "rating": "4.5",
+//        "review": "Great experience!",
+//        "pickUp": "Yes",
+//        "startTime": 14,
+//        "orderedItems": [
+//        {
+//        "itemId": "item1",
+//        "noOfServing": "2"
+//        },
+//        {
+//        "itemId": "item2",
+//        "noOfServing": "1"
+//        },
+//        {
+//        "itemId": "item3",
+//        "noOfServing": "3"
+//        }
+//        ]
+//        }
