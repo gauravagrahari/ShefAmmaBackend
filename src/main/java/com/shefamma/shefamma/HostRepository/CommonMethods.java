@@ -80,12 +80,40 @@ public class CommonMethods {
         }
     }
 
-    public void updateSpecificAttributeOrderEntity(String primaryKey, String primaryValue, String attributeName, String nestedAttributeName, String uniqueAttribute, String uniqueValue, String newValue) {
+//    public void updateSpecificAttributeOrderEntity(String primaryKey, String primaryValue, String attributeName, String nestedAttributeName, String uniqueAttribute, String uniqueValue,String newValue,String index) {
+//        Map<String, AttributeValue> key = new HashMap<>();
+//        key.put(primaryKey, new AttributeValue(primaryValue));
+//
+//        Map<String, String> expressionAttributeNames = new HashMap<>();
+//        expressionAttributeNames.put("#index", "list_append(" + attributeName + ", :emptyList)[0]");
+//        expressionAttributeNames.put("#nestedAttributeName", nestedAttributeName);
+//        expressionAttributeNames.put("#uniqueAttribute", uniqueAttribute);
+//
+//        Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+//        expressionAttributeValues.put(":newValue", new AttributeValue(newValue));
+//        expressionAttributeValues.put(":uniqueValue", new AttributeValue(uniqueValue));
+//        expressionAttributeValues.put(":emptyList", new AttributeValue().withL(Collections.emptyList()));
+//
+//        UpdateItemRequest updateItemRequest = new UpdateItemRequest()
+//                .withTableName(tableName)
+//                .withKey(key)
+//                .withUpdateExpression("SET " + attributeName + "[#index].#nestedAttributeName = " + attributeName + "[#index].#nestedAttributeName - :newValue")
+//                .withConditionExpression("attribute_exists(" + attributeName + "[#index]) AND " + attributeName + "[#index].#nestedAttributeName >= :newValue")
+//                .withExpressionAttributeNames(expressionAttributeNames)
+//                .withExpressionAttributeValues(expressionAttributeValues);
+//
+//        try {
+//            amazonDynamoDB.updateItem(updateItemRequest);
+//        } catch (ConditionalCheckFailedException e) {
+//            throw new IllegalArgumentException("New capacity is greater than current capacity - " + newValue);
+//        }
+//    }
+    public void updateTimeSlotCapOrderEntity(String primaryKey, String primaryValue, String attributeName, String nestedAttributeName, String uniqueAttribute, String uniqueValue, String newValue, String index) {
+
         Map<String, AttributeValue> key = new HashMap<>();
         key.put(primaryKey, new AttributeValue(primaryValue));
 
         Map<String, String> expressionAttributeNames = new HashMap<>();
-        expressionAttributeNames.put("#index", "list_append(" + attributeName + ", :emptyList)[0]");
         expressionAttributeNames.put("#nestedAttributeName", nestedAttributeName);
         expressionAttributeNames.put("#uniqueAttribute", uniqueAttribute);
 
@@ -97,8 +125,8 @@ public class CommonMethods {
         UpdateItemRequest updateItemRequest = new UpdateItemRequest()
                 .withTableName(tableName)
                 .withKey(key)
-                .withUpdateExpression("SET " + attributeName + "[#index].#nestedAttributeName = " + attributeName + "[#index].#nestedAttributeName - :newValue")
-                .withConditionExpression("attribute_exists(" + attributeName + "[#index]) AND " + attributeName + "[#index].#nestedAttributeName >= :newValue")
+                .withUpdateExpression("SET " + attributeName + "[" + index + "].#nestedAttributeName = " + attributeName + "[" + index + "].#nestedAttributeName - :newValue")
+                .withConditionExpression("attribute_exists(" + attributeName + "[" + index + "]) AND " + attributeName + "[" + index + "].#nestedAttributeName >= :newValue")
                 .withExpressionAttributeNames(expressionAttributeNames)
                 .withExpressionAttributeValues(expressionAttributeValues);
 
@@ -108,6 +136,38 @@ public class CommonMethods {
             throw new IllegalArgumentException("New capacity is greater than current capacity - " + newValue);
         }
     }
+//this method has got mistakes
+    public void updateTimeSlotCapOrderEntity(String primaryKey, String primaryValue, String attributeName, String nestedAttributeName, String newValue, String index) {
+        Map<String, AttributeValue> key = new HashMap<>();
+        key.put(primaryKey, new AttributeValue(primaryValue));
+
+        Map<String, String> expressionAttributeNames = new HashMap<>();
+        expressionAttributeNames.put("#a", attributeName);
+        expressionAttributeNames.put("#n", nestedAttributeName);
+
+        Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":v", new AttributeValue().withN(newValue));
+
+        UpdateItemRequest updateItemRequest = new UpdateItemRequest()
+                .withTableName(tableName)
+                .withKey(key)
+                .withUpdateExpression("SET #a[" + index + "].#n = :v")
+                .withConditionExpression("attribute_exists(#a[" + index + "]) AND #a[" + index + "].#n >= :v")
+                .withExpressionAttributeNames(expressionAttributeNames)
+                .withExpressionAttributeValues(expressionAttributeValues);
+        try {
+            amazonDynamoDB.updateItem(updateItemRequest);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Invalid index value: " + index);
+        }
+
+//        try {
+//            amazonDynamoDB.updateItem(updateItemRequest);
+//        } catch (ConditionalCheckFailedException e) {
+//            throw new IllegalArgumentException("New capacity is greater than current capacity - " + newValue);
+//        }
+    }
+
 
 
     /**
@@ -205,6 +265,7 @@ public class CommonMethods {
             throw new IllegalArgumentException("Update condition failed.");
         }
     }
+
 
 
 }

@@ -5,9 +5,10 @@ import com.shefamma.shefamma.HostRepository.*;
 import com.shefamma.shefamma.HostRepository.GuestAccount;
 import com.shefamma.shefamma.HostRepository.HostAccount;
 import com.shefamma.shefamma.config.GeocodingService;
-import com.shefamma.shefamma.config.PinpointService;
+import com.shefamma.shefamma.config.PinpointClass;
 import com.shefamma.shefamma.entities.*;
 import com.shefamma.shefamma.services.JwtServices;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +20,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.util.*;
 
 
 @RestController
@@ -57,9 +57,8 @@ public class MyController {
     private JwtServices jwtServices;
     @Autowired
     private GeocodingService geocodingService;
-
-//    private PinpointService pinpointService;
-
+    @Autowired
+    private PinpointClass pinpointClass;
 
 
     @CrossOrigin(origins = "*")
@@ -69,14 +68,55 @@ public class MyController {
         return homeEntity.getFName();
     }
 //    ---------------------------------------------------------
-//@PostMapping("/host/otp")
-//public void sendSms(@RequestParam String phoneNumber) {
-//    pinpointService.sendSms(phoneNumber, "your otp is 2929");
-//}
-    //    ------------------------------------------------------------------------------------------------------
+
+    private String generatedOtp; // Store the generated OTP here
+    private LocalDateTime otpExpirationTime; // Store the expiration time here
+
+    @PostMapping("/host/generateOtp")
+    public ResponseEntity<String> generateOtp() {
+        generatedOtp = PinpointClass.generateOTPWithExpiration();
+        otpExpirationTime = LocalDateTime.now().plusSeconds(PinpointClass.getOtpExpirationSeconds());
+        return ResponseEntity.ok("OTP generated successfully: " + generatedOtp);
+    }
+
+    @PostMapping("/host/otpPhone")
+    public ResponseEntity<?> verifySms(@RequestBody OtpVerificationClass otpVerificationClass) {
+        return verifyOtp(otpVerificationClass.getPhoneOtp());
+    }
+
+    @PostMapping("/host/otpEmail")
+    public ResponseEntity<?> verifyEmail(@RequestBody OtpVerificationClass otpVerificationClass) {
+        return verifyOtp(otpVerificationClass.getEmailOtp());
+    }
+//    @PostMapping("/host/otpMob")
+//    public ResponseEntity<?> verifySmsGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
+//        return verifyOtp(otpVerificationClass.getPhoneOtp());
+//    }
+
+    //    @PostMapping("/host/otpEmail")
+//    public ResponseEntity<?> verifyEmailGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
+//        return verifyOtp(otpVerificationClass.getEmailOtp());
+//    }
+    private ResponseEntity<?> verifyOtp(String userOtp) {
+        if (isOTPExpired()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("OTP has expired");
+        }
+        if (Objects.equals(userOtp, generatedOtp)) {
+            return ResponseEntity.ok("SUCCESS");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid OTP");
+    }
+
+    private boolean isOTPExpired() {
+        LocalDateTime currentTime = LocalDateTime.now();
+        return currentTime.isAfter(otpExpirationTime);
+    }
+
+//    ------------------------------------------------------------------------------------------------------
 //    **************************************Host controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
 
+    @CrossOrigin(origins = "*")
     @PostMapping("/host")
     public HostEntity saveHost(@RequestBody HostEntity hostEntity) throws Exception {
         GeocodingResult[] results = geocodingService.geocode(hostEntity.getAddressHost().convertToString());
@@ -86,34 +126,48 @@ public class MyController {
         hostEntity.setGeocode(coordinates);
         return host.saveHost(hostEntity);
     }
+
+    //the response might need change as we can only send the editted attribute, it would be better
     ///host?attribute=val
     @PutMapping("/host")
     public HostEntity updateHost(@RequestBody HostEntity hostentity, @RequestParam String attributeName) {
         return host.update(hostentity.getUuidHost(), hostentity.getNameHost(), attributeName, hostentity);
     }
+
     @GetMapping("/guest/host")
+    public HostEntity getHostforGuest(@RequestBody HostEntity hostentity) {
+        return host.getHost(hostentity.getGsiPk(), hostentity.getUuidHost());
+    }
+
+    @GetMapping("/host")
     public HostEntity getHost(@RequestBody HostEntity hostentity) {
         return host.getHost(hostentity.getGsiPk(), hostentity.getUuidHost());
     }
-///guest/hosts?radius=val
-    @PostMapping("/guest/hosts")
-    public List<HostCardEntity> getHostsWithinRadius(@RequestBody GuestEntity hostEntity, @RequestParam double radius) throws Exception {
+
+    ///guest/hosts?radius=val
+    @GetMapping("/guest/hosts")
+    public List<HostCardEntity> getHostsWithinRadius(HttpServletRequest request, @RequestBody GuestEntity hostEntity, @RequestParam double radius) throws Exception {
+        String jwtToken = request.getHeader("Authorization");
+        String uuidGuest = request.getHeader("UUID");
+
+
         GeocodingResult[] results = geocodingService.geocode(hostEntity.getAddressGuest().convertToString());
         double latitude = results[0].geometry.location.lat;
         double longitude = results[0].geometry.location.lng;
 
         return host.findRestaurantsWithinRadius(latitude, longitude, radius);
     }
+
     //  /guest/host?item=val&radius=val
     @GetMapping("/guest/hosts/itemSearch")
-    public List<HostCardEntity> getHostsItemSearchFilter(@RequestBody GuestEntity guestEntity, @RequestParam("item") String itemValue,@RequestParam double radius) throws Exception {
+    public List<HostCardEntity> getHostsItemSearchFilter(@RequestBody GuestEntity guestEntity, @RequestParam("item") String itemValue, @RequestParam double radius) throws Exception {
         GeocodingResult[] results = geocodingService.geocode(guestEntity.getAddressGuest().convertToString());
         double latitude = results[0].geometry.location.lat;
         double longitude = results[0].geometry.location.lng;
-        return host.getHostsItemSearchFilter(latitude, longitude, radius,itemValue);
+        return host.getHostsItemSearchFilter(latitude, longitude, radius, itemValue);
     }
 
-//    not required controllers******************************************
+    //    not required controllers******************************************
 //    .....some mistake, here list shall be returned
 //    @GetMapping("/guest/hosts")
 //    public HostEntity getHosts(@RequestBody HostEntity hostentity) {
@@ -124,12 +178,14 @@ public class MyController {
     public List<HostEntity> getHostsCategorySearchFilter(@RequestParam("category") String categoryValue) {
         return host.getHostsCategorySearchFilter(categoryValue);
     }
+
     //        /guest/host?startTime=val&endTime=val
     @GetMapping("/guest/host/slotFilter")
     public List<HostEntity> getHostsTimeSlotSearchFilter(@RequestParam String startTime, @RequestParam String endTime, @RequestParam String timeDuration) {
         return host.getHostsTimeSlotSearchFilter(Integer.parseInt(startTime), Integer.parseInt(endTime), timeDuration);
     }
-//    ------------------------------------------------------------------------------------------------------
+
+    //    ------------------------------------------------------------------------------------------------------
 //    **************************************Guest controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
 //@PostMapping("/guest")
@@ -154,17 +210,24 @@ public class MyController {
 //
 //    return guest.saveGuest(guestEntity);
 //}
-@PostMapping("/guest")
-public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity){
+//    @RequestHeader("Authorization") String token
+    @PostMapping("/guest")
+    public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity) throws Exception {
+        GeocodingResult[] results = geocodingService.geocode(guestEntity.getAddressGuest().convertToString());
+        double latitude = results[0].geometry.location.lat;
+        double longitude = results[0].geometry.location.lng;
+        String coordinates = String.format("%.6f,%.6f", latitude, longitude);
+        guestEntity.setGeocode(coordinates);
         return guest.saveGuest(guestEntity);
-}
-
+    }
 
     @GetMapping("/host/guest")
     public GuestEntity getGuest(@RequestBody GuestEntity guestentity) {
-        return guest.getGuest(guestentity.getUuidGuest(), guestentity.getGeocode());
+        return guest.getGuest(guestentity.getUuidGuest());
+//        return guest.getGuest(guestentity.getUuidGuest(), guestentity.getGeocode());
     }
 
+    ///guest?attributeName=val
     @PutMapping("/guest")
     public GuestEntity updateGuest(@RequestBody GuestEntity guestentity, @RequestParam String attributeName) {
         return guest.updateGuest(guestentity.getUuidGuest(), guestentity.getGeocode(), attributeName, guestentity);
@@ -174,9 +237,15 @@ public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity){
 //    **************************************Item controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
     @PostMapping("/host/menuItem")
-    public ItemEntity createItem(@RequestBody ItemEntity itementity) {
-        return item.saveItem(itementity);
+    public List<ItemEntity> createItems(@RequestBody List<ItemEntity> itemEntities) {
+        List<ItemEntity> items = new ArrayList<>();
+        for (ItemEntity itemEntity : itemEntities) {
+            ItemEntity savedItem = item.saveItem(itemEntity);
+            items.add(savedItem);
+        }
+        return items;
     }
+
 
     @PutMapping("/host/menuItem")
     public ItemEntity updateItem(@RequestBody ItemEntity itementity) {
@@ -185,8 +254,8 @@ public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity){
 
     @GetMapping("/guest/host/menuItems")
     public List<ItemEntity> getItems(@RequestParam String ids) {
-        String[] idSplit= ids.split("#");
-        return item.getItems("item#"+idSplit[1]);
+        String[] idSplit = ids.split("#");
+        return item.getItems("item#" + idSplit[1]);
     }
 
     @GetMapping("/host/menuItem")
@@ -199,13 +268,14 @@ public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity){
 //    ------------------------------------------------------------------------------------------------------
     @PostMapping("/host/timeSlot")
     public TimeSlotEntity createTimeSlot(@RequestBody TimeSlotEntity timeentity) {
+        System.out.println(timeentity);
         return timeSlot.saveSlotTime(timeentity);
     }
 
     @GetMapping("/guest/host/timeSlot")
     public TimeSlotEntity getTimeSlot(@RequestParam String id) {
-        String[] idSplit= id.split("#");
-        return timeSlot.getTimeSlot("time#"+idSplit[1]);
+        String[] idSplit = id.split("#");
+        return timeSlot.getTimeSlot("time#" + idSplit[1]);
     }
 
     @PutMapping("/host/timeSlot")
@@ -221,6 +291,9 @@ public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity){
         return order.createOrder(orderEntity);
     }
 
+    //need to make changes in the bwloe controller to get orders based on status, i.e in-progress, completed
+//host/orders?status=val
+//    instead of sending orderEntity in body send the hostUuid or guestUUid as that would keep the logic in the backend
     @GetMapping("/host/orders")
     public List<OrderEntity> getHostOrders(@RequestBody OrderEntity orderEntity) {
         return order.getHostOrders(orderEntity);
@@ -233,7 +306,7 @@ public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity){
 
     @PutMapping("/guest/order")
     public OrderEntity cancelOrder(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName) {
-        return order.cancelOrder(orderEntity.getUuidOrder(),orderEntity.getTimeStamp(),attributeName,orderEntity);
+        return order.cancelOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
     }
 
 

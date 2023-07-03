@@ -34,7 +34,7 @@ public class HostEntity {
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidHost;
     @DynamoDBRangeKey(attributeName = "sk")
-    private String geocode;//hName
+    private String geocode;
     @DynamoDBIndexHashKey(attributeName = "gpk",globalSecondaryIndexName = "gsi1")
     private String gsiPk;
 
@@ -44,12 +44,14 @@ public class HostEntity {
     @DynamoDBAttribute(attributeName = "dCat")
     private String dineCategory;
     @DynamoDBAttribute(attributeName = "DDP")
-    private byte[] DDP;//DDP
+//    private byte[] DDP;//DDP
+    private String DDP;//DDP
      @DynamoDBAttribute(attributeName = "name")
     private String nameHost;//DDP
 
     @DynamoDBAttribute(attributeName = "DP")
-    private byte[] DP;//hDP
+//    private byte[] DP;//hDP
+    private String DP;//hDP
     @DynamoDBAttribute(attributeName = "dsec")
     private String descriptionHost;//hDP
     @DynamoDBAttribute(attributeName = "curMes")

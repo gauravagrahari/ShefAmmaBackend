@@ -36,4 +36,6 @@ public class ItemEntity {
     private String amount;
     @DynamoDBAttribute(attributeName = "ser")
     private String serveQuantity;
+    @DynamoDBAttribute(attributeName = "serTy")
+    private String serveType;
 }

@@ -28,18 +28,21 @@ public class OrderiImpl implements Order{
 
     @Override
     public OrderEntity createOrder(OrderEntity orderEntity) {
-        orderEntity.setUuidOrder(orderEntity.getUuidOrder() + "#order");
+//        orderEntity.setUuidOrder(orderEntity.getUuidOrder() + "#order");
         dynamoDBMapper.save(orderEntity);
 
         // Update the capacity of the specific SlotSubEntity
-        String orderPk[]=orderEntity.getUuidOrder().split("#");
-        String timeSlotpk=orderPk[0]+"#time";
+        String orderPk[]=orderEntity.getHostId().split("#");
+        String timeSlotpk="time#"+orderPk[1];
 
         // create a new class entity to recieve order entiy from
         String uniqueAttrValue= String.valueOf(orderEntity.getStartTime());
         String noOfGuests= String.valueOf(orderEntity.getNoOfGuest());
 
-        commonMethods.updateSpecificAttributeOrderEntity("pk", timeSlotpk,"slots","capacity","startTime",uniqueAttrValue,noOfGuests);
+        //this method has got mistakes
+        commonMethods.updateTimeSlotCapOrderEntity("pk", timeSlotpk,"slots","capacity",noOfGuests,"1");
+//        commonMethods.updateTimeSlotCapOrderEntity("pk", timeSlotpk,"slots","capacity","startTime",uniqueAttrValue,Integer.parseInt(noOfGuests),"1");
+//        commonMethods.updateTimeSlotCapOrderEntity("pk", timeSlotpk,"slots","capacity","startTime",uniqueAttrValue, Integer.parseInt(noOfGuests),"1");
         return orderEntity;
     }
 

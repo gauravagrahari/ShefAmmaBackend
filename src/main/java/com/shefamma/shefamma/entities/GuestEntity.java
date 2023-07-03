@@ -12,8 +12,13 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @DynamoDBTable(tableName = "ShefAmma")
 public class GuestEntity {
+
     public void setUuidGuest(String uuidGuest) {
-        this.uuidGuest = "guest#" + uuidGuest;
+        if (uuidGuest.startsWith("guest#")) {
+            this.uuidGuest = uuidGuest;
+        } else {
+            this.uuidGuest = "guest#" + uuidGuest;
+        }
     }
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidGuest;//h_id
@@ -22,7 +27,7 @@ public class GuestEntity {
     @DynamoDBAttribute(attributeName = "name")
     private String name;//hEmail
     @DynamoDBAttribute(attributeName = "DP")
-    private byte[] DP;//hDP
+    private String DP;//hDP
     @DynamoDBAttribute(attributeName = "adr")
     private AdressSubEntity addressGuest;//hAdrress
     @DynamoDBAttribute(attributeName = "dob")
@@ -30,3 +35,12 @@ public class GuestEntity {
     @DynamoDBAttribute(attributeName = "gen")
     private String gender;//hDP
 }
+//{
+//        "uuidGuest": "guest#123456789",
+//        "geocode": "geocode123",
+//        "name": "John Doe",
+//        "DP": "",
+//        "addressGuest": {},
+//        "dob": "1990-01-01",
+//        "gender": "Male"
+//        }

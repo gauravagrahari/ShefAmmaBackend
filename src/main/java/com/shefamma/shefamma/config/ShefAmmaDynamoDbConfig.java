@@ -38,3 +38,5 @@ public class ShefAmmaDynamoDbConfig {
         return new DynamoDBMapper(amazonDynamoDB());
     }
 }
+//   "AKIATDGNA7XLUHRU2K4O",
+//           "5FKad7I/6hCmBreMZ/SCZqyL1zJTWu2rJkdaby3

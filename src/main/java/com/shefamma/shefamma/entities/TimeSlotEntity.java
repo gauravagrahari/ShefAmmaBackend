@@ -39,8 +39,8 @@ public class TimeSlotEntity {
         int currentHour = LocalDateTime.now(ZoneOffset.UTC).getHour();
 
         for (SlotSubEntity slot : slots) {
-            int startTime = slot.getStartTime();
-            int endTime = startTime + Integer.parseInt(duration);
+            double startTime = slot.getStartTime();
+            double endTime = startTime + Integer.parseInt(duration);
 
             // Check if the current time has reached the end of the time slot
             if (currentHour >= endTime) {

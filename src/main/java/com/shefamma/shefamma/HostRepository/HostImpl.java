@@ -28,7 +28,6 @@ public class HostImpl implements Host {
 
     public HostEntity saveHost(HostEntity host) {
         dynamoDBMapper.save(host);
-
         return host;
     }
 

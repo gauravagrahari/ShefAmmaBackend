@@ -22,14 +22,21 @@ public class OrderEntity  {
             this.uuidOrder = "order#" + uuidOrder;
         }
     }
+//    public void setTimeStampGsi(String timeStampGsi) {
+//        this.timeStampGsi = getTimeStamp();
+//    }
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidOrder;
     @DynamoDBRangeKey(attributeName = "sk")
-    @DynamoDBIndexRangeKey(globalSecondaryIndexName = "gsisk")
+//    @DynamoDBIndexRangeKey(attributeName = "gsk",globalSecondaryIndexName = "gsi1")
     private String timeStamp;
-    @DynamoDBIndexHashKey(attributeName = "gsk", globalSecondaryIndexName = "gsipk")
+    @DynamoDBIndexHashKey(attributeName = "gpk", globalSecondaryIndexName = "gsi1")
     private String hostId;
 
+    @DynamoDBIndexRangeKey(attributeName = "gsk",globalSecondaryIndexName = "gsi1")
+    private String timeStampGsi;
+//    @DynamoDBIndexHashKey(attributeName = "gpk",globalSecondaryIndexName = "gsi1")
+//    private String gsiPk;///////this will contain the hostiD
     @DynamoDBAttribute(attributeName = "stts")
     private String status;
     @DynamoDBAttribute(attributeName = "amt")
