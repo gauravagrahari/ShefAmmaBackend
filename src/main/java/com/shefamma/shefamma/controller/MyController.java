@@ -146,12 +146,10 @@ public class MyController {
 
     ///guest/hosts?radius=val
     @GetMapping("/guest/hosts")
-    public List<HostCardEntity> getHostsWithinRadius(HttpServletRequest request, @RequestBody GuestEntity hostEntity, @RequestParam double radius) throws Exception {
-        String jwtToken = request.getHeader("Authorization");
-        String uuidGuest = request.getHeader("UUID");
+    public List<HostCardEntity> getHostsWithinRadius(@RequestHeader("UUID") String uuidGuest,
+                                                     @RequestParam double radius) throws Exception {
 
-
-        GeocodingResult[] results = geocodingService.geocode(hostEntity.getAddressGuest().convertToString());
+        GeocodingResult[] results = geocodingService.geocode(guest.getGuest(uuidGuest).convertToString());
         double latitude = results[0].geometry.location.lat;
         double longitude = results[0].geometry.location.lng;
 
@@ -160,11 +158,17 @@ public class MyController {
 
     //  /guest/host?item=val&radius=val
     @GetMapping("/guest/hosts/itemSearch")
-    public List<HostCardEntity> getHostsItemSearchFilter(@RequestBody GuestEntity guestEntity, @RequestParam("item") String itemValue, @RequestParam double radius) throws Exception {
-        GeocodingResult[] results = geocodingService.geocode(guestEntity.getAddressGuest().convertToString());
+    public List<HostCardEntity> getHostsItemSearchFilter(@RequestHeader("UUID") String uuidGuest,@RequestParam String address, @RequestParam("item") String itemValue, @RequestParam double radius) throws Exception {
+        GeocodingResult[] results;
+        if (Objects.equals(address, "address")){
+            results = geocodingService.geocode(guest.getGuest(uuidGuest).convertToString());
+        }
+        else {
+            results = geocodingService.geocode(address);
+        }
         double latitude = results[0].geometry.location.lat;
         double longitude = results[0].geometry.location.lng;
-        return host.getHostsItemSearchFilter(latitude, longitude, radius, itemValue);
+        return host.getHostsItemSearchFilter(latitude, longitude, radius, itemValue.toLowerCase());
     }
 
     //    not required controllers******************************************
@@ -223,8 +227,7 @@ public class MyController {
 
     @GetMapping("/host/guest")
     public GuestEntity getGuest(@RequestBody GuestEntity guestentity) {
-        return guest.getGuest(guestentity.getUuidGuest());
-//        return guest.getGuest(guestentity.getUuidGuest(), guestentity.getGeocode());
+        return guest.getGuest(guestentity.getUuidGuest(), guestentity.getGeocode());
     }
 
     ///guest?attributeName=val
@@ -253,8 +256,8 @@ public class MyController {
     }
 
     @GetMapping("/guest/host/menuItems")
-    public List<ItemEntity> getItems(@RequestParam String ids) {
-        String[] idSplit = ids.split("#");
+    public List<ItemEntity> getItems(@RequestParam String id) {
+        String[] idSplit = id.split("#");
         return item.getItems("item#" + idSplit[1]);
     }
 
@@ -271,7 +274,6 @@ public class MyController {
         System.out.println(timeentity);
         return timeSlot.saveSlotTime(timeentity);
     }
-
     @GetMapping("/guest/host/timeSlot")
     public TimeSlotEntity getTimeSlot(@RequestParam String id) {
         String[] idSplit = id.split("#");
@@ -281,6 +283,17 @@ public class MyController {
     @PutMapping("/host/timeSlot")
     public TimeSlotEntity updateTimeSlot(@RequestBody TimeSlotEntity timeentity) {
         return timeSlot.updateTimeSlot(timeentity.getUuidTime(), timeentity);
+    }
+
+//-----------------------------
+//    this controller of will be used to fetch both the time slot and item of a host
+//-----------------------------
+    @GetMapping("/guest/host/itemSlot")
+    public List<ItemEntity> getItemsTimeSlot(@RequestParam String ids) {
+        String[] idSplit = ids.split("#");
+         item.getItems("item#" + idSplit[1]);
+         timeSlot.getTimeSlot("time#" + idSplit[1]);
+         return null;
     }
 
     //    ------------------------------------------------------------------------------------------------------

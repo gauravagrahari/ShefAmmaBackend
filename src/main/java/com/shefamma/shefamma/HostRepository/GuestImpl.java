@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
+import com.shefamma.shefamma.entities.AdressSubEntity;
 import com.shefamma.shefamma.entities.GuestEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -32,10 +33,7 @@ public class GuestImpl implements Guest {
         return dynamoDBMapper.load(GuestEntity.class, guestId, nameGuest);
     }
 
-    public GuestEntity getGuest(String uuidGuest) {
-        GuestEntity guest = new GuestEntity();
-        guest.setUuidGuest(uuidGuest);
-
+    public AdressSubEntity getGuest(String uuidGuest) {
         DynamoDBQueryExpression<GuestEntity> queryExpression = new DynamoDBQueryExpression<GuestEntity>()
                  .withConsistentRead(false)
                 .withKeyConditionExpression("pk = :val")
@@ -45,8 +43,7 @@ public class GuestImpl implements Guest {
         List<GuestEntity> guests = dynamoDBMapper.query(GuestEntity.class, queryExpression);
         if (!guests.isEmpty()) {
             GuestEntity retrievedGuest = guests.get(0);
-            guest.setAddressGuest(retrievedGuest.getAddressGuest());
-            return guest;
+            return retrievedGuest.getAddressGuest();
         }
         return null;
     }

@@ -18,6 +18,10 @@ public class ItemEntity {
             this.uuidItem = "item#" + uuidItem;
         }
     }
+    public void setNameItem(String nameItem) {
+        // Convert the nameItem to lowercase before setting the value
+        this.nameItem = nameItem.toLowerCase();
+    }
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidItem;
     @DynamoDBRangeKey(attributeName = "sk")
