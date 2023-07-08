@@ -9,6 +9,8 @@ import com.shefamma.shefamma.config.PinpointClass;
 import com.shefamma.shefamma.entities.*;
 import com.shefamma.shefamma.services.JwtServices;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -152,8 +154,10 @@ public class MyController {
         GeocodingResult[] results = geocodingService.geocode(guest.getGuest(uuidGuest).convertToString());
         double latitude = results[0].geometry.location.lat;
         double longitude = results[0].geometry.location.lng;
-
-        return host.findRestaurantsWithinRadius(latitude, longitude, radius);
+        List<HostCardEntity> x=host.findRestaurantsWithinRadius(latitude, longitude, radius);
+        System.out.println(x);
+//        return host.findRestaurantsWithinRadius(latitude, longitude, radius);
+        return x;
     }
 
     //  /guest/host?item=val&radius=val
@@ -249,16 +253,33 @@ public class MyController {
         return items;
     }
 
-
     @PutMapping("/host/menuItem")
     public ItemEntity updateItem(@RequestBody ItemEntity itementity) {
         return item.updateItem(itementity.getUuidItem(), itementity.getNameItem(), itementity);
     }
 
+//    @GetMapping("/guest/host/menuItems")
+//    public List<ItemEntity> getItems(@RequestHeader String id) {
+//        String[] idSplit = id.split("#");
+//        List<ItemEntity> x=item.getItems("item#" + idSplit[1]);
+//        System.out.println(x);
+//        return x;
+////        return item.getItems("item#" + idSplit[1]);
+//    }
     @GetMapping("/guest/host/menuItems")
-    public List<ItemEntity> getItems(@RequestParam String id) {
-        String[] idSplit = id.split("#");
-        return item.getItems("item#" + idSplit[1]);
+    public List<ItemEntity> getItems(@RequestHeader String id) {
+        try {
+            String[] idSplit = id.split("#");
+            List<ItemEntity> items = item.getItems("item#" + idSplit[1]);
+            for (ItemEntity itemEntity : items) {
+                System.out.println(itemEntity);
+            }
+            return items;
+        } catch (Exception e) {
+            Logger logger = LoggerFactory.getLogger(getClass());
+            logger.error("Error occurred while fetching items", e);
+            throw new RuntimeException("Error occurred while fetching items", e);
+        }
     }
 
     @GetMapping("/host/menuItem")
@@ -275,9 +296,12 @@ public class MyController {
         return timeSlot.saveSlotTime(timeentity);
     }
     @GetMapping("/guest/host/timeSlot")
-    public TimeSlotEntity getTimeSlot(@RequestParam String id) {
+    public TimeSlotEntity getTimeSlot(@RequestHeader String id) {
         String[] idSplit = id.split("#");
-        return timeSlot.getTimeSlot("time#" + idSplit[1]);
+        TimeSlotEntity x=timeSlot.getTimeSlot("time#" + idSplit[1]);
+        System.out.println(x);
+        return x;
+//        return timeSlot.getTimeSlot("time#" + idSplit[1]);
     }
 
     @PutMapping("/host/timeSlot")

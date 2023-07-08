@@ -1,6 +1,7 @@
 package com.shefamma.shefamma.HostRepository;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
@@ -8,6 +9,9 @@ import com.shefamma.shefamma.entities.SlotSubEntity;
 import com.shefamma.shefamma.entities.TimeSlotEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import java.util.Collections;
+import java.util.List;
 
 @Repository
 public class TimeSlotImpl implements TimeSlot{
@@ -23,10 +27,28 @@ public class TimeSlotImpl implements TimeSlot{
         return timeentity;
     }
 
-    @Override
-    public TimeSlotEntity getTimeSlot(String timehostId) {
-        return dynamoDBMapper.load(TimeSlotEntity.class,timehostId);
+//    @Override
+//    public TimeSlotEntity getTimeSlot(String timehostId) {
+//        return dynamoDBMapper.load(TimeSlotEntity.class,timehostId);
+//    }
+@Override
+public TimeSlotEntity getTimeSlot(String uuidTime) {
+    TimeSlotEntity hashKeyValues = new TimeSlotEntity();
+    hashKeyValues.setUuidTime(uuidTime);
+
+    DynamoDBQueryExpression<TimeSlotEntity> queryExpression = new DynamoDBQueryExpression<TimeSlotEntity>()
+            .withHashKeyValues(hashKeyValues);
+
+    List<TimeSlotEntity> result = dynamoDBMapper.query(TimeSlotEntity.class, queryExpression);
+
+    if (!result.isEmpty()) {
+        return result.get(0);
+    } else {
+        return null;
     }
+}
+
+
 
     @Override
     public TimeSlotEntity updateTimeSlot(String partition, TimeSlotEntity timeentity) {

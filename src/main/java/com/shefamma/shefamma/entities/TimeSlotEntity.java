@@ -17,7 +17,8 @@ import java.util.List;
 @NoArgsConstructor
 @DynamoDBTable(tableName = "ShefAmma")
 public class TimeSlotEntity {
-
+    public TimeSlotEntity(String uuidTime) {
+    }
     public void setUuidTime(String uuidTime) {
         if (uuidTime.startsWith("time#")) {
             this.uuidTime = uuidTime;
@@ -31,7 +32,6 @@ public class TimeSlotEntity {
     private String duration;
     @DynamoDBAttribute(attributeName = "cap")
     private int capacity;
-
     @DynamoDBAttribute(attributeName = "slots")
     private List<SlotSubEntity> slots;
     public void resetCurrentCapacityIfNecessary() {
@@ -50,3 +50,24 @@ public class TimeSlotEntity {
         }
     }
 }
+
+//{
+//        "uuidTime": "time#123456789",
+//        "duration": "60",
+//        "capacity": 10,
+//        "slots": [
+//        {
+//        "startTime": 9,
+//        "currentCapacity": 10
+//        },
+//        {
+//        "startTime": 11,
+//        "currentCapacity": 5
+//        },
+//        {
+//        "startTime": 14,
+//        "currentCapacity": 8
+//        }
+//        ]
+//        }
+
