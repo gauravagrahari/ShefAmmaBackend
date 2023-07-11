@@ -2,6 +2,7 @@ package com.shefamma.shefamma.HostRepository;
 
 import com.shefamma.shefamma.entities.HostCardEntity;
 import com.shefamma.shefamma.entities.HostEntity;
+import com.shefamma.shefamma.entities.OrderEntity;
 
 import java.util.List;
 
@@ -19,6 +20,8 @@ public interface Host {
     List<HostEntity> getHostsTimeSlotSearchFilter(int startTime, int endTime, String timeDuration);
 
     List<HostCardEntity> findRestaurantsWithinRadius(double latitude, double longitude, double radius);
+
+    OrderEntity getHostRatingReview(HostEntity hostEntity);
 
 //    HostEntity updateHostAttribute(String attributName, HostEntity host);
 }

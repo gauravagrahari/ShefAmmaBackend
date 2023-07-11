@@ -4,10 +4,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.shefamma.shefamma.entities.HostCardEntity;
-import com.shefamma.shefamma.entities.HostEntity;
-import com.shefamma.shefamma.entities.ItemEntity;
-import com.shefamma.shefamma.entities.TimeSlotEntity;
+import com.shefamma.shefamma.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -24,6 +21,8 @@ public class HostImpl implements Host {
     private CommonMethods commonMethods;
     @Autowired
     private HostCardEntity hostCardEntity;
+    @Autowired
+    private OrderEntity orderEntity;
 
 
     public HostEntity saveHost(HostEntity host) {
@@ -199,7 +198,6 @@ public class HostImpl implements Host {
                 .collect(Collectors.toList());
     }
 
-
     @Override
     public List<HostEntity> getHostsCategorySearchFilter(String dineCategoryValue) {
         DynamoDBQueryExpression<HostEntity> queryExpression = new DynamoDBQueryExpression<HostEntity>()
@@ -266,16 +264,45 @@ public class HostImpl implements Host {
         }
 
         Map<String, List<Object>> resultMap = dynamoDBMapper.batchLoad((Iterable<? extends Object>) Collections.singletonMap(HostEntity.class, hostIds));
-        List<HostEntity> hosts = resultMap.values().stream()
+
+        return resultMap.values().stream()
                 .flatMap(Collection::stream)
                 .map(obj -> (HostEntity) obj)
                 .collect(Collectors.toList());
-
-        return hosts;
     }
 
+    //sevaral changes requird
+    @Override
+    public OrderEntity getHostRatingReview(HostEntity hostEntity) {
+        // Create a query expression for the GSI using the host ID as the partition key
+        Map<String, AttributeValue> eav = new HashMap<>();
+        eav.put(":hostId", new AttributeValue().withS(hostEntity.getUuidHost()));
 
+        DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
+                .withIndexName("gsi1") // Replace 'gsi_name' with the actual GSI name
+                .withConsistentRead(false) // Adjust the consistency based on your requirements
+                .withKeyConditionExpression("gpk = :hostId")
+                .withExpressionAttributeValues(eav)
+                .withProjectionExpression("rat, rev"); // Specify the attributes to retrieve
 
+        // Execute the query
+        PaginatedQueryList<OrderEntity> result = dynamoDBMapper.query(OrderEntity.class, queryExpression);
+
+        // Process the query result to extract ratings and reviews
+        List<String> ratings = new ArrayList<>();
+        List<String> reviews = new ArrayList<>();
+
+        for (OrderEntity order : result) {
+            ratings.add(order.getRating());
+            reviews.add(order.getReview());
+        }
+
+        // Set the ratings and reviews in the orderEntity object
+        orderEntity.setRating(ratings.toString());
+        orderEntity.setReview(reviews.toString());
+
+        return orderEntity;
+    }
 }
 //    @Override
 //    public List<HostEntity> getHostsTimeSlotSearchFilter(int t1, int t2, String timeDuration) {

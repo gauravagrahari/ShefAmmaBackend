@@ -9,6 +9,7 @@ import com.shefamma.shefamma.config.PinpointClass;
 import com.shefamma.shefamma.entities.*;
 import com.shefamma.shefamma.services.JwtServices;
 import jakarta.servlet.http.HttpServletRequest;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,7 +62,9 @@ public class MyController {
     private GeocodingService geocodingService;
     @Autowired
     private PinpointClass pinpointClass;
-
+    private String generatedOtp; // Store the generated OTP here
+//    ---------------------------------------------------------
+    private LocalDateTime otpExpirationTime; // Store the expiration time here
 
     @CrossOrigin(origins = "*")
     @PostMapping("/home")
@@ -69,10 +72,6 @@ public class MyController {
         System.out.println(message);
         return homeEntity.getFName();
     }
-//    ---------------------------------------------------------
-
-    private String generatedOtp; // Store the generated OTP here
-    private LocalDateTime otpExpirationTime; // Store the expiration time here
 
     @PostMapping("/host/generateOtp")
     public ResponseEntity<String> generateOtp() {
@@ -148,13 +147,11 @@ public class MyController {
 
     ///guest/hosts?radius=val
     @GetMapping("/guest/hosts")
-    public List<HostCardEntity> getHostsWithinRadius(@RequestHeader("UUID") String uuidGuest,
-                                                     @RequestParam double radius) throws Exception {
-
+    public List<HostCardEntity> getHostsWithinRadius(@RequestHeader("UUID") String uuidGuest, @RequestParam double radius) throws Exception {
         GeocodingResult[] results = geocodingService.geocode(guest.getGuest(uuidGuest).convertToString());
         double latitude = results[0].geometry.location.lat;
         double longitude = results[0].geometry.location.lng;
-        List<HostCardEntity> x=host.findRestaurantsWithinRadius(latitude, longitude, radius);
+        List<HostCardEntity> x = host.findRestaurantsWithinRadius(latitude, longitude, radius);
         System.out.println(x);
 //        return host.findRestaurantsWithinRadius(latitude, longitude, radius);
         return x;
@@ -162,12 +159,11 @@ public class MyController {
 
     //  /guest/host?item=val&radius=val
     @GetMapping("/guest/hosts/itemSearch")
-    public List<HostCardEntity> getHostsItemSearchFilter(@RequestHeader("UUID") String uuidGuest,@RequestParam String address, @RequestParam("item") String itemValue, @RequestParam double radius) throws Exception {
+    public List<HostCardEntity> getHostsItemSearchFilter(@RequestHeader("UUID") String uuidGuest, @RequestParam String address, @RequestParam("item") String itemValue, @RequestParam double radius) throws Exception {
         GeocodingResult[] results;
-        if (Objects.equals(address, "address")){
+        if (Objects.equals(address, "address")) {
             results = geocodingService.geocode(guest.getGuest(uuidGuest).convertToString());
-        }
-        else {
+        } else {
             results = geocodingService.geocode(address);
         }
         double latitude = results[0].geometry.location.lat;
@@ -192,7 +188,10 @@ public class MyController {
     public List<HostEntity> getHostsTimeSlotSearchFilter(@RequestParam String startTime, @RequestParam String endTime, @RequestParam String timeDuration) {
         return host.getHostsTimeSlotSearchFilter(Integer.parseInt(startTime), Integer.parseInt(endTime), timeDuration);
     }
-
+@GetMapping("/host/ratingReview")
+public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
+        return host.getHostRatingReview(hostEntity);
+}
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************Guest controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
@@ -244,7 +243,7 @@ public class MyController {
 //    **************************************Item controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
     @PostMapping("/host/menuItem")
-    public List<ItemEntity> createItems(@RequestBody List<ItemEntity> itemEntities) {
+    public List<ItemEntity> createItems(@NotNull @RequestBody List<ItemEntity> itemEntities) {
         List<ItemEntity> items = new ArrayList<>();
         for (ItemEntity itemEntity : itemEntities) {
             ItemEntity savedItem = item.saveItem(itemEntity);
@@ -258,7 +257,7 @@ public class MyController {
         return item.updateItem(itementity.getUuidItem(), itementity.getNameItem(), itementity);
     }
 
-//    @GetMapping("/guest/host/menuItems")
+    //    @GetMapping("/guest/host/menuItems")
 //    public List<ItemEntity> getItems(@RequestHeader String id) {
 //        String[] idSplit = id.split("#");
 //        List<ItemEntity> x=item.getItems("item#" + idSplit[1]);
@@ -295,10 +294,11 @@ public class MyController {
         System.out.println(timeentity);
         return timeSlot.saveSlotTime(timeentity);
     }
+
     @GetMapping("/guest/host/timeSlot")
     public TimeSlotEntity getTimeSlot(@RequestHeader String id) {
         String[] idSplit = id.split("#");
-        TimeSlotEntity x=timeSlot.getTimeSlot("time#" + idSplit[1]);
+        TimeSlotEntity x = timeSlot.getTimeSlot("time#" + idSplit[1]);
         System.out.println(x);
         return x;
 //        return timeSlot.getTimeSlot("time#" + idSplit[1]);
@@ -309,15 +309,15 @@ public class MyController {
         return timeSlot.updateTimeSlot(timeentity.getUuidTime(), timeentity);
     }
 
-//-----------------------------
+    //-----------------------------
 //    this controller of will be used to fetch both the time slot and item of a host
 //-----------------------------
     @GetMapping("/guest/host/itemSlot")
     public List<ItemEntity> getItemsTimeSlot(@RequestParam String ids) {
         String[] idSplit = ids.split("#");
-         item.getItems("item#" + idSplit[1]);
-         timeSlot.getTimeSlot("time#" + idSplit[1]);
-         return null;
+        item.getItems("item#" + idSplit[1]);
+        timeSlot.getTimeSlot("time#" + idSplit[1]);
+        return null;
     }
 
     //    ------------------------------------------------------------------------------------------------------
@@ -330,7 +330,7 @@ public class MyController {
 
     //need to make changes in the bwloe controller to get orders based on status, i.e in-progress, completed
 //host/orders?status=val
-//    instead of sending orderEntity in body send the hostUuid or guestUUid as that would keep the logic in the backend
+//instead of sending orderEntity in body send the hostUuid or guestUUid as that would keep the logic in the backend
     @GetMapping("/host/orders")
     public List<OrderEntity> getHostOrders(@RequestBody OrderEntity orderEntity) {
         return order.getHostOrders(orderEntity);
@@ -342,10 +342,12 @@ public class MyController {
     }
 
     @PutMapping("/guest/order")
-    public OrderEntity cancelOrder(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName) {
-        return order.cancelOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
+    public OrderEntity updateOrder(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName) {
+        return order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
     }
-
+//    @PostMapping("/guest/order/rating")
+//    public OrderEntity updateOrderRating(){
+//    }
 
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************HostAccount controllers******************************************
@@ -370,12 +372,10 @@ public class MyController {
         }
     }
 
-
     @PostMapping("/hostLogin")
     public ResponseEntity<?> hostLogin(@RequestBody HostAccountEntity authRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authRequest.getHostPhone(), authRequest.getPassword()));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getHostPhone(), authRequest.getPassword()));
 
             if (authentication.isAuthenticated()) {
                 String token = jwtServices.generateToken(authRequest.getHostPhone());
@@ -417,8 +417,7 @@ public class MyController {
     @PostMapping("/guestLogin")
     public ResponseEntity<?> guestLogin(@RequestBody GuestAccountEntity authRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(authRequest.getGuestPhone(), authRequest.getPassword()));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getGuestPhone(), authRequest.getPassword()));
 
             if (authentication.isAuthenticated()) {
                 String token = jwtServices.generateToken(authRequest.getGuestPhone());

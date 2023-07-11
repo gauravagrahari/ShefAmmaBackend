@@ -44,20 +44,18 @@ public class HostEntity {
     @DynamoDBAttribute(attributeName = "dCat")
     private String dineCategory;
     @DynamoDBAttribute(attributeName = "DDP")
-//    private byte[] DDP;//DDP
-    private String DDP;//DDP
+    private String DDP;
      @DynamoDBAttribute(attributeName = "name")
-    private String nameHost;//DDP
+    private String nameHost;
 
     @DynamoDBAttribute(attributeName = "DP")
-//    private byte[] DP;//hDP
-    private String DP;//hDP
+    private String DP;
     @DynamoDBAttribute(attributeName = "dsec")
-    private String descriptionHost;//hDP
+    private String descriptionHost;
     @DynamoDBAttribute(attributeName = "curMes")
-    private String currentMessage;//hDP
+    private String currentMessage;
 
     @DynamoDBAttribute(attributeName = "adr")
-    private AdressSubEntity addressHost;//hAdrress
+    private AdressSubEntity addressHost;
 
 }
