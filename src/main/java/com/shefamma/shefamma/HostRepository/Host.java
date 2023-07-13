@@ -23,5 +23,7 @@ public interface Host {
 
     OrderEntity getHostRatingReview(HostEntity hostEntity);
 
+    HostEntity updateHostRating(String hostId, double userRating);
+
 //    HostEntity updateHostAttribute(String attributName, HostEntity host);
 }

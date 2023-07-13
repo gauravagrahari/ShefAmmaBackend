@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
 import com.shefamma.shefamma.entities.GuestEntity;
+import com.shefamma.shefamma.entities.HostEntity;
 import com.shefamma.shefamma.entities.OrderEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -24,6 +25,8 @@ public class OrderiImpl implements Order{
 
     @Autowired
     private CommonMethods commonMethods;
+    @Autowired
+    private Host host;
 
 
     @Override
@@ -65,25 +68,22 @@ public class OrderiImpl implements Order{
 
         return dynamoDBMapper.query(OrderEntity.class, queryExpression);
     }
-
     @Override
 //    public void cancelOrder(String partition, String sort, String attributeName, String status) {
     public OrderEntity updateOrder(String partition, String sort, String attributeName, OrderEntity orderEntity) {
         String value = null;
 //         Get the value of the specified attribute
         switch (attributeName) {
-            case "status":
-                value = orderEntity.getStatus();
-                break;
-            case "review":
-                value = orderEntity.getReview();
-                break;
-            case "rating":
-                value=orderEntity.getRating();
-                break;
-            default:
+            case "status" -> value = orderEntity.getStatus();
+            case "review" -> value = orderEntity.getReview();
+            case "rating" -> {
+                value = orderEntity.getRating();
+                HostEntity hostEntity=host.updateHostRating(orderEntity.getHostId(), Double.parseDouble(value));
+                System.out.println(hostEntity);
+            }
+            default ->
                 // Invalid attribute name provided
-                throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
+                    throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
         commonMethods.updateAttributeWithSortKey(partition,sort,attributeName,value);
         return orderEntity;

@@ -50,15 +50,15 @@ public class HostImpl implements Host {
             case "dineCategory":
                 value = hostentity.getDineCategory();
                 break;
-//            case "DDP":
-//                value = hostentity.getDDP();
-//                break;
+            case "DDP":
+                value = hostentity.getDDP();
+                break;
             case "nameHost":
                 value = hostentity.getNameHost();
                 break;
-//            case "DP":
-//                value = hostentity.getDP();
-//                break;
+            case "DP":
+                value = hostentity.getDP();
+                break;
             case "descriptionHost":
                 value = hostentity.getDescriptionHost();
                 break;
@@ -70,9 +70,10 @@ public class HostImpl implements Host {
                 // Invalid attribute name provided
                 throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
-        commonMethods.updateAttribute(partition,attributeName,value);
+        commonMethods.updateAttribute(partition, attributeName, value);
         return hostentity;
     }
+
     @Override
     public List<HostCardEntity> findRestaurantsWithinRadius(double latitude, double longitude, double radius) {
         Map<String, AttributeValue> eav = new HashMap<>();
@@ -158,10 +159,10 @@ public class HostImpl implements Host {
                     return distance <= radius;
                 })
                 .filter(host -> {
-                    String hostId=host.getUuidHost();
+                    String hostId = host.getUuidHost();
 
-                    String[] hostIdString =hostId.split("#");
-                   String  itemId="item#"+hostIdString[1];
+                    String[] hostIdString = hostId.split("#");
+                    String itemId = "item#" + hostIdString[1];
 
                     DynamoDBQueryExpression<ItemEntity> itemQueryExpression = new DynamoDBQueryExpression<ItemEntity>()
                             .withConsistentRead(false)
@@ -198,6 +199,7 @@ public class HostImpl implements Host {
                 .collect(Collectors.toList());
     }
 
+//    this method has mistake, check the ends_with method, wrong logic
     @Override
     public List<HostEntity> getHostsCategorySearchFilter(String dineCategoryValue) {
         DynamoDBQueryExpression<HostEntity> queryExpression = new DynamoDBQueryExpression<HostEntity>()
@@ -211,6 +213,7 @@ public class HostImpl implements Host {
                 .withScanIndexForward(true);
         return dynamoDBMapper.query(HostEntity.class, queryExpression);
     }
+
     @Override
     public List<HostEntity> getHostsCategorySearchFilter(double latitude, double longitude, double radius, String dineCategoryValue) {
         Map<String, AttributeValue> eav = new HashMap<>();
@@ -234,6 +237,7 @@ public class HostImpl implements Host {
                 })
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<HostEntity> getHostsTimeSlotSearchFilter(int t1, int t2, String timeDuration) {
         DynamoDBQueryExpression<TimeSlotEntity> queryExpression = new DynamoDBQueryExpression<TimeSlotEntity>()
@@ -274,35 +278,96 @@ public class HostImpl implements Host {
     //sevaral changes requird
     @Override
     public OrderEntity getHostRatingReview(HostEntity hostEntity) {
-        // Create a query expression for the GSI using the host ID as the partition key
-        Map<String, AttributeValue> eav = new HashMap<>();
-        eav.put(":hostId", new AttributeValue().withS(hostEntity.getUuidHost()));
+        OrderEntity orderEntity = new OrderEntity();
+        try {
+            // Create a query expression for the GSI using the host ID as the partition key
+            Map<String, AttributeValue> eav = new HashMap<>();
+            eav.put(":hostId", new AttributeValue().withS(hostEntity.getUuidHost()));
 
-        DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
-                .withIndexName("gsi1") // Replace 'gsi_name' with the actual GSI name
-                .withConsistentRead(false) // Adjust the consistency based on your requirements
-                .withKeyConditionExpression("gpk = :hostId")
-                .withExpressionAttributeValues(eav)
-                .withProjectionExpression("rat, rev"); // Specify the attributes to retrieve
+            DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
+                    .withIndexName("gsi1") // Replace 'gsi_name' with the actual GSI name
+                    .withConsistentRead(false) // Adjust the consistency based on your requirements
+                    .withKeyConditionExpression("gpk = :hostId")
+                    .withExpressionAttributeValues(eav)
+                    .withProjectionExpression("rat, rev, sk"); // Specify the attributes to retrieve
 
-        // Execute the query
-        PaginatedQueryList<OrderEntity> result = dynamoDBMapper.query(OrderEntity.class, queryExpression);
+            // Execute the query
+            PaginatedQueryList<OrderEntity> result = dynamoDBMapper.query(OrderEntity.class, queryExpression);
 
-        // Process the query result to extract ratings and reviews
-        List<String> ratings = new ArrayList<>();
-        List<String> reviews = new ArrayList<>();
+            // Process the query result to extract ratings and reviews
+            StringBuilder ratings = new StringBuilder();
+            StringBuilder reviews = new StringBuilder();
+            StringBuilder timeStamp = new StringBuilder();
 
-        for (OrderEntity order : result) {
-            ratings.add(order.getRating());
-            reviews.add(order.getReview());
+            for (OrderEntity order : result) {
+                ratings.append(order.getRating()).append(",");
+                reviews.append(order.getReview()).append(",");
+                timeStamp.append(order.getTimeStamp()).append(",");
+            }
+
+            // Set the ratings and reviews in the orderEntity object
+            orderEntity.setRating(ratings.length() > 0 ? ratings.substring(0, ratings.length() - 1) : "");
+            orderEntity.setReview(reviews.length() > 0 ? reviews.substring(0, reviews.length() - 1) : "");
+            orderEntity.setTimeStamp(timeStamp.length() > 0 ? timeStamp.substring(0, timeStamp.length() - 1) : "");
+
+        } catch (Exception e) {
+            System.out.println("Error occurred while fetching host rating and review: " + e.getMessage());
+            e.printStackTrace();
         }
-
-        // Set the ratings and reviews in the orderEntity object
-        orderEntity.setRating(ratings.toString());
-        orderEntity.setReview(reviews.toString());
-
         return orderEntity;
     }
+
+    @Override
+    public HostEntity updateHostRating(String hostId, double userRating) {
+        // Create a query expression to fetch the existing rating and number of ratings
+        Map<String, AttributeValue> eav = new HashMap<>();
+        eav.put(":hostId", new AttributeValue().withS(hostId));
+
+        DynamoDBQueryExpression<HostEntity> queryExpression = new DynamoDBQueryExpression<HostEntity>()
+                .withKeyConditionExpression("pk = :hostId")
+                .withExpressionAttributeValues(eav)
+                .withProjectionExpression("ratH,noOfRat"); // Specify the attributes to retrieve
+
+        // Execute the query to fetch the existing rating and number of ratings
+        PaginatedQueryList<HostEntity> result = dynamoDBMapper.query(HostEntity.class, queryExpression);
+
+        // Retrieve the HostEntity object from the query result
+        HostEntity hostEntity = result.get(0); // Assuming only one result is expected
+
+        // Calculate the new average rating and update the number of ratings
+        int numberOfRatings;
+        double existingRating;
+        double newRatingSum;
+        double newAverageRating;
+
+
+        if (hostEntity.getNoOfRating() == null) {
+            numberOfRatings = 1;
+
+            newAverageRating = userRating;
+        } else {
+            numberOfRatings = Integer.parseInt(hostEntity.getNoOfRating());
+
+            existingRating = Double.parseDouble(hostEntity.getRatingHost());
+            newRatingSum = existingRating * numberOfRatings + userRating;
+            numberOfRatings++;
+            newAverageRating = newRatingSum / (numberOfRatings);
+
+        }
+
+        // Update the hostEntity object with the new rating and number of ratings
+        hostEntity.setRatingHost(String.valueOf(newAverageRating));
+        hostEntity.setNoOfRating(String.valueOf(numberOfRatings));
+
+
+        Map<String, String> attributeUpdates = new HashMap<>();
+        attributeUpdates.put("ratH", String.valueOf(newAverageRating));
+        attributeUpdates.put("noOfRat", String.valueOf(numberOfRatings));
+
+        commonMethods.updateMultipleAttributes(hostId,"13.060091,80.286565", attributeUpdates);
+        return hostEntity;
+    }
+
 }
 //    @Override
 //    public List<HostEntity> getHostsTimeSlotSearchFilter(int t1, int t2, String timeDuration) {

@@ -57,5 +57,9 @@ public class HostEntity {
 
     @DynamoDBAttribute(attributeName = "adr")
     private AdressSubEntity addressHost;
+    @DynamoDBAttribute(attributeName = "ratH")
+    private String ratingHost;
+    @DynamoDBAttribute(attributeName = "noOfRat")
+    private String noOfRating;
 
 }

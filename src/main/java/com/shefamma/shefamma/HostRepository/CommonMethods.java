@@ -1,6 +1,7 @@
 package com.shefamma.shefamma.HostRepository;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
+import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
@@ -167,18 +168,14 @@ public class CommonMethods {
 //            throw new IllegalArgumentException("New capacity is greater than current capacity - " + newValue);
 //        }
     }
-
-
-
     /**
      * Updates multiple attributes of an item in the DynamoDB table.
      *
      * @param partitionKeyValue  The value of the partition key.
      * @param attributeValues    A map of attribute names and their new values.
      */
-    public void updateMulyipleAttributes(String partitionKeyValue, Map<String, String> attributeValues) {
+    public void updateMultipleAttributes(String partitionKeyValue, Map<String, String> attributeValues) {
         try {
-            // Create the key map for the partition key
             Map<String, AttributeValue> key = new HashMap<>();
             key.put("pk", new AttributeValue(partitionKeyValue));
 
@@ -186,7 +183,7 @@ public class CommonMethods {
             Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
 
             // Create the update expression string
-            String updateExpression = "SET ";
+            StringBuilder updateExpression = new StringBuilder("SET ");
 
             int index = 0;
             // Iterate over the attribute values map
@@ -199,28 +196,73 @@ public class CommonMethods {
                 expressionAttributeValues.put(placeholder, new AttributeValue(newValue));
 
                 // Add the attribute name and placeholder to the update expression
-                updateExpression += attributeName + " = " + placeholder + ", ";
+                updateExpression.append(attributeName).append(" = ").append(placeholder);
+                if (index != attributeValues.size() - 1) {
+                    updateExpression.append(", ");
+                }
 
                 index++;
             }
 
-            // Remove the trailing comma and space from the update expression
-            updateExpression = updateExpression.substring(0, updateExpression.length() - 2);
-
-            // Create the UpdateItemRequest
             UpdateItemRequest updateItemRequest = new UpdateItemRequest()
                     .withTableName(tableName)
                     .withKey(key)
-                    .withUpdateExpression(updateExpression)
+                    .withUpdateExpression(updateExpression.toString())
+                    .withExpressionAttributeValues(expressionAttributeValues);
+
+// Update the item in the DynamoDB table
+//            AmazonDynamoDB amazonDynamoDB = AmazonDynamoDBClientBuilder.defaultClient();
+            amazonDynamoDB.updateItem(updateItemRequest);
+        } catch (Exception e) {
+            // Handle exceptions as appropriate
+            e.printStackTrace();
+        }
+    }
+    public void updateMultipleAttributes(String partitionKeyValue, String sortKeyValue, Map<String, String> attributeValues) {
+        try {
+            Map<String, AttributeValue> key = new HashMap<>();
+            key.put("pk", new AttributeValue(partitionKeyValue));
+            key.put("sk", new AttributeValue(sortKeyValue));
+
+            // Create the map for expression attribute values
+            Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+
+            // Create the update expression string
+            StringBuilder updateExpression = new StringBuilder("SET ");
+
+            int index = 0;
+            // Iterate over the attribute values map
+            for (Map.Entry<String, String> entry : attributeValues.entrySet()) {
+                String attributeName = entry.getKey();
+                String newValue = entry.getValue();
+                String placeholder = ":newValue" + index;
+
+                // Add the attribute value to the expression attribute values map
+                expressionAttributeValues.put(placeholder, new AttributeValue(newValue));
+
+                // Add the attribute name and placeholder to the update expression
+                updateExpression.append(attributeName).append(" = ").append(placeholder);
+                if (index != attributeValues.size() - 1) {
+                    updateExpression.append(", ");
+                }
+
+                index++;
+            }
+
+            UpdateItemRequest updateItemRequest = new UpdateItemRequest()
+                    .withTableName(tableName)
+                    .withKey(key)
+                    .withUpdateExpression(updateExpression.toString())
                     .withExpressionAttributeValues(expressionAttributeValues);
 
             // Update the item in the DynamoDB table
             amazonDynamoDB.updateItem(updateItemRequest);
         } catch (Exception e) {
-            // Handle exceptions as appropriate for your application
+            // Handle exceptions as appropriate
             e.printStackTrace();
         }
     }
+
     /**
      * Updates a specific attribute of a nested JSON object based on the unique attribute of the nested JSON object.
      *
