@@ -1,19 +1,19 @@
 package com.shefamma.shefamma.config;
 
-import com.shefamma.shefamma.entities.HostAccountEntity;
+import com.shefamma.shefamma.entities.AccountEntity;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.Collections;
 
-public class HostAccountEntityUserDetails implements UserDetails {
+public class AccountEntityUserDetails implements UserDetails {
 
     private String name;
     private String password;
 
-    public HostAccountEntityUserDetails(HostAccountEntity userInfo) {
-        name = userInfo.getHostPhone();
+    public AccountEntityUserDetails(AccountEntity userInfo) {
+        name = userInfo.getPhone();
         password = userInfo.getPassword();
     }
     @Override

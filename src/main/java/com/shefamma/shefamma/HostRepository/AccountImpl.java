@@ -3,8 +3,8 @@ package com.shefamma.shefamma.HostRepository;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.shefamma.shefamma.config.HostAccountEntityUserDetails;
-import com.shefamma.shefamma.entities.HostAccountEntity;
+import com.shefamma.shefamma.config.AccountEntityUserDetails;
+import com.shefamma.shefamma.entities.AccountEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 //@Repository
-public class HostAccountImpl implements HostAccount, UserDetailsService {
+public class AccountImpl implements Account, UserDetailsService {
     @Autowired
     private DynamoDBMapper dynamoDBMapper;
     @Autowired
@@ -24,37 +24,40 @@ public class HostAccountImpl implements HostAccount, UserDetailsService {
     String storedUuid;
 
     @Override
-    public String saveHostSignup(HostAccountEntity hostAccountEntity) {
-        hostAccountEntity.setPassword(passwordEncoder.encode(hostAccountEntity.getPassword()));
-        dynamoDBMapper.save(hostAccountEntity);
-        return "host#"+hostAccountEntity.getHostUuid();
+    public String saveSignup(AccountEntity accountEntity,String user) {
+        accountEntity.setPassword(passwordEncoder.encode(accountEntity.getPassword()));
+        dynamoDBMapper.save(accountEntity);
+        return user+"#"+accountEntity.getUuid();
     }
 
     @Override
     public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
-        HostAccountEntity hostAccount = findUserByPhone(phone);
+        AccountEntity hostAccount = findUserByPhone(phone);
         if (hostAccount == null) {
             throw new UsernameNotFoundException("user not found " + phone);
         }
-        setStoredUuid(hostAccount.getHostUuid());
-        return new HostAccountEntityUserDetails(hostAccount);
+        setStoredUuid(hostAccount.getUuid());
+        return new AccountEntityUserDetails(hostAccount);
     }
-
-    private HostAccountEntity findUserByPhone(String phone) {
+    private AccountEntity findUserByPhone(String phone) {
         Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
         expressionAttributeValues.put(":phone", new AttributeValue().withS(phone));
 
-        DynamoDBQueryExpression<HostAccountEntity> queryExpression = new DynamoDBQueryExpression<HostAccountEntity>()
+        DynamoDBQueryExpression<AccountEntity> queryExpression = new DynamoDBQueryExpression<AccountEntity>()
                 .withKeyConditionExpression("pk = :phone")
                 .withExpressionAttributeValues(expressionAttributeValues)
                 .withLimit(1);
 
-        List<HostAccountEntity> users = dynamoDBMapper.query(HostAccountEntity.class, queryExpression);
+        List<AccountEntity> users = dynamoDBMapper.query(AccountEntity.class, queryExpression);
         return users.isEmpty() ? null : users.get(0);
     }
     @Override
     public String storeHostUuid() {
         return "host#"+storedUuid;
+    }
+    @Override
+    public String storeGuestUuid() {
+        return "guest#"+storedUuid;
     }
 
     public void setStoredUuid(String storedUuid) {

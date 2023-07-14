@@ -3,12 +3,11 @@ package com.shefamma.shefamma.controller;
 import com.google.maps.model.GeocodingResult;
 import com.shefamma.shefamma.HostRepository.*;
 import com.shefamma.shefamma.HostRepository.GuestAccount;
-import com.shefamma.shefamma.HostRepository.HostAccount;
+import com.shefamma.shefamma.HostRepository.Account;
 import com.shefamma.shefamma.config.GeocodingService;
 import com.shefamma.shefamma.config.PinpointClass;
 import com.shefamma.shefamma.entities.*;
 import com.shefamma.shefamma.services.JwtServices;
-import jakarta.servlet.http.HttpServletRequest;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,7 @@ public class MyController {
     @Autowired
     private Order order;
     @Autowired
-    private HostAccount hostAccount;
+    private Account account;
     @Autowired
     private GuestAccount guestAccount;
     @Autowired
@@ -52,7 +51,7 @@ public class MyController {
 //    @Qualifier("userDetailsServiceGuest")
 //    private UserDetailsService userDetailsServiceGuest;
 //    @Autowired
-    private HostAccountEntity hostAccountEntity;
+    private AccountEntity hostAccountEntity;
 
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -358,18 +357,18 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
 //    **************************************HostAccount controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
     @PostMapping("/hostSignup")
-    public ResponseEntity<?> getUser(@RequestBody HostAccountEntity hostentity) {
+    public ResponseEntity<?> getUser(@RequestBody AccountEntity hostentity) {
         try {
-            userDetailsService.loadUserByUsername(hostentity.getHostPhone());
+            userDetailsService.loadUserByUsername(hostentity.getPhone());
 
-            String errorMessage = "User already exists for phone: " + hostentity.getHostPhone();
+            String errorMessage = "User already exists for phone: " + hostentity.getPhone();
             return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
         } catch (UsernameNotFoundException e) {
             // User doesn't exist, proceed with saving the details
-            String x = hostAccount.saveHostSignup(hostentity);
+            String x = account.saveSignup(hostentity,"host");
 
             // Generate the JWT token for the new user
-            String token = jwtServices.generateToken(hostentity.getHostPhone());
+            String token = jwtServices.generateToken(hostentity.getPhone());
             Map<String, Object> response = new HashMap<>();
             response.put("x", x);
             response.put("token", token);
@@ -378,13 +377,55 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
     }
 
     @PostMapping("/hostLogin")
-    public ResponseEntity<?> hostLogin(@RequestBody HostAccountEntity authRequest) {
+    public ResponseEntity<?> hostLogin(@RequestBody AccountEntity authRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getHostPhone(), authRequest.getPassword()));
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getPhone(), authRequest.getPassword()));
 
             if (authentication.isAuthenticated()) {
-                String token = jwtServices.generateToken(authRequest.getHostPhone());
-                String x = hostAccount.storeHostUuid();
+                String token = jwtServices.generateToken(authRequest.getPhone());
+                String x = account.storeHostUuid();
+                Map<String, Object> response = new HashMap<>();
+                response.put("x", x);
+                response.put("token", token);
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            }
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+        }
+    }
+    //    ------------------------------------------------------------------------------------------------------
+    //    **************************************GuestAccount controllers******************************************
+//    ------------------------------------------------------------------------------------------------------
+    @PostMapping("/guestSignup")
+    public ResponseEntity<?> getUserGuest(@RequestBody AccountEntity guestEntity) {
+        try {
+            userDetailsService.loadUserByUsername(guestEntity.getPhone());
+
+            String errorMessage = "User already exists for phone: " + guestEntity.getPhone();
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
+        } catch (UsernameNotFoundException e) {
+            // User doesn't exist, proceed with saving the details
+            String x = account.saveSignup(guestEntity,"guest");
+
+            // Generate the JWT token for the new user
+            String token = jwtServices.generateToken(guestEntity.getPhone());
+            Map<String, Object> response = new HashMap<>();
+            response.put("x", x);
+            response.put("token", token);
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    @PostMapping("/guestLogin")
+    public ResponseEntity<?> guestLogin(@RequestBody AccountEntity authRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getPhone(), authRequest.getPassword()));
+
+            if (authentication.isAuthenticated()) {
+                String token = jwtServices.generateToken(authRequest.getPhone());
+                String x = account.storeGuestUuid();
                 Map<String, Object> response = new HashMap<>();
                 response.put("x", x);
                 response.put("token", token);
@@ -397,9 +438,6 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
         }
     }
 
-    //    ------------------------------------------------------------------------------------------------------
-    //    **************************************GuestAccount controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
 //    @PostMapping("/guestSignup")
 //    public ResponseEntity<?> getUser(@RequestBody GuestAccountEntity guestEntity) {
 //        try {
@@ -419,23 +457,23 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
 //        }
 //    }
 
-    @PostMapping("/guestLogin")
-    public ResponseEntity<?> guestLogin(@RequestBody GuestAccountEntity authRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getGuestPhone(), authRequest.getPassword()));
-
-            if (authentication.isAuthenticated()) {
-                String token = jwtServices.generateToken(authRequest.getGuestPhone());
-                String x = guestAccount.storeGuestUuid();
-                Map<String, Object> response = new HashMap<>();
-                response.put("x", x);
-                response.put("token", token);
-                return ResponseEntity.ok(response);
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-            }
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
-        }
-    }
+//    @PostMapping("/guestLogin")
+//    public ResponseEntity<?> guestLogin(@RequestBody GuestAccountEntity authRequest) {
+//        try {
+//            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getGuestPhone(), authRequest.getPassword()));
+//
+//            if (authentication.isAuthenticated()) {
+//                String token = jwtServices.generateToken(authRequest.getGuestPhone());
+//                String x = guestAccount.storeGuestUuid();
+//                Map<String, Object> response = new HashMap<>();
+//                response.put("x", x);
+//                response.put("token", token);
+//                return ResponseEntity.ok(response);
+//            } else {
+//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+//            }
+//        } catch (AuthenticationException e) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+//        }
+//    }
 }
