@@ -21,19 +21,19 @@ public class GuestEntity {
         }
     }
     @DynamoDBHashKey(attributeName = "pk")
-    private String uuidGuest;//h_id
+    private String uuidGuest;
     @DynamoDBRangeKey(attributeName = "sk")
-    private String geocode;//hName
+    private String geocode;
     @DynamoDBAttribute(attributeName = "name")
-    private String name;//hEmail
+    private String name;
     @DynamoDBAttribute(attributeName = "DP")
-    private String DP;//hDP
+    private String DP;
     @DynamoDBAttribute(attributeName = "adr")
-    private AdressSubEntity addressGuest;//hAdrress
+    private AdressSubEntity addressGuest;
     @DynamoDBAttribute(attributeName = "dob")
-    private String dob;//hDP
+    private String dob;
     @DynamoDBAttribute(attributeName = "gen")
-    private String gender;//hDP
+    private String gender;
 }
 //{
 //        "uuidGuest": "guest#123456789",

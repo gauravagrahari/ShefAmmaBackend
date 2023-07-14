@@ -267,14 +267,13 @@ public class HostImpl implements Host {
             hostIds.add(splitted[0] + "#host");
         }
 
-        Map<String, List<Object>> resultMap = dynamoDBMapper.batchLoad((Iterable<? extends Object>) Collections.singletonMap(HostEntity.class, hostIds));
+        Map<String, List<Object>> resultMap = dynamoDBMapper.batchLoad((Iterable<?>) Collections.singletonMap(HostEntity.class, hostIds));
 
         return resultMap.values().stream()
                 .flatMap(Collection::stream)
                 .map(obj -> (HostEntity) obj)
                 .collect(Collectors.toList());
     }
-
     //sevaral changes requird
     @Override
     public OrderEntity getHostRatingReview(HostEntity hostEntity) {
@@ -289,7 +288,7 @@ public class HostImpl implements Host {
                     .withConsistentRead(false) // Adjust the consistency based on your requirements
                     .withKeyConditionExpression("gpk = :hostId")
                     .withExpressionAttributeValues(eav)
-                    .withProjectionExpression("rat, rev, sk"); // Specify the attributes to retrieve
+                    .withProjectionExpression("rat, rev, sk, name"); // Specify the attributes to retrieve
 
             // Execute the query
             PaginatedQueryList<OrderEntity> result = dynamoDBMapper.query(OrderEntity.class, queryExpression);
@@ -298,17 +297,20 @@ public class HostImpl implements Host {
             StringBuilder ratings = new StringBuilder();
             StringBuilder reviews = new StringBuilder();
             StringBuilder timeStamp = new StringBuilder();
+            StringBuilder name = new StringBuilder();//name is name of guest
 
             for (OrderEntity order : result) {
                 ratings.append(order.getRating()).append(",");
                 reviews.append(order.getReview()).append(",");
                 timeStamp.append(order.getTimeStamp()).append(",");
+                name.append(order.getName()).append(",");
             }
 
             // Set the ratings and reviews in the orderEntity object
             orderEntity.setRating(ratings.length() > 0 ? ratings.substring(0, ratings.length() - 1) : "");
             orderEntity.setReview(reviews.length() > 0 ? reviews.substring(0, reviews.length() - 1) : "");
             orderEntity.setTimeStamp(timeStamp.length() > 0 ? timeStamp.substring(0, timeStamp.length() - 1) : "");
+            orderEntity.setName(timeStamp.length() > 0 ? name.substring(0, name.length() - 1) : "");
 
         } catch (Exception e) {
             System.out.println("Error occurred while fetching host rating and review: " + e.getMessage());
@@ -340,7 +342,6 @@ public class HostImpl implements Host {
         double newRatingSum;
         double newAverageRating;
 
-
         if (hostEntity.getNoOfRating() == null) {
             numberOfRatings = 1;
 
@@ -352,7 +353,6 @@ public class HostImpl implements Host {
             newRatingSum = existingRating * numberOfRatings + userRating;
             numberOfRatings++;
             newAverageRating = newRatingSum / (numberOfRatings);
-
         }
 
         // Update the hostEntity object with the new rating and number of ratings

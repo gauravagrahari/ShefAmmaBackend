@@ -22,21 +22,16 @@ public class OrderEntity  {
             this.uuidOrder = "order#" + uuidOrder;
         }
     }
-//    public void setTimeStampGsi(String timeStampGsi) {
-//        this.timeStampGsi = getTimeStamp();
-//    }
     @DynamoDBHashKey(attributeName = "pk")
-    private String uuidOrder;
+    private String uuidOrder;//uuid will be of guest
     @DynamoDBRangeKey(attributeName = "sk")
-//    @DynamoDBIndexRangeKey(attributeName = "gsk",globalSecondaryIndexName = "gsi1")
     private String timeStamp;
     @DynamoDBIndexHashKey(attributeName = "gpk", globalSecondaryIndexName = "gsi1")
     private String hostId;
-
     @DynamoDBIndexRangeKey(attributeName = "gsk",globalSecondaryIndexName = "gsi1")
     private String timeStampGsi;
-//    @DynamoDBIndexHashKey(attributeName = "gpk",globalSecondaryIndexName = "gsi1")
-//    private String gsiPk;///////this will contain the hostiD
+    @DynamoDBAttribute(attributeName = "name")
+    private String name;//this name will be name of the guest
     @DynamoDBAttribute(attributeName = "stts")
     private String status;
     @DynamoDBAttribute(attributeName = "amt")
@@ -53,10 +48,10 @@ public class OrderEntity  {
     private String pickUp;
     @DynamoDBAttribute(attributeName = "stTm")
     private int startTime;
+    @DynamoDBAttribute(attributeName = "pyMd")
+    private String payMode;
     @DynamoDBAttribute(attributeName = "ordItms")
     private List<OrderedItem> orderedItems;
-
-
     public OrderEntity(String s) {
 //        this.s = s;
     }

@@ -23,8 +23,8 @@ public class CommonMethods {
     @Autowired
     private DynamoDBMapper dynamoDBMapper;
     String tableName="ShefAmma";
-
-
+//*******************
+//the methods below can be modified to return boolean on success or failure
     /**
      * Updates a specific attribute in a DynamoDB table using the primary key.
 
@@ -56,7 +56,7 @@ public class CommonMethods {
      * Updates a specific attribute in a DynamoDB table using the primary key (partition key and sort key).
      * @param partitionKeyValue The value of the partition key attribute.
      * @param sortKeyValue      The value of the sort key attribute.
-     * @param attributeName     The name of the attribute to update.
+     * @param attributeName     The name of the attribute to update, it is the value present in the dynamoDb table not the variable name in the Entity class.
      * @param newValue          The new value for the attribute.
      */
     public void updateAttributeWithSortKey(String partitionKeyValue, String sortKeyValue, String attributeName, String newValue) {
@@ -200,7 +200,6 @@ public class CommonMethods {
                 if (index != attributeValues.size() - 1) {
                     updateExpression.append(", ");
                 }
-
                 index++;
             }
 
@@ -210,8 +209,6 @@ public class CommonMethods {
                     .withUpdateExpression(updateExpression.toString())
                     .withExpressionAttributeValues(expressionAttributeValues);
 
-// Update the item in the DynamoDB table
-//            AmazonDynamoDB amazonDynamoDB = AmazonDynamoDBClientBuilder.defaultClient();
             amazonDynamoDB.updateItem(updateItemRequest);
         } catch (Exception e) {
             // Handle exceptions as appropriate

@@ -11,7 +11,9 @@ import com.shefamma.shefamma.entities.OrderEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Repository
 public class OrderiImpl implements Order{
@@ -22,7 +24,6 @@ public class OrderiImpl implements Order{
     private OrderEntity orderEntity;
     @Autowired
     private GuestEntity guestEntity;
-
     @Autowired
     private CommonMethods commonMethods;
     @Autowired
@@ -54,8 +55,7 @@ public class OrderiImpl implements Order{
 //        orderEntity.
         return null;
     }
-
-
+    
     @Override
     public List<OrderEntity> getGuestOrders(OrderEntity orderEntity) {
         String guestId = orderEntity.getUuidOrder();
@@ -81,6 +81,8 @@ public class OrderiImpl implements Order{
                 HostEntity hostEntity=host.updateHostRating(orderEntity.getHostId(), Double.parseDouble(value));
                 System.out.println(hostEntity);
             }
+            case "payment" -> value =orderEntity.getPayMode();
+
             default ->
                 // Invalid attribute name provided
                     throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
@@ -98,6 +100,16 @@ public class OrderiImpl implements Order{
 
         dynamoDBMapper.save(orderEntity, saveExpression);
         return orderEntity;
+    }
+
+    @Override
+    public void updatePayment(OrderEntity orderEntity) {
+
+        Map<String, String> attributeUpdates = new HashMap<>();
+        attributeUpdates.put("pyMd", orderEntity.getPayMode());
+        attributeUpdates.put("status",orderEntity.getStatus());
+
+        commonMethods.updateMultipleAttributes(orderEntity.getUuidOrder(),orderEntity.getTimeStamp(), attributeUpdates);
     }
 }
 

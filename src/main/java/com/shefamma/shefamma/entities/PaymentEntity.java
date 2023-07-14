@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @AllArgsConstructor
 @NoArgsConstructor
 @DynamoDBTable(tableName = "ShefAmma")
-public class Payment {
+public class PaymentEntity {
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidOrderHost;
     @DynamoDBRangeKey(attributeName = "sk")

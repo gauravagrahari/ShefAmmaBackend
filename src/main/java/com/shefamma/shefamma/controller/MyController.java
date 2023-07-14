@@ -345,6 +345,11 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
     public OrderEntity updateOrder(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName) {
         return order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
     }
+    @PutMapping("/host/payment")
+    public void updatePayment(@RequestBody OrderEntity orderEntity){
+//        return order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), "pyMd", orderEntity);
+         order.updatePayment(orderEntity);
+    }
 //    @PostMapping("/guest/order/rating")
 //    public OrderEntity updateOrderRating(){
 //    }

@@ -15,4 +15,5 @@ public interface Order {
 
     OrderEntity cancelOrder(OrderEntity orderEntity);
 
+    void updatePayment(OrderEntity orderEntity);
 }
