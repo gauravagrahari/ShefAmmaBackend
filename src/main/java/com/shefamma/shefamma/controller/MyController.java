@@ -2,7 +2,6 @@ package com.shefamma.shefamma.controller;
 
 import com.google.maps.model.GeocodingResult;
 import com.shefamma.shefamma.HostRepository.*;
-import com.shefamma.shefamma.HostRepository.GuestAccount;
 import com.shefamma.shefamma.HostRepository.Account;
 import com.shefamma.shefamma.config.GeocodingService;
 import com.shefamma.shefamma.config.PinpointClass;
@@ -40,8 +39,7 @@ public class MyController {
     private Order order;
     @Autowired
     private Account account;
-    @Autowired
-    private GuestAccount guestAccount;
+
     @Autowired
     private HomeEntity homeEntity;
     @Autowired
