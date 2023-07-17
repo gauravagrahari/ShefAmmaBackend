@@ -37,29 +37,24 @@ public class HostEntity {
     private String geocode;
     @DynamoDBIndexHashKey(attributeName = "gpk",globalSecondaryIndexName = "gsi1")
     private String gsiPk;
-
     @DynamoDBIndexRangeKey(attributeName = "gsk",globalSecondaryIndexName = "gsi1")
     private String uuidHostGsi;
-
     @DynamoDBAttribute(attributeName = "dCat")
     private String dineCategory;
     @DynamoDBAttribute(attributeName = "DDP")
     private String DDP;
      @DynamoDBAttribute(attributeName = "name")
     private String nameHost;
-
     @DynamoDBAttribute(attributeName = "DP")
     private String DP;
     @DynamoDBAttribute(attributeName = "dsec")
     private String descriptionHost;
     @DynamoDBAttribute(attributeName = "curMes")
     private String currentMessage;
-
     @DynamoDBAttribute(attributeName = "adr")
     private AdressSubEntity addressHost;
     @DynamoDBAttribute(attributeName = "ratH")
     private String ratingHost;
     @DynamoDBAttribute(attributeName = "noOfRat")
     private String noOfRating;
-
 }

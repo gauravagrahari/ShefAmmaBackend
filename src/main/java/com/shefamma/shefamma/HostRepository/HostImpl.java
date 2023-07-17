@@ -16,15 +16,12 @@ public class HostImpl implements Host {
 
     @Autowired
     private DynamoDBMapper dynamoDBMapper;
-
     @Autowired
     private CommonMethods commonMethods;
     @Autowired
     private HostCardEntity hostCardEntity;
     @Autowired
     private OrderEntity orderEntity;
-
-
     public HostEntity saveHost(HostEntity host) {
         dynamoDBMapper.save(host);
         return host;

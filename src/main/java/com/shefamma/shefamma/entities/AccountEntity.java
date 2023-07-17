@@ -14,8 +14,12 @@ import org.springframework.stereotype.Component;
 public class AccountEntity {
     @DynamoDBHashKey(attributeName = "pk")
     private String phone;
-    @DynamoDBRangeKey(attributeName = "sk")
+//    @DynamoDBIndexHashKey(attributeName = "gpk2",globalSecondaryIndexName = "gsi2")
+@DynamoDBIndexHashKey(attributeName = "gpk",globalSecondaryIndexName = "gsi1")
+//    @DynamoDBRangeKey(attributeName = "sk")
     private String email;
+//    @DynamoDBIndexRangeKey(attributeName = "gsk",globalSecondaryIndexName = "gsi")
+    @DynamoDBAttribute(attributeName = "tmSt")
     private String timeStamp;
     @DynamoDBAttribute(attributeName = "pass")
     private String password;

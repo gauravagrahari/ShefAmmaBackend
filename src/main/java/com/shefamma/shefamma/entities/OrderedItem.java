@@ -11,9 +11,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @DynamoDBDocument
 public class OrderedItem {
-    @DynamoDBAttribute
-    private String itemId;
-     @DynamoDBAttribute
+    @DynamoDBAttribute(attributeName="name")
+    private String itemName;
+    @DynamoDBAttribute(attributeName="amt")
+    private String itemPrice;
+    @DynamoDBAttribute(attributeName="nOS")
     private String noOfServing;
     
 }

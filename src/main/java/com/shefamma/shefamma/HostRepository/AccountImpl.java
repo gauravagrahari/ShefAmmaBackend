@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 //@Repository
-public class AccountImpl implements Account, UserDetailsService {
+public class AccountImpl implements Account, UserDetailsService{
     @Autowired
     private DynamoDBMapper dynamoDBMapper;
     @Autowired
@@ -34,11 +34,12 @@ public class AccountImpl implements Account, UserDetailsService {
     public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
         AccountEntity hostAccount = findUserByPhone(phone);
         if (hostAccount == null) {
-            throw new UsernameNotFoundException("user not found " + phone);
+            throw new UsernameNotFoundException("User not found " + phone);
         }
         setStoredUuid(hostAccount.getUuid());
         return new AccountEntityUserDetails(hostAccount);
     }
+
     private AccountEntity findUserByPhone(String phone) {
         Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
         expressionAttributeValues.put(":phone", new AttributeValue().withS(phone));
@@ -51,6 +52,22 @@ public class AccountImpl implements Account, UserDetailsService {
         List<AccountEntity> users = dynamoDBMapper.query(AccountEntity.class, queryExpression);
         return users.isEmpty() ? null : users.get(0);
     }
+    @Override
+    public AccountEntity findUserByEmail(String email) {
+        Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":email", new AttributeValue().withS(email));
+
+        DynamoDBQueryExpression<AccountEntity> queryExpression = new DynamoDBQueryExpression<AccountEntity>()
+                .withIndexName("gsi1")
+                .withConsistentRead(false)
+                .withKeyConditionExpression("gpk = :email")
+                .withExpressionAttributeValues(expressionAttributeValues)
+                .withLimit(1);
+
+        List<AccountEntity> users = dynamoDBMapper.query(AccountEntity.class, queryExpression);
+        return users.isEmpty() ? null : users.get(0);
+    }
+
     @Override
     public String storeHostUuid() {
         return "host#"+storedUuid;

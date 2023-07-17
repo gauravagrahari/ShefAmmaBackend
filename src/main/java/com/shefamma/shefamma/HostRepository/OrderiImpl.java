@@ -3,14 +3,16 @@ package com.shefamma.shefamma.HostRepository;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ExpectedAttributeValue;
+import com.amazonaws.services.dynamodbv2.model.*;
 import com.shefamma.shefamma.entities.GuestEntity;
 import com.shefamma.shefamma.entities.HostEntity;
 import com.shefamma.shefamma.entities.OrderEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
+import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,18 +52,51 @@ public class OrderiImpl implements Order{
         return orderEntity;
     }
 
-    @Override
-    public List<OrderEntity> getHostOrders(OrderEntity orderEntity) {
-//        orderEntity.
-        return null;
-    }
-    
-    @Override
-    public List<OrderEntity> getGuestOrders(OrderEntity orderEntity) {
-        String guestId = orderEntity.getUuidOrder();
 
+    public List<OrderEntity> getHostOrders(String uuidOrder) {
+        OrderEntity gsiKeyCondition = new OrderEntity();
+        gsiKeyCondition.setHostId(uuidOrder); // Assuming "gsi1pk" is the attribute for the GSI's PK
+
+        DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
+                .withIndexName("gsi1") // Replace "gsi1" with the actual GSI name
+                .withHashKeyValues(gsiKeyCondition)
+                .withConsistentRead(false);
+
+        return dynamoDBMapper.query(OrderEntity.class, queryExpression);
+    }
+    public List<OrderEntity> getInProgressHostOrders(String uuidOrder) {
+        OrderEntity gsiKeyCondition = new OrderEntity();
+        gsiKeyCondition.setHostId(uuidOrder); // Assuming "gsi1pk" is the attribute for the GSI's PK
+
+        DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
+                .withIndexName("gsi1") // Replace "gsi1" with the actual GSI name
+                .withHashKeyValues(gsiKeyCondition)
+                .withConsistentRead(false);
+
+        // Add a condition to fetch items where 'status' attribute is equal to "ip"
+        Map<String, Condition> queryFilter = new HashMap<>();
+        queryFilter.put("stts", new Condition().withComparisonOperator(ComparisonOperator.EQ).withAttributeValueList(new AttributeValue().withS("ip")));
+        queryExpression.withQueryFilter(queryFilter);
+
+        return dynamoDBMapper.query(OrderEntity.class, queryExpression);
+    }
+
+    // Helper method to map the DynamoDB item to your OrderEntity class
+//    private OrderEntity mapDynamoDBItemToOrderEntity(Map<String, AttributeValue> item) {
+//        // Implement the mapping logic to convert the DynamoDB item to OrderEntity
+//        // For example:
+//        String uuidOrder = item.get("uuidOrder").getS();
+//        String timeStamp = item.get("timeStamp").getS();
+//        // ... (Map other attributes)
+//        // Return an instance of OrderEntity
+//        return new OrderEntity(uuidOrder, timeStamp, /* Other attributes */);
+//    }
+
+
+    @Override
+    public List<OrderEntity> getGuestOrders(String uuidOrder) {
         OrderEntity keyCondition = new OrderEntity();
-        keyCondition.setUuidOrder(guestId);
+        keyCondition.setUuidOrder(uuidOrder);
         DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
                 .withHashKeyValues(keyCondition)
                 .withConsistentRead(false);

@@ -32,12 +32,12 @@ public class OrderEntity  {
     private String timeStampGsi;
     @DynamoDBAttribute(attributeName = "name")
     private String name;//this name will be name of the guest
+     @DynamoDBAttribute(attributeName = "name2")
+    private String nameHost;//this name will be name of the host
     @DynamoDBAttribute(attributeName = "stts")
     private String status;
     @DynamoDBAttribute(attributeName = "amt")
     private String amount;
-    @DynamoDBAttribute(attributeName = "itQuan")
-    private String itemQuantity;
     @DynamoDBAttribute(attributeName = "nOG")
     private int noOfGuest;
     @DynamoDBAttribute(attributeName = "rat")

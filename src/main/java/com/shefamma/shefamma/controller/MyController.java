@@ -328,14 +328,18 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
     //need to make changes in the bwloe controller to get orders based on status, i.e in-progress, completed
 //host/orders?status=val
 //instead of sending orderEntity in body send the hostUuid or guestUUid as that would keep the logic in the backend
-    @GetMapping("/host/orders")
-    public List<OrderEntity> getHostOrders(@RequestBody OrderEntity orderEntity) {
-        return order.getHostOrders(orderEntity);
-    }
 
+    @GetMapping("/host/orders")
+    public List<OrderEntity> getHostOrders(@RequestHeader String hostID) {
+        return order.getHostOrders(hostID);
+    }
+      @GetMapping("/host/ipOrders")
+    public List<OrderEntity> getInProgressHostOrders(@RequestHeader String hostID) {
+        return order.getInProgressHostOrders(hostID);
+    }
     @GetMapping("/guest/orders")
-    public List<OrderEntity> getGuestOrders(@RequestBody OrderEntity orderEntity) {
-        return order.getGuestOrders(orderEntity);
+    public List<OrderEntity> getGuestOrders(@RequestHeader String uuidOrder) {
+        return order.getGuestOrders(uuidOrder);
     }
 
     @PutMapping("/guest/order")
@@ -358,10 +362,16 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
     public ResponseEntity<?> getUser(@RequestBody AccountEntity hostentity) {
         try {
             userDetailsService.loadUserByUsername(hostentity.getPhone());
-
             String errorMessage = "User already exists for phone: " + hostentity.getPhone();
             return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
         } catch (UsernameNotFoundException e) {
+            // Check if email already exists
+            AccountEntity existingUser = account.findUserByEmail(hostentity.getEmail());
+            if (existingUser != null) {
+                String errorMessage = "User already exists for email: " + hostentity.getEmail();
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
+            }
+
             // User doesn't exist, proceed with saving the details
             String x = account.saveSignup(hostentity,"host");
 

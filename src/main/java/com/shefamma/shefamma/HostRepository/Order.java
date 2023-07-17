@@ -7,9 +7,10 @@ import java.util.List;
 public interface Order {
     OrderEntity createOrder(OrderEntity orderEntity);
 
-    List<OrderEntity> getHostOrders(OrderEntity orderEntity);
+    List<OrderEntity> getHostOrders(String hostID);
+    List<OrderEntity> getInProgressHostOrders(String hostID);
 
-    List<OrderEntity> getGuestOrders(OrderEntity orderEntity);
+    List<OrderEntity> getGuestOrders(String uuidOrder);
 
     OrderEntity updateOrder(String partition, String sort, String attributeName, OrderEntity orderEntity);
 
