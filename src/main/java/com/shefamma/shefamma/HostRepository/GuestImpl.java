@@ -27,7 +27,12 @@ public class GuestImpl implements Guest {
         System.out.println(guestentity);
         return guestentity;
     }
-
+//    @Override
+//    public GuestEntity updateGuest(String guestId, String nameGuest, List<String> attributeName, GuestEntity guestentity) {
+//        dynamoDBMapper.save(guestentity);
+//        System.out.println(guestentity);
+//        return guestentity;
+//    }
     @Override
     public GuestEntity getGuest(String guestId, String nameGuest) {
         return dynamoDBMapper.load(GuestEntity.class, guestId, nameGuest);
@@ -79,4 +84,6 @@ public class GuestImpl implements Guest {
         commonMethods.updateAttribute(partition,attributeName,value);
         return guestEntity;
     }
+
+
 }

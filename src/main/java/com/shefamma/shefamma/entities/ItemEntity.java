@@ -36,7 +36,7 @@ public class ItemEntity {
     private String description;
     @DynamoDBAttribute(attributeName = "veg")
     private String vegetarian;
-    @DynamoDBAttribute(attributeName = "amt")//earlier here was amnt, in db also there is amnt
+    @DynamoDBAttribute(attributeName = "amnt")//earlier here was amnt, in db also there is amnt
     private String amount;
     @DynamoDBAttribute(attributeName = "ser")
     private String serveQuantity;

@@ -215,6 +215,11 @@ public class CommonMethods {
             e.printStackTrace();
         }
     }
+
+//    com.amazonaws.services.dynamodbv2.model.AmazonDynamoDBException: Invalid UpdateExpression: Attribute name is a reserved keyword; reserved keyword: status (Service: AmazonDynamoDBv2; Status Code: 400; Error Code: ValidationException; Request ID: NQFDSRKKKGJ9EK9DP33IMBQMPBVV4KQNSO5AEMVJF66Q9ASUAAJG; Proxy: null)
+//    at com.amazonaws.http.AmazonHttpClient$RequestExecutor.handleErrorResponse(AmazonHttpClient.java:1862)
+//    below method gave this error
+
     public void updateMultipleAttributes(String partitionKeyValue, String sortKeyValue, Map<String, String> attributeValues) {
         try {
             Map<String, AttributeValue> key = new HashMap<>();

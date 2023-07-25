@@ -4,7 +4,6 @@ import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -27,7 +26,7 @@ public class OrderEntity  {
     @DynamoDBRangeKey(attributeName = "sk")
     private String timeStamp;
     @DynamoDBIndexHashKey(attributeName = "gpk", globalSecondaryIndexName = "gsi1")
-    private String hostId;
+    private String uuidHost;
     @DynamoDBIndexRangeKey(attributeName = "gsk",globalSecondaryIndexName = "gsi1")
     private String timeStampGsi;
     @DynamoDBAttribute(attributeName = "name")
@@ -64,6 +63,7 @@ public class OrderEntity  {
 //        "amount": "100.00",
 //        "itemQuantity": "3",
 //        "noOfGuest": 2,
+
 //        "rating": "4.5",
 //        "review": "Great experience!",
 //        "pickUp": "Yes",

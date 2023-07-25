@@ -60,7 +60,7 @@ public class MyController {
     @Autowired
     private PinpointClass pinpointClass;
     private String generatedOtp; // Store the generated OTP here
-//    ---------------------------------------------------------
+    //    ---------------------------------------------------------
     private LocalDateTime otpExpirationTime; // Store the expiration time here
 
     @CrossOrigin(origins = "*")
@@ -70,51 +70,11 @@ public class MyController {
         return homeEntity.getFName();
     }
 
-    @PostMapping("/host/generateOtp")
-    public ResponseEntity<String> generateOtp() {
-        generatedOtp = PinpointClass.generateOTPWithExpiration();
-        otpExpirationTime = LocalDateTime.now().plusSeconds(PinpointClass.getOtpExpirationSeconds());
-        return ResponseEntity.ok("OTP generated successfully: " + generatedOtp);
-    }
-
-    @PostMapping("/host/otpPhone")
-    public ResponseEntity<?> verifySms(@RequestBody OtpVerificationClass otpVerificationClass) {
-        return verifyOtp(otpVerificationClass.getPhoneOtp());
-    }
-
-    @PostMapping("/host/otpEmail")
-    public ResponseEntity<?> verifyEmail(@RequestBody OtpVerificationClass otpVerificationClass) {
-        return verifyOtp(otpVerificationClass.getEmailOtp());
-    }
-//    @PostMapping("/host/otpMob")
-//    public ResponseEntity<?> verifySmsGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
-//        return verifyOtp(otpVerificationClass.getPhoneOtp());
-//    }
-
-    //    @PostMapping("/host/otpEmail")
-//    public ResponseEntity<?> verifyEmailGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
-//        return verifyOtp(otpVerificationClass.getEmailOtp());
-//    }
-    private ResponseEntity<?> verifyOtp(String userOtp) {
-        if (isOTPExpired()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("OTP has expired");
-        }
-        if (Objects.equals(userOtp, generatedOtp)) {
-            return ResponseEntity.ok("SUCCESS");
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid OTP");
-    }
-
-    private boolean isOTPExpired() {
-        LocalDateTime currentTime = LocalDateTime.now();
-        return currentTime.isAfter(otpExpirationTime);
-    }
-
 //    ------------------------------------------------------------------------------------------------------
 //    **************************************Host controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
 
-    @CrossOrigin(origins = "*")
+    //    @CrossOrigin(origins = "*")
     @PostMapping("/host")
     public HostEntity saveHost(@RequestBody HostEntity hostEntity) throws Exception {
         GeocodingResult[] results = geocodingService.geocode(hostEntity.getAddressHost().convertToString());
@@ -185,10 +145,12 @@ public class MyController {
     public List<HostEntity> getHostsTimeSlotSearchFilter(@RequestParam String startTime, @RequestParam String endTime, @RequestParam String timeDuration) {
         return host.getHostsTimeSlotSearchFilter(Integer.parseInt(startTime), Integer.parseInt(endTime), timeDuration);
     }
-@GetMapping("/host/ratingReview")
-public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
+
+    @GetMapping("/host/ratingReview")
+    public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity) {
         return host.getHostRatingReview(hostEntity);
-}
+    }
+
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************Guest controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
@@ -226,15 +188,21 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
     }
 
     @GetMapping("/host/guest")
-    public GuestEntity getGuest(@RequestBody GuestEntity guestentity) {
-        return guest.getGuest(guestentity.getUuidGuest(), guestentity.getGeocode());
+    public GuestEntity getGuest(@RequestHeader String uuidGuest, @RequestHeader String geocode) {
+        return guest.getGuest(uuidGuest, geocode);
     }
 
     ///guest?attributeName=val
     @PutMapping("/guest")
     public GuestEntity updateGuest(@RequestBody GuestEntity guestentity, @RequestParam String attributeName) {
+        System.out.println(attributeName);
         return guest.updateGuest(guestentity.getUuidGuest(), guestentity.getGeocode(), attributeName, guestentity);
     }
+//    @PutMapping("/guestEdit")
+//    public GuestEntity updateGuest(@RequestBody GuestEntity guestentity, @RequestParam List<String> fields) {
+//        System.out.println(fields);
+//        return guest.updateGuest(guestentity.getUuidGuest(), guestentity.getGeocode(), fields, guestentity);
+//    }
 
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************Item controllers******************************************
@@ -243,9 +211,14 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
     public List<ItemEntity> createItems(@NotNull @RequestBody List<ItemEntity> itemEntities) {
         List<ItemEntity> items = new ArrayList<>();
         for (ItemEntity itemEntity : itemEntities) {
+            String uuidItem = itemEntity.getUuidItem();
+//            if (uuidItem.startsWith("host#")) {
+            itemEntity.setUuidItem(uuidItem.replace("host#", ""));
+//            }
             ItemEntity savedItem = item.saveItem(itemEntity);
             items.add(savedItem);
         }
+        System.out.println(items);
         return items;
     }
 
@@ -288,6 +261,10 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
 //    ------------------------------------------------------------------------------------------------------
     @PostMapping("/host/timeSlot")
     public TimeSlotEntity createTimeSlot(@RequestBody TimeSlotEntity timeentity) {
+        // Replace "host" with "time" and append a random number
+        String newUuidTime = timeentity.getUuidTime().replace("host#", "");
+        // Update the TimeSlotEntity with the new UUID
+        timeentity.setUuidTime(newUuidTime);
         System.out.println(timeentity);
         return timeSlot.saveSlotTime(timeentity);
     }
@@ -333,10 +310,12 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
     public List<OrderEntity> getHostOrders(@RequestHeader String hostID) {
         return order.getHostOrders(hostID);
     }
-      @GetMapping("/host/ipOrders")
+
+    @GetMapping("/host/ipOrders")
     public List<OrderEntity> getInProgressHostOrders(@RequestHeader String hostID) {
         return order.getInProgressHostOrders(hostID);
     }
+
     @GetMapping("/guest/orders")
     public List<OrderEntity> getGuestOrders(@RequestHeader String uuidOrder) {
         return order.getGuestOrders(uuidOrder);
@@ -346,14 +325,66 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
     public OrderEntity updateOrder(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName) {
         return order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
     }
+
     @PutMapping("/host/payment")
-    public void updatePayment(@RequestBody OrderEntity orderEntity){
+    public void updatePayment(@RequestBody OrderEntity orderEntity) {
 //        return order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), "pyMd", orderEntity);
-         order.updatePayment(orderEntity);
+        order.updatePayment(orderEntity);
     }
-//    @PostMapping("/guest/order/rating")
+
+    //    @PostMapping("/guest/order/rating")
 //    public OrderEntity updateOrderRating(){
 //    }
+//    ------------------------------------------------------------------------------------------------------
+//    **************************************Otp controllers******************************************
+//    ------------------------------------------------------------------------------------------------------
+    @PostMapping("/host/generateOtp")
+    public ResponseEntity<String> generateOtp(@RequestBody Map<String, String> payload) {
+        String input = payload.get("phone") != null ? payload.get("phone") : payload.get("email");
+
+        try {
+            userDetailsService.loadUserByUsername(input);
+            String errorMessage = "User already exists for phone: " + input;
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
+        } catch (UsernameNotFoundException e) {
+            generatedOtp = PinpointClass.generateOTPWithExpiration();
+            otpExpirationTime = LocalDateTime.now().plusSeconds(PinpointClass.getOtpExpirationSeconds());
+            return ResponseEntity.ok("OTP generated successfully: " + generatedOtp);
+        }
+    }
+
+    @PostMapping("/host/otpPhone")
+    public ResponseEntity<?> verifySms(@RequestBody OtpVerificationClass otpVerificationClass) {
+        return verifyOtp(otpVerificationClass.getPhoneOtp());
+    }
+
+    @PostMapping("/host/otpEmail")
+    public ResponseEntity<?> verifyEmail(@RequestBody OtpVerificationClass otpVerificationClass) {
+        return verifyOtp(otpVerificationClass.getEmailOtp());
+    }
+//    @PostMapping("/host/otpMob")
+//    public ResponseEntity<?> verifySmsGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
+//        return verifyOtp(otpVerificationClass.getPhoneOtp());
+//    }
+
+    //    @PostMapping("/host/otpEmail")
+//    public ResponseEntity<?> verifyEmailGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
+//        return verifyOtp(otpVerificationClass.getEmailOtp());
+//    }
+    private ResponseEntity<?> verifyOtp(String userOtp) {
+        if (isOTPExpired()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("OTP has expired");
+        }
+        if (Objects.equals(userOtp, generatedOtp)) {
+            return ResponseEntity.ok("SUCCESS");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid OTP");
+    }
+
+    private boolean isOTPExpired() {
+        LocalDateTime currentTime = LocalDateTime.now();
+        return currentTime.isAfter(otpExpirationTime);
+    }
 
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************HostAccount controllers******************************************
@@ -373,12 +404,12 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
             }
 
             // User doesn't exist, proceed with saving the details
-            String x = account.saveSignup(hostentity,"host");
+            String uuidHost = account.saveSignup(hostentity, "host");
 
             // Generate the JWT token for the new user
             String token = jwtServices.generateToken(hostentity.getPhone());
             Map<String, Object> response = new HashMap<>();
-            response.put("x", x);
+            response.put("uuidHost", uuidHost);
             response.put("token", token);
             return ResponseEntity.ok(response);
         }
@@ -403,6 +434,7 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
         }
     }
+
     //    ------------------------------------------------------------------------------------------------------
     //    **************************************GuestAccount controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
@@ -415,7 +447,7 @@ public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity){
             return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
         } catch (UsernameNotFoundException e) {
             // User doesn't exist, proceed with saving the details
-            String x = account.saveSignup(guestEntity,"guest");
+            String x = account.saveSignup(guestEntity, "guest");
 
             // Generate the JWT token for the new user
             String token = jwtServices.generateToken(guestEntity.getPhone());

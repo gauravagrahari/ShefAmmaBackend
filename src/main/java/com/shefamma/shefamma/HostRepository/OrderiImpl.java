@@ -9,10 +9,7 @@ import com.shefamma.shefamma.entities.HostEntity;
 import com.shefamma.shefamma.entities.OrderEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import software.amazon.awssdk.services.dynamodb.model.DynamoDbException;
-import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +52,7 @@ public class OrderiImpl implements Order{
 
     public List<OrderEntity> getHostOrders(String uuidOrder) {
         OrderEntity gsiKeyCondition = new OrderEntity();
-        gsiKeyCondition.setHostId(uuidOrder); // Assuming "gsi1pk" is the attribute for the GSI's PK
+        gsiKeyCondition.setUuidHost(uuidOrder); // Assuming "gsi1pk" is the attribute for the GSI's PK
 
         DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
                 .withIndexName("gsi1") // Replace "gsi1" with the actual GSI name
@@ -66,7 +63,7 @@ public class OrderiImpl implements Order{
     }
     public List<OrderEntity> getInProgressHostOrders(String uuidOrder) {
         OrderEntity gsiKeyCondition = new OrderEntity();
-        gsiKeyCondition.setHostId(uuidOrder); // Assuming "gsi1pk" is the attribute for the GSI's PK
+        gsiKeyCondition.setUuidHost(uuidOrder); // Assuming "gsi1pk" is the attribute for the GSI's PK
 
         DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
                 .withIndexName("gsi1") // Replace "gsi1" with the actual GSI name
@@ -113,7 +110,7 @@ public class OrderiImpl implements Order{
             case "review" -> value = orderEntity.getReview();
             case "rating" -> {
                 value = orderEntity.getRating();
-                HostEntity hostEntity=host.updateHostRating(orderEntity.getHostId(), Double.parseDouble(value));
+                HostEntity hostEntity=host.updateHostRating(orderEntity.getUuidHost(), Double.parseDouble(value));
                 System.out.println(hostEntity);
             }
             case "payment" -> value =orderEntity.getPayMode();
