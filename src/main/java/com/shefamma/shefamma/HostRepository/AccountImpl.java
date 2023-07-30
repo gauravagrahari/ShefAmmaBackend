@@ -6,6 +6,8 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.shefamma.shefamma.config.AccountEntityUserDetails;
 import com.shefamma.shefamma.entities.AccountEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -21,14 +23,20 @@ public class AccountImpl implements Account, UserDetailsService{
     private DynamoDBMapper dynamoDBMapper;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private CommonMethods commonMethods;
     String storedUuid;
+    private String storedTimestamp;
 
     @Override
-    public String saveSignup(AccountEntity accountEntity,String user) {
+    public AccountEntity saveSignup(AccountEntity accountEntity,String user) {
         accountEntity.setPassword(passwordEncoder.encode(accountEntity.getPassword()));
         dynamoDBMapper.save(accountEntity);
-        return user+"#"+accountEntity.getUuid();
+        setStoredUuid(user+"#"+accountEntity.getUuid());
+        setStoredTimestamp(accountEntity.getTimeStamp());
+        return accountEntity;
     }
+
 
     @Override
     public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
@@ -37,6 +45,8 @@ public class AccountImpl implements Account, UserDetailsService{
             throw new UsernameNotFoundException("User not found " + phone);
         }
         setStoredUuid(hostAccount.getUuid());
+        setStoredTimestamp(hostAccount.getTimeStamp());
+
         return new AccountEntityUserDetails(hostAccount);
     }
 
@@ -69,6 +79,30 @@ public class AccountImpl implements Account, UserDetailsService{
     }
 
     @Override
+    public ResponseEntity<?> changePassword(String phone, String newPassword) {
+        AccountEntity accountEntity = findUserByPhone(phone);
+
+        if (accountEntity == null) {
+            String errorMessage = "User not found for phone: " + phone;
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
+        }
+
+        return commonMethods.updateAttributeWithSortKey(phone,"2023-07-23T16:20:41.250Z", "pass", passwordEncoder.encode(newPassword));
+    }
+
+    @Override
+    public boolean isPasswordCorrect(String uuidHost, String oldPassword) {
+        AccountEntity accountEntity = findUserByPhone(uuidHost);
+
+        if (accountEntity == null) {
+            throw new UsernameNotFoundException("User not found for uuid: " + uuidHost);
+        }
+
+        // Check if the password matches
+        return passwordEncoder.matches(oldPassword, accountEntity.getPassword());
+    }
+
+    @Override
     public String storeHostUuid() {
         return "host#"+storedUuid;
     }
@@ -79,6 +113,13 @@ public class AccountImpl implements Account, UserDetailsService{
 
     public void setStoredUuid(String storedUuid) {
         this.storedUuid = storedUuid;
+    }
+    public String storeHostTimestamp() {
+        return storedTimestamp;
+    }
+
+    public void setStoredTimestamp(String storedTimestamp) {
+        this.storedTimestamp = storedTimestamp;
     }
 }
 //    @Override

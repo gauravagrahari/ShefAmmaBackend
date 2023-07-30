@@ -7,6 +7,8 @@ import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import software.amazon.awssdk.utils.ImmutableMap;
 
@@ -59,7 +61,7 @@ public class CommonMethods {
      * @param attributeName     The name of the attribute to update, it is the value present in the dynamoDb table not the variable name in the Entity class.
      * @param newValue          The new value for the attribute.
      */
-    public void updateAttributeWithSortKey(String partitionKeyValue, String sortKeyValue, String attributeName, String newValue) {
+    public ResponseEntity<?> updateAttributeWithSortKey(String partitionKeyValue, String sortKeyValue, String attributeName, String newValue) {
         try {
             Map<String, AttributeValue> key = new HashMap<>();
             key.put("pk", new AttributeValue(partitionKeyValue));
@@ -75,13 +77,16 @@ public class CommonMethods {
                     .withExpressionAttributeValues(expressionAttributeValues);
 
             amazonDynamoDB.updateItem(updateItemRequest);
+
+            return ResponseEntity.ok("Update successful.");
+
         } catch (Exception e) {
-            // Handle exceptions as appropriate for your application
-            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
         }
     }
 
-//    public void updateSpecificAttributeOrderEntity(String primaryKey, String primaryValue, String attributeName, String nestedAttributeName, String uniqueAttribute, String uniqueValue,String newValue,String index) {
+
+    //    public void updateSpecificAttributeOrderEntity(String primaryKey, String primaryValue, String attributeName, String nestedAttributeName, String uniqueAttribute, String uniqueValue,String newValue,String index) {
 //        Map<String, AttributeValue> key = new HashMap<>();
 //        key.put(primaryKey, new AttributeValue(primaryValue));
 //

@@ -50,7 +50,8 @@ public class MyController {
 //    private UserDetailsService userDetailsServiceGuest;
 //    @Autowired
     private AccountEntity hostAccountEntity;
-
+    @Autowired
+    private PasswordChangeRequestPOJO passwordChangeRequest;
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
@@ -404,17 +405,20 @@ public class MyController {
             }
 
             // User doesn't exist, proceed with saving the details
-            String uuidHost = account.saveSignup(hostentity, "host");
+            AccountEntity newAccountEntity = account.saveSignup(hostentity, "host");
 
             // Generate the JWT token for the new user
             String token = jwtServices.generateToken(hostentity.getPhone());
+            String uuidHost = account.storeHostUuid();
+            String hostTimestamp = account.storeHostTimestamp();
             Map<String, Object> response = new HashMap<>();
             response.put("uuidHost", uuidHost);
             response.put("token", token);
+            response.put("timestamp", hostTimestamp);
             return ResponseEntity.ok(response);
         }
     }
-
+    
     @PostMapping("/hostLogin")
     public ResponseEntity<?> hostLogin(@RequestBody AccountEntity authRequest) {
         try {
@@ -422,10 +426,14 @@ public class MyController {
 
             if (authentication.isAuthenticated()) {
                 String token = jwtServices.generateToken(authRequest.getPhone());
-                String x = account.storeHostUuid();
+                String uuidHost = account.storeHostUuid();
+                String timestamp = account.storeHostTimestamp();
+
                 Map<String, Object> response = new HashMap<>();
-                response.put("x", x);
+                response.put("uuidHost", uuidHost);
                 response.put("token", token);
+                response.put("timestamp", timestamp);
+
                 return ResponseEntity.ok(response);
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
@@ -438,6 +446,8 @@ public class MyController {
     //    ------------------------------------------------------------------------------------------------------
     //    **************************************GuestAccount controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
+
+
     @PostMapping("/guestSignup")
     public ResponseEntity<?> getUserGuest(@RequestBody AccountEntity guestEntity) {
         try {
@@ -446,18 +456,21 @@ public class MyController {
             String errorMessage = "User already exists for phone: " + guestEntity.getPhone();
             return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
         } catch (UsernameNotFoundException e) {
+
             // User doesn't exist, proceed with saving the details
-            String x = account.saveSignup(guestEntity, "guest");
+            AccountEntity newAccountEntity = account.saveSignup(guestEntity, "host");
 
             // Generate the JWT token for the new user
             String token = jwtServices.generateToken(guestEntity.getPhone());
+            String uuidGuest = account.storeHostUuid();
+            String hostTimestamp = account.storeHostTimestamp();
             Map<String, Object> response = new HashMap<>();
-            response.put("x", x);
+            response.put("uuidHost", uuidGuest);
             response.put("token", token);
+            response.put("timestamp", hostTimestamp);
             return ResponseEntity.ok(response);
         }
     }
-
     @PostMapping("/guestLogin")
     public ResponseEntity<?> guestLogin(@RequestBody AccountEntity authRequest) {
         try {
@@ -466,9 +479,13 @@ public class MyController {
             if (authentication.isAuthenticated()) {
                 String token = jwtServices.generateToken(authRequest.getPhone());
                 String x = account.storeGuestUuid();
+                String timestamp = account.storeHostTimestamp();
+
                 Map<String, Object> response = new HashMap<>();
                 response.put("x", x);
                 response.put("token", token);
+                response.put("timestamp", timestamp);
+
                 return ResponseEntity.ok(response);
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
@@ -478,6 +495,41 @@ public class MyController {
         }
     }
 
+    //    -----------------------------------------
+//change password
+//    -----------------------------------------
+    @PostMapping("/host/changePassword")
+    public ResponseEntity<?> changePasswordHost(@RequestBody PasswordChangeRequestPOJO passwordChangeRequest) {
+        return processChangePassword(passwordChangeRequest);
+    }
+
+    @PostMapping("/guest/changePassword")
+    public ResponseEntity<?> changePasswordGuest(@RequestBody PasswordChangeRequestPOJO passwordChangeRequest) {
+        return processChangePassword(passwordChangeRequest);
+    }
+
+    private ResponseEntity<?> processChangePassword(PasswordChangeRequestPOJO passwordChangeRequest) {
+        try {
+            // Verify old password
+            boolean isPasswordCorrect = account.isPasswordCorrect(passwordChangeRequest.getPhone(),
+                    passwordChangeRequest.getOldPassword());
+
+            if (!isPasswordCorrect) {
+                String errorMessage = "Incorrect original password.";
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorMessage);
+            }
+
+            // Save the new password
+            String newPassword = passwordChangeRequest.getNewPassword();
+            return account.changePassword(passwordChangeRequest.getPhone(), newPassword);
+
+        } catch (Exception e) {
+            String errorMessage = "An error occurred: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+        }
+    }
+
+//    -------------------------------------------
 //    @PostMapping("/guestSignup")
 //    public ResponseEntity<?> getUser(@RequestBody GuestAccountEntity guestEntity) {
 //        try {
