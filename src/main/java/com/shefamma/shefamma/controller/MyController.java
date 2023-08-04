@@ -95,12 +95,18 @@ public class MyController {
 
     @GetMapping("/guest/host")
     public HostEntity getHostforGuest(@RequestBody HostEntity hostentity) {
-        return host.getHost(hostentity.getGsiPk(), hostentity.getUuidHost());
+        return host.getHost(hostentity.getGsiPk(), hostentity.getUuidHostGsi());
     }
 
     @GetMapping("/host")
-    public HostEntity getHost(@RequestBody HostEntity hostentity) {
-        return host.getHost(hostentity.getGsiPk(), hostentity.getUuidHost());
+    public HostEntity getHost(@RequestHeader String uuidHost, @RequestHeader String geocode){
+        return host.getHost(uuidHost,geocode);
+
+    }
+//this controller might no be needed
+    @GetMapping("/host/getHostUsingPk")
+    public HostEntity getHostUsingPk(@RequestBody HostEntity hostentity) {
+        return host.getHostUsingPk(hostentity.getUuidHost());
     }
 
     ///guest/hosts?radius=val
@@ -414,11 +420,11 @@ public class MyController {
             Map<String, Object> response = new HashMap<>();
             response.put("uuidHost", uuidHost);
             response.put("token", token);
-            response.put("timestamp", hostTimestamp);
+            response.put("timeStamp", hostTimestamp);
             return ResponseEntity.ok(response);
         }
     }
-    
+
     @PostMapping("/hostLogin")
     public ResponseEntity<?> hostLogin(@RequestBody AccountEntity authRequest) {
         try {
@@ -432,7 +438,7 @@ public class MyController {
                 Map<String, Object> response = new HashMap<>();
                 response.put("uuidHost", uuidHost);
                 response.put("token", token);
-                response.put("timestamp", timestamp);
+                response.put("timeStamp", timestamp);
 
                 return ResponseEntity.ok(response);
             } else {
@@ -467,7 +473,7 @@ public class MyController {
             Map<String, Object> response = new HashMap<>();
             response.put("uuidHost", uuidGuest);
             response.put("token", token);
-            response.put("timestamp", hostTimestamp);
+            response.put("timeStamp", hostTimestamp);
             return ResponseEntity.ok(response);
         }
     }
@@ -516,19 +522,26 @@ public class MyController {
 
             if (!isPasswordCorrect) {
                 String errorMessage = "Incorrect original password.";
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorMessage);
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createResponse(false, errorMessage));
             }
 
             // Save the new password
             String newPassword = passwordChangeRequest.getNewPassword();
-            return account.changePassword(passwordChangeRequest.getPhone(), newPassword);
+            account.changePassword(passwordChangeRequest.getPhone(), passwordChangeRequest.getTimeStamp(), newPassword);
+
+            return ResponseEntity.ok(createResponse(true, "Password changed successfully"));
 
         } catch (Exception e) {
             String errorMessage = "An error occurred: " + e.getMessage();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorMessage);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createResponse(false, errorMessage));
         }
     }
-
+    private Map<String, Object> createResponse(boolean success, String message) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", success);
+        response.put("message", message);
+        return response;
+    }
 //    -------------------------------------------
 //    @PostMapping("/guestSignup")
 //    public ResponseEntity<?> getUser(@RequestBody GuestAccountEntity guestEntity) {

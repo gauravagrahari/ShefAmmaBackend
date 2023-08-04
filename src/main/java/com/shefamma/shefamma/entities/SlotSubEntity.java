@@ -17,4 +17,10 @@ public class SlotSubEntity {
     private int startTime;
     @DynamoDBAttribute(attributeName = "ccap")
     private int currentCapacity;
+
+//    _________________
+//public SlotSubEntity(int startTime, int capacity) {
+//    this.startTime = startTime;
+//    this.currentCapacity = capacity;
+//}
 }

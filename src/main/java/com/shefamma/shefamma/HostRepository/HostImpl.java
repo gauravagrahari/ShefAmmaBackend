@@ -27,8 +27,12 @@ public class HostImpl implements Host {
         return host;
     }
 
-    public HostEntity getHost(String hostId, String sort) {
-        return dynamoDBMapper.load(HostEntity.class, hostId, sort);
+    public HostEntity getHost(String hostId, String geocode) {
+        HostEntity host= dynamoDBMapper.load(HostEntity.class, hostId, geocode);
+        return host;
+    }
+public HostEntity getHostUsingPk(String pk) {
+        return dynamoDBMapper.load(HostEntity.class, pk);
     }
 
     @Override

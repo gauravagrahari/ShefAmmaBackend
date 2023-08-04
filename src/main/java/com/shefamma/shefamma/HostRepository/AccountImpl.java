@@ -79,15 +79,14 @@ public class AccountImpl implements Account, UserDetailsService{
     }
 
     @Override
-    public ResponseEntity<?> changePassword(String phone, String newPassword) {
+    public ResponseEntity<?> changePassword(String phone,String timeStamp, String newPassword) {
         AccountEntity accountEntity = findUserByPhone(phone);
 
         if (accountEntity == null) {
             String errorMessage = "User not found for phone: " + phone;
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
         }
-
-        return commonMethods.updateAttributeWithSortKey(phone,"2023-07-23T16:20:41.250Z", "pass", passwordEncoder.encode(newPassword));
+        return commonMethods.updateAttributeWithSortKey(phone,timeStamp, "pass", passwordEncoder.encode(newPassword));
     }
 
     @Override

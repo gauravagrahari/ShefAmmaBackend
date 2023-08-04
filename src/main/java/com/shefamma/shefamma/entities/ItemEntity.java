@@ -42,4 +42,6 @@ public class ItemEntity {
     private String serveQuantity;
     @DynamoDBAttribute(attributeName = "serTy")
     private String serveType;
+    @DynamoDBAttribute(attributeName = "spIng")
+    private String specialIngredient;
 }

@@ -5,6 +5,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
 import java.util.List;
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import lombok.AllArgsConstructor;
@@ -34,6 +35,25 @@ public class TimeSlotEntity {
     private int capacity;
     @DynamoDBAttribute(attributeName = "slots")
     private List<SlotSubEntity> slots;
+
+    public boolean isValidTimeGap() {
+        if (slots == null || slots.isEmpty()) {
+            return true; // No slots to check, so the time gap is valid.
+        }
+
+        int durationInt = Integer.parseInt(duration);
+
+        for (int i = 1; i < slots.size(); i++) {
+            SlotSubEntity previousSlot = slots.get(i - 1);
+            SlotSubEntity currentSlot = slots.get(i);
+            int timeGap = currentSlot.getStartTime() - (previousSlot.getStartTime() + durationInt);
+            if (timeGap < 0) {
+                return false; // Invalid time gap, return false and show an error.
+            }
+        }
+
+        return true; // All time gaps are valid.
+    }
     public void resetCurrentCapacityIfNecessary() {
         // Get the current hour of the day in UTC
         int currentHour = LocalDateTime.now(ZoneOffset.UTC).getHour();
@@ -49,6 +69,13 @@ public class TimeSlotEntity {
             }
         }
     }
+//    _________________
+//public TimeSlotEntity(String uuidTime, String duration, int capacity) {
+//    setUuidTime(uuidTime);
+//    this.duration = duration;
+//    this.capacity = capacity;
+//    this.slots = new ArrayList<>();
+//}
 }
 
 //{

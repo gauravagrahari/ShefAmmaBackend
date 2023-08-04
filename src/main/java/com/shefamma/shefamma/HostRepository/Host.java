@@ -8,8 +8,9 @@ import java.util.List;
 
 public interface Host {
     HostEntity saveHost(HostEntity host);
-    HostEntity getHost(String hostId,String sort);
+    HostEntity getHost(String pk,String sort);
     HostEntity getHosts(String hostId,String sort);
+    HostEntity getHostUsingPk(String pk);
     HostEntity update(String partition, String sort, String attributeName, HostEntity hostentity);
     List<HostCardEntity> getHostsItemSearchFilter(double latitude, double longitude, double radius, String itemValue);
 

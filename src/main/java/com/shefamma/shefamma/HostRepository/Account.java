@@ -12,7 +12,7 @@ public interface Account {
     String storeGuestUuid();
     AccountEntity findUserByEmail(String email);
 
-    ResponseEntity<?> changePassword(String uuidHost, String newPassword);
+    ResponseEntity<?> changePassword(String uuidHost, String timeStamp,String newPassword);
 
     boolean isPasswordCorrect(String uuidHost, String oldPassword);
 

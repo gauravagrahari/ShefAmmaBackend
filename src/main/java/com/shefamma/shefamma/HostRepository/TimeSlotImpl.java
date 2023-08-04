@@ -47,9 +47,12 @@ public TimeSlotEntity getTimeSlot(String uuidTime) {
         return null;
     }
 }
-
-
-
+//    @Override
+//    public TimeSlotEntity updateTimeSlot(String partition, TimeSlotEntity timeentity) {
+//        timeentity.resetCurrentCapacityIfNecessary(); // Update current capacity of slots when they end
+//        dynamoDBMapper.save(timeentity);
+//        return timeentity;
+//    }
     @Override
     public TimeSlotEntity updateTimeSlot(String partition, TimeSlotEntity timeentity) {
             DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression()
