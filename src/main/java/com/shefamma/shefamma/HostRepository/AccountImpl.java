@@ -100,14 +100,19 @@ public class AccountImpl implements Account, UserDetailsService{
         // Check if the password matches
         return passwordEncoder.matches(oldPassword, accountEntity.getPassword());
     }
-
     @Override
     public String storeHostUuid() {
-        return "host#"+storedUuid;
+        if (storedUuid != null && !storedUuid.startsWith("host#")) {
+            return "host#" + storedUuid;
+        }
+        return storedUuid;
     }
     @Override
     public String storeGuestUuid() {
-        return "guest#"+storedUuid;
+        if (storedUuid != null && !storedUuid.startsWith("guest#")) {
+            return "guest#" + storedUuid;
+        }
+        return storedUuid;
     }
 
     public void setStoredUuid(String storedUuid) {
