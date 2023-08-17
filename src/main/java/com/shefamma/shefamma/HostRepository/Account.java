@@ -16,7 +16,9 @@ public interface Account {
 
     boolean isPasswordCorrect(String uuidHost, String oldPassword);
 
-    String storeHostTimestamp();
+    String storeDevBoyUuid();
+
+    String storeTimestamp();
 //    AccountEntity findUserByEmail(String email,String phone);
 }
 

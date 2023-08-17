@@ -114,14 +114,20 @@ public class AccountImpl implements Account, UserDetailsService{
         }
         return storedUuid;
     }
+    @Override
+    public String storeDevBoyUuid() {
+        if (storedUuid != null && !storedUuid.startsWith("devBoy#")) {
+            return "devBoy#" + storedUuid;
+        }
+        return storedUuid;
+    }
 
     public void setStoredUuid(String storedUuid) {
         this.storedUuid = storedUuid;
     }
-    public String storeHostTimestamp() {
+    public String storeTimestamp() {
         return storedTimestamp;
     }
-
     public void setStoredTimestamp(String storedTimestamp) {
         this.storedTimestamp = storedTimestamp;
     }

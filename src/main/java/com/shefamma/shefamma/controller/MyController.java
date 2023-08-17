@@ -396,27 +396,28 @@ public class MyController {
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************HostAccount controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
-    @PostMapping("/hostSignup")
-    public ResponseEntity<?> getUser(@RequestBody AccountEntity hostentity) {
+
+        @PostMapping("/hostSignup")
+        public ResponseEntity<?> getUser(@RequestBody AccountEntity hostEntity) {
         try {
-            userDetailsService.loadUserByUsername(hostentity.getPhone());
-            String errorMessage = "User already exists for phone: " + hostentity.getPhone();
+            userDetailsService.loadUserByUsername(hostEntity.getPhone());
+            String errorMessage = "User already exists for phone: " + hostEntity.getPhone();
             return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
         } catch (UsernameNotFoundException e) {
             // Check if email already exists
-            AccountEntity existingUser = account.findUserByEmail(hostentity.getEmail());
+            AccountEntity existingUser = account.findUserByEmail(hostEntity.getEmail());
             if (existingUser != null) {
-                String errorMessage = "User already exists for email: " + hostentity.getEmail();
+                String errorMessage = "User already exists for email: " + hostEntity.getEmail();
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
             }
 
             // User doesn't exist, proceed with saving the details
-            AccountEntity newAccountEntity = account.saveSignup(hostentity, "host");
+            AccountEntity newAccountEntity = account.saveSignup(hostEntity, "host");
 
             // Generate the JWT token for the new user
-            String token = jwtServices.generateToken(hostentity.getPhone());
+            String token = jwtServices.generateToken(hostEntity.getPhone());
             String uuidHost = account.storeHostUuid();
-            String hostTimestamp = account.storeHostTimestamp();
+            String hostTimestamp = account.storeTimestamp();
             Map<String, Object> response = new HashMap<>();
             response.put("uuidHost", uuidHost);
             response.put("token", token);
@@ -433,7 +434,7 @@ public class MyController {
             if (authentication.isAuthenticated()) {
                 String token = jwtServices.generateToken(authRequest.getPhone());
                 String uuidHost = account.storeHostUuid();
-                String timestamp = account.storeHostTimestamp();
+                String timestamp = account.storeTimestamp();
 
                 Map<String, Object> response = new HashMap<>();
                 response.put("uuidHost", uuidHost);
@@ -452,31 +453,6 @@ public class MyController {
     //    ------------------------------------------------------------------------------------------------------
     //    **************************************GuestAccount controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
-
-
-    @PostMapping("/guestSignup")
-    public ResponseEntity<?> getUserGuest(@RequestBody AccountEntity guestEntity) {
-        try {
-            userDetailsService.loadUserByUsername(guestEntity.getPhone());
-
-            String errorMessage = "User already exists for phone: " + guestEntity.getPhone();
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
-        } catch (UsernameNotFoundException e) {
-
-            // User doesn't exist, proceed with saving the details
-            AccountEntity newAccountEntity = account.saveSignup(guestEntity, "host");
-
-            // Generate the JWT token for the new user
-            String token = jwtServices.generateToken(guestEntity.getPhone());
-            String uuidGuest = account.storeHostUuid();
-            String hostTimestamp = account.storeHostTimestamp();
-            Map<String, Object> response = new HashMap<>();
-            response.put("uuidHost", uuidGuest);
-            response.put("token", token);
-            response.put("timeStamp", hostTimestamp);
-            return ResponseEntity.ok(response);
-        }
-    }
     @PostMapping("/guestLogin")
     public ResponseEntity<?> guestLogin(@RequestBody AccountEntity authRequest) {
         try {
@@ -485,7 +461,7 @@ public class MyController {
             if (authentication.isAuthenticated()) {
                 String token = jwtServices.generateToken(authRequest.getPhone());
                 String x = account.storeGuestUuid();
-                String timestamp = account.storeHostTimestamp();
+                String timestamp = account.storeTimestamp();
 
                 Map<String, Object> response = new HashMap<>();
                 response.put("x", x);
@@ -501,6 +477,83 @@ public class MyController {
         }
     }
 
+    @PostMapping("/guestSignup")
+    public ResponseEntity<?> getUserGuest(@RequestBody AccountEntity guestEntity) {
+        try {
+            userDetailsService.loadUserByUsername(guestEntity.getPhone());
+
+            String errorMessage = "User already exists for phone: " + guestEntity.getPhone();
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
+        } catch (UsernameNotFoundException e) {
+
+            // User doesn't exist, proceed with saving the details
+            AccountEntity newAccountEntity = account.saveSignup(guestEntity, "guest");
+
+            // Generate the JWT token for the new user
+            String token = jwtServices.generateToken(guestEntity.getPhone());
+            String uuidGuest = account.storeGuestUuid();
+            String timestamp = account.storeTimestamp();
+            Map<String, Object> response = new HashMap<>();
+            response.put("uuidGuest", uuidGuest);
+            response.put("token", token);
+            response.put("timeStamp", timestamp);
+            return ResponseEntity.ok(response);
+        }
+    }
+
+    //    ------------------------------------------------------------------------------------------------------
+    //    **************************************DevBoyAccount controllers******************************************
+//    ------------------------------------------------------------------------------------------------------
+    @PostMapping("/devBoySignup")
+    public ResponseEntity<?> getUserDev(@RequestBody AccountEntity devBoyEntity) {
+        try {
+            userDetailsService.loadUserByUsername(devBoyEntity.getPhone());
+
+            String errorMessage = "User already exists for phone: " + devBoyEntity.getPhone();
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
+        } catch (UsernameNotFoundException e) {
+
+            // User doesn't exist, proceed with saving the details
+            AccountEntity newAccountEntity = account.saveSignup(devBoyEntity, "devBoy");
+
+            // Generate the JWT token for the new user
+            String token = jwtServices.generateToken(devBoyEntity.getPhone());
+            String uuidGuest = account.storeDevBoyUuid();
+            String timestamp = account.storeTimestamp();
+            Map<String, Object> response = new HashMap<>();
+            response.put("uuidHost", uuidGuest);
+            response.put("token", token);
+            response.put("timeStamp", timestamp);
+            return ResponseEntity.ok(response);
+        }
+    }
+    @PostMapping("/devBoyLogin")
+    public ResponseEntity<?> devBoyLogin(@RequestBody AccountEntity authRequest) {
+        try {
+            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getPhone(), authRequest.getPassword()));
+
+            if (authentication.isAuthenticated()) {
+                String token = jwtServices.generateToken(authRequest.getPhone());
+                String uuidDevBoy = account.storeDevBoyUuid();
+                String timestamp = account.storeTimestamp();
+
+                Map<String, Object> response = new HashMap<>();
+                response.put("uuidDevBoy", uuidDevBoy);
+                response.put("token", token);
+                response.put("timeStamp", timestamp);
+
+                return ResponseEntity.ok(response);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+            }
+        } catch (AuthenticationException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+        }
+    }
+    @GetMapping("/devBoy/newOrders")
+    public OrderEntity getDevOrders() {
+
+    }
     //    -----------------------------------------
 //change password
 //    -----------------------------------------
@@ -542,43 +595,5 @@ public class MyController {
         response.put("message", message);
         return response;
     }
-//    -------------------------------------------
-//    @PostMapping("/guestSignup")
-//    public ResponseEntity<?> getUser(@RequestBody GuestAccountEntity guestEntity) {
-//        try {
-//            userDetailsServiceGuest.loadUserByUsername(guestEntity.getGuestPhone());
-//
-//            String errorMessage = "User already exists for phone: " + guestEntity.getGuestPhone();
-//            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
-//        } catch (UsernameNotFoundException e) {
-//            // User doesn't exist, proceed with saving the details
-//            String x = guestAccount.saveGuestSignup(guestEntity);
-//            // Generate the JWT token for the new user
-//            String token = jwtServices.generateToken(guestEntity.getGuestPhone());
-//            Map<String, Object> response = new HashMap<>();
-//            response.put("x", x);
-//            response.put("token", token);
-//            return ResponseEntity.ok(response);
-//        }
-//    }
-
-//    @PostMapping("/guestLogin")
-//    public ResponseEntity<?> guestLogin(@RequestBody GuestAccountEntity authRequest) {
-//        try {
-//            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getGuestPhone(), authRequest.getPassword()));
-//
-//            if (authentication.isAuthenticated()) {
-//                String token = jwtServices.generateToken(authRequest.getGuestPhone());
-//                String x = guestAccount.storeGuestUuid();
-//                Map<String, Object> response = new HashMap<>();
-//                response.put("x", x);
-//                response.put("token", token);
-//                return ResponseEntity.ok(response);
-//            } else {
-//                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-//            }
-//        } catch (AuthenticationException e) {
-//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
-//        }
-//    }
 }
+//    -------------------------------------------
