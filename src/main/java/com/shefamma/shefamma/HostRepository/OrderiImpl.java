@@ -77,7 +77,23 @@ public class OrderiImpl implements Order{
 
         return dynamoDBMapper.query(OrderEntity.class, queryExpression);
     }
+    public List<OrderEntity> getInProgressDevBoyOrders(String uuidDevBoy) {
+        OrderEntity gsiKeyCondition = new OrderEntity();
+        gsiKeyCondition.setUuidDevBoy(uuidDevBoy); // Assuming "gsi1pk" is the attribute for the GSI's PK
+//        gsiKeyCondition.setUuidDevBoy(uuidOrder); // Assuming "gsi1pk" is the attribute for the GSI's PK
 
+        DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
+                .withIndexName("gsi2") // Replace "gsi1" with the actual GSI name
+                .withHashKeyValues(gsiKeyCondition)
+                .withConsistentRead(false);
+
+        // Add a condition to fetch items where 'status' attribute is equal to "ip"
+        Map<String, Condition> queryFilter = new HashMap<>();
+        queryFilter.put("stts", new Condition().withComparisonOperator(ComparisonOperator.EQ).withAttributeValueList(new AttributeValue().withS("ip")));
+        queryExpression.withQueryFilter(queryFilter);
+
+        return dynamoDBMapper.query(OrderEntity.class, queryExpression);
+    }
     // Helper method to map the DynamoDB item to your OrderEntity class
 //    private OrderEntity mapDynamoDBItemToOrderEntity(Map<String, AttributeValue> item) {
 //        // Implement the mapping logic to convert the DynamoDB item to OrderEntity
@@ -114,6 +130,7 @@ public class OrderiImpl implements Order{
                 System.out.println(hostEntity);
             }
             case "payment" -> value =orderEntity.getPayMode();
+            case "uuidDevBoy" -> value =orderEntity.getUuidDevBoy();
 
             default ->
                 // Invalid attribute name provided
@@ -122,6 +139,8 @@ public class OrderiImpl implements Order{
         commonMethods.updateAttributeWithSortKey(partition,sort,attributeName,value);
         return orderEntity;
     }
+
+    //not required anymore, this will be handled by updateOrder
     @Override
     public OrderEntity cancelOrder(OrderEntity orderEntity) {
         String partition=orderEntity.getUuidOrder();
@@ -144,13 +163,3 @@ public class OrderiImpl implements Order{
         commonMethods.updateMultipleAttributes(orderEntity.getUuidOrder(),orderEntity.getTimeStamp(), attributeUpdates);
     }
 }
-
-//public GuestEntity updateGuest(String partition, String sort, GuestEntity guestEntity) {
-//    DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression()
-//            .withExpectedEntry("pk", new ExpectedAttributeValue(new AttributeValue(partition)))
-//            .withExpectedEntry("sk", new ExpectedAttributeValue(new AttributeValue(sort)));
-//
-//    dynamoDBMapper.save(guestEntity, saveExpression);
-//
-//    return guestEntity;
-//}

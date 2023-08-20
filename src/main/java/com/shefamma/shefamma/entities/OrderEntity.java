@@ -29,6 +29,11 @@ public class OrderEntity  {
     private String uuidHost;
     @DynamoDBIndexRangeKey(attributeName = "gsk",globalSecondaryIndexName = "gsi1")
     private String timeStampGsi;
+      @DynamoDBIndexHashKey(attributeName = "gpk2", globalSecondaryIndexName = "gsi2")
+    private String uuidDevBoy;
+//    @DynamoDBIndexRangeKey(attributeName = "gsk2",globalSecondaryIndexName = "gsi2")
+//    private String timeStampGsi;
+
     @DynamoDBAttribute(attributeName = "name")
     private String name;//this name will be name of the guest
      @DynamoDBAttribute(attributeName = "name2")
@@ -49,6 +54,11 @@ public class OrderEntity  {
     private int startTime;
     @DynamoDBAttribute(attributeName = "pyMd")
     private String payMode;
+
+//    for meals
+    @DynamoDBAttribute(attributeName = "meal")
+    private String mealType;//breakfast, dinner, lunch
+
     @DynamoDBAttribute(attributeName = "ordItms")
     private List<OrderedItem> orderedItems;
     public OrderEntity(String s) {
@@ -63,7 +73,7 @@ public class OrderEntity  {
 //        "amount": "100.00",
 //        "itemQuantity": "3",
 //        "noOfGuest": 2,
-
+//
 //        "rating": "4.5",
 //        "review": "Great experience!",
 //        "pickUp": "Yes",

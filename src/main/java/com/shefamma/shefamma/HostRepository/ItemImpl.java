@@ -28,9 +28,9 @@ public class ItemImpl implements Item {
     }
 
     @Override
-    public List<ItemEntity> getItems(String hostId) {
+    public List<ItemEntity> getItems(String itemId) {
         Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
-        expressionAttributeValues.put(":pk", new AttributeValue().withS(hostId));
+        expressionAttributeValues.put(":pk", new AttributeValue().withS(itemId));
 
 
         DynamoDBQueryExpression<ItemEntity> queryExpression = new DynamoDBQueryExpression<ItemEntity>()
@@ -75,15 +75,21 @@ public class ItemImpl implements Item {
             case "vegetarian":
                 value = itemEntity.getVegetarian();
                 break;
-            case "amount":
-                value = itemEntity.getAmount();
+            case "serveQuantity":
+                value = itemEntity.getServeQuantity();
+                break;
+            case "serveType":
+                value = itemEntity.getServeType();
+                break;
+            case "specialIngredient":
+                value = itemEntity.getSpecialIngredient();
                 break;
             // Add more cases for other attributes if needed
             default:
                 // Invalid attribute name provided
                 throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
-        commonMethods.updateAttribute(partition,attributeName,value);
+        commonMethods.updateAttributeWithSortKey(partition,sort,attributeName,value);
         return itemEntity;
     }
 }

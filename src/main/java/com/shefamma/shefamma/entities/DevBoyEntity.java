@@ -24,5 +24,7 @@ public class DevBoyEntity {
     @DynamoDBAttribute(attributeName = "DP")
     private String DP;
     @DynamoDBAttribute(attributeName = "adr")
-    private AdressSubEntity locationDevBoy;
+    private AdressSubEntity locationDevBoy;//this might be about the current location of the devboy or maybe the initial location
+    @DynamoDBAttribute(attributeName = "status")
+    private AdressSubEntity status;//Occupied, Available, OnLeave
 }

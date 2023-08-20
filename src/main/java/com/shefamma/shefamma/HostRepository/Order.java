@@ -9,6 +9,7 @@ public interface Order {
 
     List<OrderEntity> getHostOrders(String hostID);
     List<OrderEntity> getInProgressHostOrders(String hostID);
+    List<OrderEntity> getInProgressDevBoyOrders(String uuidDevBoy);
 
     List<OrderEntity> getGuestOrders(String uuidOrder);
 

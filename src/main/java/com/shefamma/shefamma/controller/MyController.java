@@ -34,6 +34,8 @@ public class MyController {
     @Autowired
     private Item item;
     @Autowired
+    private Meal meal;
+    @Autowired
     private TimeSlot timeSlot;
     @Autowired
     private Order order;
@@ -99,11 +101,12 @@ public class MyController {
     }
 
     @GetMapping("/host")
-    public HostEntity getHost(@RequestHeader String uuidHost, @RequestHeader String geocode){
-        return host.getHost(uuidHost,geocode);
+    public HostEntity getHost(@RequestHeader String uuidHost, @RequestHeader String geocode) {
+        return host.getHost(uuidHost, geocode);
 
     }
-//this controller might no be needed
+
+    //this controller might no be needed
     @GetMapping("/host/getHostUsingPk")
     public HostEntity getHostUsingPk(@RequestBody HostEntity hostentity) {
         return host.getHostUsingPk(hostentity.getUuidHost());
@@ -233,7 +236,10 @@ public class MyController {
     public ItemEntity updateItem(@RequestBody ItemEntity itementity) {
         return item.updateItem(itementity.getUuidItem(), itementity.getNameItem(), itementity);
     }
-
+    @PutMapping("/host/menuItem")
+    public ItemEntity updateItemAttribute(@RequestBody ItemEntity itementity, @RequestParam String attributeName) {
+        return item.updateItemAttribute(itementity.getUuidItem(), itementity.getNameItem(),attributeName, itementity);
+    }
     //    @GetMapping("/guest/host/menuItems")
 //    public List<ItemEntity> getItems(@RequestHeader String id) {
 //        String[] idSplit = id.split("#");
@@ -263,6 +269,38 @@ public class MyController {
         return item.getItem(itementity.getUuidItem(), itementity.getNameItem(), itementity);
     }
 
+
+
+    //    ------------------------------------------------------------------------------------------------------
+//    **************************************Meal controllers******************************************
+//    ------------------------------------------------------------------------------------------------------
+    @PostMapping("/host/meal")
+    public ResponseEntity<MealEntity> createMeal(@RequestBody MealEntity mealEntity) {
+        return meal.createMeal(mealEntity);
+    }
+    @PutMapping("/host/meal")
+    public MealEntity updateMealAttribute(@RequestBody MealEntity mealEntity, @RequestParam String attributeName) {
+        return meal.updateMealAttribute(mealEntity.getUuidMeal(), mealEntity.getMealType(),attributeName, mealEntity);
+    }
+    @GetMapping("/guest/host/mealItems")
+    public List<MealEntity> getMealItems(@RequestHeader String id) {
+        try {
+            String[] idSplit = id.split("#");
+            List<MealEntity> items = meal.getItems("item#" + idSplit[1]);
+            for (MealEntity itemEntity : items) {
+                System.out.println(itemEntity);
+            }
+            return items;
+        } catch (Exception e) {
+            Logger logger = LoggerFactory.getLogger(getClass());
+            logger.error("Error occurred while fetching items", e);
+            throw new RuntimeException("Error occurred while fetching items", e);
+        }
+    }
+    @GetMapping("/host/mealItem")
+    public MealEntity getItem(@RequestBody MealEntity mealEntity) {
+        return meal.getItem(mealEntity.getUuidMeal(), mealEntity.getMealType(), mealEntity);
+    }
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************TimeSlot controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
@@ -397,8 +435,8 @@ public class MyController {
 //    **************************************HostAccount controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
 
-        @PostMapping("/hostSignup")
-        public ResponseEntity<?> getUser(@RequestBody AccountEntity hostEntity) {
+    @PostMapping("/hostSignup")
+    public ResponseEntity<?> getUser(@RequestBody AccountEntity hostEntity) {
         try {
             userDetailsService.loadUserByUsername(hostEntity.getPhone());
             String errorMessage = "User already exists for phone: " + hostEntity.getPhone();
@@ -527,6 +565,7 @@ public class MyController {
             return ResponseEntity.ok(response);
         }
     }
+
     @PostMapping("/devBoyLogin")
     public ResponseEntity<?> devBoyLogin(@RequestBody AccountEntity authRequest) {
         try {
@@ -550,10 +589,12 @@ public class MyController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
         }
     }
-    @GetMapping("/devBoy/newOrders")
-    public OrderEntity getDevOrders() {
 
+    @GetMapping("/host/ipDevBoyOrders")
+    public List<OrderEntity> ipDevBoyOrders(@RequestHeader String uuidDevBoy) {
+        return order.getInProgressDevBoyOrders(uuidDevBoy);
     }
+
     //    -----------------------------------------
 //change password
 //    -----------------------------------------
@@ -589,6 +630,7 @@ public class MyController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createResponse(false, errorMessage));
         }
     }
+
     private Map<String, Object> createResponse(boolean success, String message) {
         Map<String, Object> response = new HashMap<>();
         response.put("success", success);

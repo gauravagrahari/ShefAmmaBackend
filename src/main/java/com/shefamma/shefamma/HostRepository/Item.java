@@ -9,7 +9,7 @@ public interface Item {
 
     ItemEntity updateItem(String hostId, String nameItem, ItemEntity itementity);
 
-    List<ItemEntity> getItems(String hostId);
+    List<ItemEntity> getItems(String itemId);
 
     ItemEntity getItem(String hostId, String nameItem, ItemEntity itementity);
 
