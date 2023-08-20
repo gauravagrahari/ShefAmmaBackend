@@ -72,7 +72,6 @@ public class MealImpl implements  Meal{
                 .withExpressionAttributeValues(expressionAttributeValues);
         return dynamoDBMapper.query(MealEntity.class, queryExpression);
     }
-
     @Override
     public MealEntity getItem(String hostId, String nameItem, MealEntity itementity) {
         return dynamoDBMapper.load(MealEntity.class, hostId, nameItem);

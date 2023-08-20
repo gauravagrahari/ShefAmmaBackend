@@ -41,7 +41,7 @@ public class MealEntity {
     private String vegetarian;
     @DynamoDBAttribute(attributeName = "amnt")//earlier here was amnt, in db also there is amnt
     private String amount;
-    
+
     //These are not mandatory fields for mealItems
     @DynamoDBAttribute(attributeName = "ser")
     private String serveQuantity;
