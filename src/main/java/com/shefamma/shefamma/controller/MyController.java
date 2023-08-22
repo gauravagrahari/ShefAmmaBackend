@@ -236,7 +236,7 @@ public class MyController {
     public ItemEntity updateItem(@RequestBody ItemEntity itementity) {
         return item.updateItem(itementity.getUuidItem(), itementity.getNameItem(), itementity);
     }
-    @PutMapping("/host/menuItem")
+    @PutMapping("/host/menuItemAttribute")
     public ItemEntity updateItemAttribute(@RequestBody ItemEntity itementity, @RequestParam String attributeName) {
         return item.updateItemAttribute(itementity.getUuidItem(), itementity.getNameItem(),attributeName, itementity);
     }

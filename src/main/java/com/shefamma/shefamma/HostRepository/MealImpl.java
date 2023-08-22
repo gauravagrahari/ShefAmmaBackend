@@ -8,11 +8,13 @@ import com.shefamma.shefamma.entities.MealEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Repository
 public class MealImpl implements  Meal{
     @Autowired
     private DynamoDBMapper dynamoDBMapper;
