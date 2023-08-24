@@ -38,8 +38,14 @@ public class OrderEntity  {
     private String name;//this name will be name of the guest
      @DynamoDBAttribute(attributeName = "name2")
     private String nameHost;//this name will be name of the host
+
+    @DynamoDBAttribute(attributeName = "geo1")
+    private String geoGuest;
+    @DynamoDBAttribute(attributeName = "geo2")
+    private String geoHost;
+    private int itemQuantity;
     @DynamoDBAttribute(attributeName = "stts")
-    private String status;
+    private String status;//new,inProgress,completed,cancelled,failed
     @DynamoDBAttribute(attributeName = "amt")
     private String amount;
     @DynamoDBAttribute(attributeName = "nOG")
