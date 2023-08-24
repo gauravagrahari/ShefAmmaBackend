@@ -25,18 +25,19 @@ public class RedisConfig {
 
         template.setConnectionFactory(redisConnectionFactory);
 
-        // Use Jackson2JsonRedisSerializer for JSON serialization of objects
-        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<>(Object.class);
         ObjectMapper mapper = new ObjectMapper();
         mapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         mapper.activateDefaultTyping(LaissezFaireSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.NON_FINAL,
                 JsonTypeInfo.As.WRAPPER_ARRAY);
-        serializer.setObjectMapper(mapper);
+
+        // Create the serializer with the custom ObjectMapper and Object.class as the type
+        Jackson2JsonRedisSerializer<Object> serializer = new Jackson2JsonRedisSerializer<Object>(mapper, Object.class);
 
         template.setValueSerializer(serializer);
         template.setKeySerializer(new StringRedisSerializer());
 
         return template;
     }
+
 }
