@@ -5,15 +5,21 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
-
+import java.io.Serializable;
 import java.util.List;
+
 
 @Component
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @DynamoDBTable(tableName = "ShefAmma")
-public class OrderEntity  {
+public class OrderEntity implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    public OrderEntity(String order1, String geo11, String geo12, String lunch) {
+    }
+
     public void setUuidItem(String uuidOrder) {
         if (uuidOrder.startsWith("order#")) {
             this.uuidOrder = uuidOrder;
@@ -67,9 +73,9 @@ public class OrderEntity  {
 
     @DynamoDBAttribute(attributeName = "ordItms")
     private List<OrderedItem> orderedItems;
-    public OrderEntity(String s) {
-//        this.s = s;
-    }
+//    public OrderEntity(String s) {
+////        this.s = s;
+//    }
 }
 //{
 //        "uuidOrder": "order123",

@@ -58,6 +58,7 @@ public class OrderImpl implements Order{
         redisOrderImpl.saveOrderToAppropriateList(orderEntity);
         return orderEntity;
     }
+
     public List<OrderEntity> getHostOrders(String uuidOrder) {
         OrderEntity gsiKeyCondition = new OrderEntity();
         gsiKeyCondition.setUuidHost(uuidOrder); // Assuming "gsi1pk" is the attribute for the GSI's PK
@@ -171,3 +172,8 @@ public class OrderImpl implements Order{
         commonMethods.updateMultipleAttributes(orderEntity.getUuidOrder(),orderEntity.getTimeStamp(), attributeUpdates);
     }
 }
+//see, I have already set up or tools and you helped me in its testing-----Now I will tell you my requirement again---there will be multiple orders, each order
+//        will have almost unique destinations(customers), but there's high chance that the source(cooks) of many orders might be same, now what will happen that the orders will be delivered in 3 different time slots(each slot would be for each meal , i.e breakfast, lunch and dinner)-----
+//        before each time slots start time, the orders will be assigned to devBoys,
+//        and also all will be  orders taken 2 hour before the time slots start time(so that the cooks have enough time to prepare and pack the food). For a gist, we will no all the orders before the delivery time, there geocodes will also  be knowsn, the only thing that we won't be nowing
+//        that which delivery boy will carry which order for delivery. ---------So now I want you to form the best and most optimized approach and sequence in which the order will be assigned to the devBoys.
