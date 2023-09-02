@@ -72,12 +72,11 @@ public class MyController {
         System.out.println(message);
         return homeEntity.getFName();
     }
+// ------------------------------------------------------------------------------------------------------
+// **************************************Host controllers******************************************
+// ------------------------------------------------------------------------------------------------------
 
-//    ------------------------------------------------------------------------------------------------------
-//    **************************************Host controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
-
-    //    @CrossOrigin(origins = "*")
+    // @CrossOrigin(origins = "*")
     @PostMapping("/host")
     public HostEntity saveHost(@RequestBody HostEntity hostEntity) throws Exception {
         GeocodingResult[] results = geocodingService.geocode(hostEntity.getAddressHost().convertToString());
@@ -92,26 +91,8 @@ public class MyController {
     ///host?attribute=val
     @PutMapping("/host")
     public HostEntity updateHost(@RequestBody HostEntity hostentity, @RequestParam String attributeName) {
-        return host.update(hostentity.getUuidHost(), hostentity.getNameHost(), attributeName, hostentity);
+        return host.update(hostentity.getUuidHost(), hostentity.getGeocode(), attributeName, hostentity);
     }
-
-    @GetMapping("/guest/host")
-    public HostEntity getHostforGuest(@RequestBody HostEntity hostentity) {
-        return host.getHost(hostentity.getGsiPk(), hostentity.getUuidHostGsi());
-    }
-
-    @GetMapping("/host")
-    public HostEntity getHost(@RequestHeader String uuidHost, @RequestHeader String geocode) {
-        return host.getHost(uuidHost, geocode);
-
-    }
-
-    //this controller might no be needed
-    @GetMapping("/host/getHostUsingPk")
-    public HostEntity getHostUsingPk(@RequestBody HostEntity hostentity) {
-        return host.getHostUsingPk(hostentity.getUuidHost());
-    }
-
     ///guest/hosts?radius=val
     @GetMapping("/guest/hosts")
     public List<HostCardEntity> getHostsWithinRadius(@RequestHeader("UUID") String uuidGuest, @RequestParam double radius) throws Exception {
@@ -120,11 +101,19 @@ public class MyController {
         double longitude = results[0].geometry.location.lng;
         List<HostCardEntity> x = host.findRestaurantsWithinRadius(latitude, longitude, radius);
         System.out.println(x);
-//        return host.findRestaurantsWithinRadius(latitude, longitude, radius);
+// return host.findRestaurantsWithinRadius(latitude, longitude, radius);
         return x;
     }
+    @GetMapping("/guest/getHostUsingPk")
+    public HostEntity getHostforGuest(@RequestHeader String uuidHost) {
+        return host.getHostUsingPk(uuidHost);
+    }
+    @GetMapping("/host/getHostUsingPk")
+    public HostEntity getHostUsingPk(@RequestHeader String uuidHost) {
+        return host.getHostUsingPk(uuidHost);
+    }
 
-    //  /guest/host?item=val&radius=val
+    // /guest/host?item=val&radius=val
     @GetMapping("/guest/hosts/itemSearch")
     public List<HostCardEntity> getHostsItemSearchFilter(@RequestHeader("UUID") String uuidGuest, @RequestParam String address, @RequestParam("item") String itemValue, @RequestParam double radius) throws Exception {
         GeocodingResult[] results;
@@ -137,7 +126,6 @@ public class MyController {
         double longitude = results[0].geometry.location.lng;
         return host.getHostsItemSearchFilter(latitude, longitude, radius, itemValue.toLowerCase());
     }
-
     //    not required controllers******************************************
 //    .....some mistake, here list shall be returned
 //    @GetMapping("/guest/hosts")

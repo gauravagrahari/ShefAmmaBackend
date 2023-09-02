@@ -148,7 +148,12 @@ public class OrderImpl implements Order{
         commonMethods.updateAttributeWithSortKey(partition,sort,attributeName,value);
         return orderEntity;
     }
-
+    @Override
+//    public void cancelOrder(String partition, String sort, String attributeName, String status) {
+    public OrderEntity updateOrderDevBoyUuid(String partition, String sort, String attributeName, String uuidDevBoy) {
+        commonMethods.updateAttributeWithSortKey(partition,sort,attributeName,uuidDevBoy);
+        return orderEntity;
+    }
     //not required anymore, this will be handled by updateOrder
     @Override
     public OrderEntity cancelOrder(OrderEntity orderEntity) {

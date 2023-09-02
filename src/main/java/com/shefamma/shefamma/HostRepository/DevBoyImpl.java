@@ -13,21 +13,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class DevBoyImpl implements DevBoy{
     @Autowired
     private RedisOrderImpl redisOrderImpl;
-
+    @Autowired
+    private Order orderInterface;
     @Autowired
     private DistanceMatrixService distanceMatrixService;
 
     private Map<String, String> devBoyData;//key is uuidDevBoy, value is geocode
 
     // Method to get orders and prepare the maps
-//    public void assignOrdersToDevBoys(String mealType){
-        public void assignOrdersToDevBoys(String mealType, List<OrderEntity> retrievedOrders){
+    public void assignOrdersToDevBoys(String mealType){
+//        public void assignOrdersToDevBoys(String mealType, List<OrderEntity> retrievedOrders){
 
-//            List<OrderEntity> retrievedOrders = redisOrderImpl.getOrdersByMealType(mealType);
+            List<OrderEntity> retrievedOrders = redisOrderImpl.getOrdersByMealType(mealType);
 
         // Create a map to store geocodes with their associated orders
         Map<String, List<OrderEntity>> guestGeocodeOrderMap = new HashMap<>();
@@ -55,13 +57,32 @@ public class DevBoyImpl implements DevBoy{
         VRPSolver vrpSolver = new VRPSolver(distanceMatrix);
         List<List<Integer>> routes = vrpSolver.solve(devBoyData.size(), demands);
 
-        // Use the routes to assign orders to DevBoys
         for (int i = 0; i < routes.size(); i++) {
             List<Integer> route = routes.get(i);
-            // Interpret this route to assign orders to the corresponding DevBoy.
-            // Example:
-            // String devBoyId = getDevBoyIdFromIndex(i);
-            // assignOrdersToDevBoy(devBoyId, route, guestGeocodeOrderMap);
-        }
+            String devBoyId = getDevBoyIdFromIndex(i);
+
+            for (int j = 0; j < route.size(); j++) {
+                OrderEntity order = vrpData.getOrderFromIndex(route.get(j));
+                if (j % 2 == 0) { // Pick-up
+                    // Here, if required, you can register that the order was picked up
+                } else { // Delivery
+                    orderInterface.updateOrderDevBoyUuid(order.getUuidOrder(), order.getTimeStamp(), "uuidDevBoy", devBoyId);
+                }
+            }
+        }}
+    private String getDevBoyIdFromIndex(int index) {
+        // Assuming devBoyData is a Map with keys as UUIDs and values as geocodes.
+        // Convert the keySet (UUIDs) to a list and fetch by index.
+        List<String> devBoyUUIDs = new ArrayList<>(devBoyData.keySet());
+        return devBoyUUIDs.get(index);
     }
+    private OrderEntity getOrderByIndex(int index, Map<String, List<OrderEntity>> guestGeocodeOrderMap) {
+        // Convert the values (List<OrderEntity>) to a single list and fetch by index.
+        List<OrderEntity> allOrders = guestGeocodeOrderMap.values().stream()
+                .flatMap(List::stream)
+                .toList();
+        return allOrders.get(index);
+    }
+
+
 }

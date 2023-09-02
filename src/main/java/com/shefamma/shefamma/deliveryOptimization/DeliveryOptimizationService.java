@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class DeliveryOptimizationService {
 
-    private DistanceMatrixService distanceMatrixService = new DistanceMatrixService();
+    private final DistanceMatrixService distanceMatrixService = new DistanceMatrixService();
 
     public void assignOrdersToDevBoys(Map<String, String> devBoyData,
                                       Map<String, List<OrderEntity>> guestGeocodeOrderMap,

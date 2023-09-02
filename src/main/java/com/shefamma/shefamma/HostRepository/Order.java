@@ -14,6 +14,7 @@ public interface Order {
     List<OrderEntity> getGuestOrders(String uuidOrder);
 
     OrderEntity updateOrder(String partition, String sort, String attributeName, OrderEntity orderEntity);
+    OrderEntity updateOrderDevBoyUuid(String partition, String sort, String attributeName, String devBoyUuid);
 
     OrderEntity cancelOrder(OrderEntity orderEntity);
 

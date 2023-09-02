@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.shefamma.shefamma.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -31,8 +32,20 @@ public class HostImpl implements Host {
         HostEntity host= dynamoDBMapper.load(HostEntity.class, hostId, geocode);
         return host;
     }
-public HostEntity getHostUsingPk(String pk) {
-        return dynamoDBMapper.load(HostEntity.class, pk);
+    public HostEntity getHostUsingPk(String pk) {
+        HostEntity hashKeyValues = new HostEntity();
+        hashKeyValues.setUuidHost(pk);
+
+        DynamoDBQueryExpression<HostEntity> queryExpression = new DynamoDBQueryExpression<HostEntity>()
+                .withHashKeyValues(hashKeyValues);
+
+        List<HostEntity> result = dynamoDBMapper.query(HostEntity.class, queryExpression);
+
+        if (!result.isEmpty()) {
+            return result.get(0);  // return the first item
+        } else {
+            return null;  // or handle this case as you see fit
+        }
     }
 
     @Override
@@ -71,7 +84,8 @@ public HostEntity getHostUsingPk(String pk) {
                 // Invalid attribute name provided
                 throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
-        commonMethods.updateAttribute(partition, attributeName, value);
+         ResponseEntity<?> response= commonMethods.updateAttributeWithSortKey(partition,sort, attributeName, value);
+        System.out.println(response);
         return hostentity;
     }
 
