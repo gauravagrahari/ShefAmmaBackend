@@ -26,14 +26,15 @@ public class ItemEntity {
     private String uuidItem;
     @DynamoDBRangeKey(attributeName = "sk")
     private String nameItem;
+    @DynamoDBAttribute(attributeName = "desc")
+    private String description;
     @DynamoDBAttribute(attributeName = "gsk")
     private String dishcategory;
     @DynamoDBAttribute(attributeName = "DP")
     private String DP;
     @DynamoDBAttribute(attributeName = "stts")
     private String status;
-     @DynamoDBAttribute(attributeName = "desc")
-    private String description;
+
     @DynamoDBAttribute(attributeName = "veg")
     private String vegetarian;
     @DynamoDBAttribute(attributeName = "amnt")//earlier here was amnt, in db also there is amnt
@@ -44,4 +45,7 @@ public class ItemEntity {
     private String serveType;
     @DynamoDBAttribute(attributeName = "spIng")
     private String specialIngredient;
+    //    for meals
+//    @DynamoDBAttribute(attributeName = "meal")
+//    private String mealType;//breakfast, dinner, lunch
 }
