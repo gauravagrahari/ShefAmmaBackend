@@ -49,29 +49,28 @@ public class OrderEntity implements Serializable {
     private String geoGuest;
     @DynamoDBAttribute(attributeName = "geo2")
     private String geoHost;
+    private int itemQuantity;
     @DynamoDBAttribute(attributeName = "stts")
     private String status;//new,inProgress,completed,cancelled,failed
     @DynamoDBAttribute(attributeName = "amt")
     private String amount;
-
-    private int itemQuantity;
     @DynamoDBAttribute(attributeName = "nOG")
     private int noOfGuest;
     @DynamoDBAttribute(attributeName = "rat")
     private String rating;
     @DynamoDBAttribute(attributeName="rev")
     private String review;
-//    for meals
-    @DynamoDBAttribute(attributeName = "meal")
-    private String mealType;//breakfast, dinner, lunch
-
-
     @DynamoDBAttribute(attributeName = "pkUp")
     private String pickUp;
     @DynamoDBAttribute(attributeName = "stTm")
     private int startTime;
     @DynamoDBAttribute(attributeName = "pyMd")
     private String payMode;
+
+//    for meals
+    @DynamoDBAttribute(attributeName = "meal")
+    private String mealType;//breakfast, dinner, lunch
+
     @DynamoDBAttribute(attributeName = "ordItms")
     private List<OrderedItem> orderedItems;
 //    public OrderEntity(String s) {

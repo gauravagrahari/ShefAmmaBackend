@@ -96,7 +96,6 @@ public class MyController {
     ///guest/hosts?radius=val
     @GetMapping("/guest/hosts")
     public List<HostCardEntity> getHostsWithinRadius(@RequestHeader("UUID") String uuidGuest, @RequestParam double radius) throws Exception {
-//        GeocodingResult[] results = geocodingService.geocode(guest.getGuest(uuidGuest).convertToString());
         GeocodingResult[] results = geocodingService.geocode(guest.getGuest(uuidGuest).convertToString());
         double latitude = results[0].geometry.location.lat;
         double longitude = results[0].geometry.location.lng;
@@ -183,19 +182,8 @@ public class MyController {
         double longitude = results[0].geometry.location.lng;
         String coordinates = String.format("%.6f,%.6f", latitude, longitude);
         guestEntity.setGeocode(coordinates);
-
-        String officeAddress = String.valueOf(guestEntity.getOfficeAddress());
-        if (officeAddress != null && !officeAddress.isEmpty()) {
-            GeocodingResult[] resultsOffice = geocodingService.geocode(officeAddress.toString());
-            double officeLatitude = resultsOffice[0].geometry.location.lat;
-            double officeLongitude = resultsOffice[0].geometry.location.lng;
-            String officeCoordinates = String.format("%.6f,%.6f", officeLatitude, officeLongitude);
-            guestEntity.setGeocodeOffice(officeCoordinates);
-        }
-
         return guest.saveGuest(guestEntity);
     }
-
 
     @GetMapping("/host/guest")
     public GuestEntity getGuest(@RequestHeader String uuidGuest, @RequestHeader String geocode) {
@@ -498,14 +486,14 @@ public class MyController {
 
             if (authentication.isAuthenticated()) {
                 String token = jwtServices.generateToken(authRequest.getPhone());
-                String uuidGuest = account.storeGuestUuid();
+                String x = account.storeGuestUuid();
                 String timestamp = account.storeTimestamp();
 
                 Map<String, Object> response = new HashMap<>();
-                response.put("uuidGuest", uuidGuest);
+                response.put("x", x);
                 response.put("token", token);
                 response.put("timestamp", timestamp);
-                System.out.println(response);
+
                 return ResponseEntity.ok(response);
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
