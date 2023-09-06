@@ -24,12 +24,16 @@ public class GuestEntity {
     private String uuidGuest;
     @DynamoDBRangeKey(attributeName = "sk")
     private String geocode;
+    @DynamoDBAttribute(attributeName = "geoOff")
+    private String geocodeOffice;
     @DynamoDBAttribute(attributeName = "name")
     private String name;
     @DynamoDBAttribute(attributeName = "DP")
     private String DP;
     @DynamoDBAttribute(attributeName = "adr")
     private AdressSubEntity addressGuest;
+    @DynamoDBAttribute(attributeName = "adrOff")
+    private AdressSubEntity officeAddress;
     @DynamoDBAttribute(attributeName = "dob")
     private String dob;
     @DynamoDBAttribute(attributeName = "gen")

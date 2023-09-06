@@ -182,6 +182,15 @@ public class MyController {
         double longitude = results[0].geometry.location.lng;
         String coordinates = String.format("%.6f,%.6f", latitude, longitude);
         guestEntity.setGeocode(coordinates);
+
+        String officeAddress = String.valueOf(guestEntity.getOfficeAddress());
+        if (officeAddress != null && !officeAddress.isEmpty()) {
+            GeocodingResult[] resultsOffice = geocodingService.geocode(officeAddress.toString());
+            double officeLatitude = resultsOffice[0].geometry.location.lat;
+            double officeLongitude = resultsOffice[0].geometry.location.lng;
+            String officeCoordinates = String.format("%.6f,%.6f", officeLatitude, officeLongitude);
+            guestEntity.setGeocodeOffice(officeCoordinates);
+        }
         return guest.saveGuest(guestEntity);
     }
 
