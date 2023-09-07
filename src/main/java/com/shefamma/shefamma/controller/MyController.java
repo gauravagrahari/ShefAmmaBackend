@@ -182,9 +182,9 @@ public class MyController {
         double longitude = results[0].geometry.location.lng;
         String coordinates = String.format("%.6f,%.6f", latitude, longitude);
         guestEntity.setGeocode(coordinates);
-
+        System.out.println(guestEntity);
         String officeAddress = String.valueOf(guestEntity.getOfficeAddress());
-        if (officeAddress != null && !officeAddress.isEmpty()) {
+        if (!Objects.equals(officeAddress, null) && !officeAddress.isEmpty()) {
             GeocodingResult[] resultsOffice = geocodingService.geocode(officeAddress.toString());
             double officeLatitude = resultsOffice[0].geometry.location.lat;
             double officeLongitude = resultsOffice[0].geometry.location.lng;
@@ -499,7 +499,7 @@ public class MyController {
                 String timestamp = account.storeTimestamp();
 
                 Map<String, Object> response = new HashMap<>();
-                response.put("x", x);
+                response.put("uuidGuest", x);
                 response.put("token", token);
                 response.put("timestamp", timestamp);
 
