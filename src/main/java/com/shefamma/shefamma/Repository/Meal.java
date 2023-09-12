@@ -1,6 +1,5 @@
-package com.shefamma.shefamma.HostRepository;
+package com.shefamma.shefamma.Repository;
 
-import com.shefamma.shefamma.entities.ItemEntity;
 import com.shefamma.shefamma.entities.MealEntity;
 import org.springframework.http.ResponseEntity;
 
