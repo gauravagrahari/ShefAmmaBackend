@@ -1,13 +1,5 @@
 package com.shefamma.shefamma.config;
 
-import com.shefamma.shefamma.HostRepository.DevBoyImpl;
-import com.shefamma.shefamma.entities.OrderEntity;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class VrpDistmatTest {
 
 //    public static void main(String[] args) {

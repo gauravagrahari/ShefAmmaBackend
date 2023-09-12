@@ -1,8 +1,9 @@
 package com.shefamma.shefamma.controller;
 
 import com.google.maps.model.GeocodingResult;
-import com.shefamma.shefamma.HostRepository.*;
-import com.shefamma.shefamma.HostRepository.Account;
+import com.shefamma.shefamma.Repository.*;
+import com.shefamma.shefamma.Repository.Account;
+import com.shefamma.shefamma.Repository.ConstantCharges;
 import com.shefamma.shefamma.config.GeocodingService;
 import com.shefamma.shefamma.config.PinpointClass;
 import com.shefamma.shefamma.entities.*;
@@ -39,6 +40,8 @@ public class MyController {
     private TimeSlot timeSlot;
     @Autowired
     private Order order;
+    @Autowired
+    private ConstantCharges constantCharges;
     @Autowired
     private Account account;
 
@@ -427,6 +430,23 @@ public class MyController {
         LocalDateTime currentTime = LocalDateTime.now();
         return currentTime.isAfter(otpExpirationTime);
     }
+//    -----------------------------------------
+//Contstant Charges
+//    -----------------------------------------
+@PostMapping("/admin/addCharges")
+public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity constantChargesEntity) {
+    return constantCharges.addCharges(constantChargesEntity);
+}
+
+    @PutMapping("/admin/updateCharges")
+    public ResponseEntity<String> updateCharges(@RequestBody ConstantChargesEntity constantChargesEntity) {
+        return constantCharges.updateCharges(constantChargesEntity);
+    }
+
+    @GetMapping("/admin/getCharges")
+    public ResponseEntity<ConstantChargesEntity> getCharges() {
+        return constantCharges.getCharges();
+    }
 
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************HostAccount controllers******************************************
@@ -499,9 +519,9 @@ public class MyController {
                 String timestamp = account.storeTimestamp();
 
                 Map<String, Object> response = new HashMap<>();
-                response.put("uuidGuest", x);
+                response.put("uuidGuest", x );
                 response.put("token", token);
-                response.put("timestamp", timestamp);
+                response.put("timeStamp", timestamp);
 
                 return ResponseEntity.ok(response);
             } else {
@@ -634,5 +654,8 @@ public class MyController {
         response.put("message", message);
         return response;
     }
+
+
+
 }
 //    -------------------------------------------

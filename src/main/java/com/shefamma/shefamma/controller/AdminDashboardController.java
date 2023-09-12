@@ -1,6 +1,6 @@
 package com.shefamma.shefamma.controller;
 
-import com.shefamma.shefamma.HostRepository.AdminDashboard;
+import com.shefamma.shefamma.Repository.AdminDashboard;
 import com.shefamma.shefamma.entities.AdminDashboardEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

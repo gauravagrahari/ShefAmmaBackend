@@ -38,6 +38,10 @@ public class GuestEntity {
     private String dob;
     @DynamoDBAttribute(attributeName = "gen")
     private String gender;
+
+    public String getOfficeAddress() {
+        return officeAddress != null ? officeAddress.convertToString() : null;
+    }
 }
 //{
 //        "uuidGuest": "guest#123456789",

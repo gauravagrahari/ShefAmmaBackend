@@ -1,6 +1,6 @@
 package com.shefamma.shefamma.config;
 
-import com.shefamma.shefamma.HostRepository.AccountImpl;
+import com.shefamma.shefamma.Repository.AccountImpl;
 import com.shefamma.shefamma.filter.JwtAuthFilter;
 import com.shefamma.shefamma.services.JwtServices;
 import org.springframework.context.annotation.Bean;

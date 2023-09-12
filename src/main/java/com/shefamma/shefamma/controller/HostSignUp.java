@@ -1,6 +1,6 @@
 package com.shefamma.shefamma.controller;
 
-import com.shefamma.shefamma.HostRepository.Account;
+import com.shefamma.shefamma.Repository.Account;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 

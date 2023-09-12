@@ -40,9 +40,9 @@ public class OrderEntity implements Serializable {
 //    @DynamoDBIndexRangeKey(attributeName = "gsk2",globalSecondaryIndexName = "gsi2")
 //    private String timeStampGsi;
 
-    @DynamoDBAttribute(attributeName = "name")
-    private String name;//this name will be name of the guest
-     @DynamoDBAttribute(attributeName = "name2")
+    @DynamoDBAttribute(attributeName = "nameG")
+    private String nameGuest;//this name will be name of the guest
+     @DynamoDBAttribute(attributeName = "nameH")
     private String nameHost;//this name will be name of the host
 
     @DynamoDBAttribute(attributeName = "geo1")
@@ -52,25 +52,35 @@ public class OrderEntity implements Serializable {
     private int itemQuantity;
     @DynamoDBAttribute(attributeName = "stts")
     private String status;//new,inProgress,completed,cancelled,failed
-    @DynamoDBAttribute(attributeName = "amt")
+    @DynamoDBAttribute(attributeName = "amtTot")
     private String amount;
-    @DynamoDBAttribute(attributeName = "nOG")
-    private int noOfGuest;
+
     @DynamoDBAttribute(attributeName = "rat")
     private String rating;
     @DynamoDBAttribute(attributeName="rev")
     private String review;
-    @DynamoDBAttribute(attributeName = "pkUp")
-    private String pickUp;
-    @DynamoDBAttribute(attributeName = "stTm")
-    private int startTime;
+
     @DynamoDBAttribute(attributeName = "pyMd")
     private String payMode;
 
 //    for meals
     @DynamoDBAttribute(attributeName = "meal")
-    private String mealType;//breakfast, dinner, lunch
+    private String mealType;//b, d, l
 
+
+    @DynamoDBAttribute(attributeName="name")
+    private String itemName;
+    @DynamoDBAttribute(attributeName="amt")
+    private String itemPrice;
+    @DynamoDBAttribute(attributeName="nOS")
+    private String noOfServing;
+
+//    @DynamoDBAttribute(attributeName = "nOG")
+//    private int noOfGuest;
+//    @DynamoDBAttribute(attributeName = "pkUp")
+//    private String pickUp;
+//    @DynamoDBAttribute(attributeName = "stTm")
+//    private int startTime;
     @DynamoDBAttribute(attributeName = "ordItms")
     private List<OrderedItem> orderedItems;
 //    public OrderEntity(String s) {
