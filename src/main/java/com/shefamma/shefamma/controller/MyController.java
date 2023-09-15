@@ -109,11 +109,11 @@ public class MyController {
     }
     @GetMapping("/guest/getHostUsingPk")
     public HostEntity getHostforGuest(@RequestHeader String uuidHost) {
-        return host.getHostUsingPk(uuidHost);
+        return host.getDataUsingPk(uuidHost);
     }
     @GetMapping("/host/getHostUsingPk")
     public HostEntity getHostUsingPk(@RequestHeader String uuidHost) {
-        return host.getHostUsingPk(uuidHost);
+        return host.getDataUsingPk(uuidHost);
     }
 
     // /guest/host?item=val&radius=val
@@ -196,10 +196,17 @@ public class MyController {
         }
         return guest.saveGuest(guestEntity);
     }
-
+@PutMapping("/guest/updateDetails")
+public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Exception {
+        return saveGuest(guestEntity);
+}
     @GetMapping("/host/guest")
     public GuestEntity getGuest(@RequestHeader String uuidGuest, @RequestHeader String geocode) {
         return guest.getGuest(uuidGuest, geocode);
+    }
+    @GetMapping("/guest/getGuestUsingPk")
+    public GuestEntity getGuestUsingPk(@RequestHeader String uuidGuest  ) {
+        return guest.getGuestUsingPk(uuidGuest);
     }
 
     ///guest?attributeName=val
@@ -367,8 +374,23 @@ public class MyController {
     }
 
     @PutMapping("/guest/order")
-    public OrderEntity updateOrder(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName) {
-        return order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
+    public ResponseEntity<String> updateOrder(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName) {
+        try {
+            // Attempt to update the orderEntity
+            OrderEntity updatedOrder = order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
+             System.out.println(orderEntity);
+            if (updatedOrder != null) {
+                System.out.println(ResponseEntity.ok("Order updated successfully"));
+                // Successfully updated the order
+                return ResponseEntity.ok("Order updated successfully");
+            } else {
+                // Order update failed (handle this case as needed)
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update order");
+            }
+        } catch (Exception e) {
+            // Handle exceptions (e.g., validation errors, database errors)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
+        }
     }
 
     @PutMapping("/host/payment")
@@ -517,12 +539,12 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
                 String token = jwtServices.generateToken(authRequest.getPhone());
                 String x = account.storeGuestUuid();
                 String timestamp = account.storeTimestamp();
-
+                GuestEntity guestDetails=guest.getGuestUsingPk(x);
                 Map<String, Object> response = new HashMap<>();
                 response.put("uuidGuest", x );
                 response.put("token", token);
                 response.put("timeStamp", timestamp);
-
+                response.put("guestDetails", guestDetails);
                 return ResponseEntity.ok(response);
             } else {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
@@ -548,10 +570,13 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
             String token = jwtServices.generateToken(guestEntity.getPhone());
             String uuidGuest = account.storeGuestUuid();
             String timestamp = account.storeTimestamp();
+            GuestEntity guestDetails=guest.getGuestUsingPk(uuidGuest);
+
             Map<String, Object> response = new HashMap<>();
             response.put("uuidGuest", uuidGuest);
             response.put("token", token);
             response.put("timeStamp", timestamp);
+            response.put("guestDetails", guestDetails);
             return ResponseEntity.ok(response);
         }
     }
