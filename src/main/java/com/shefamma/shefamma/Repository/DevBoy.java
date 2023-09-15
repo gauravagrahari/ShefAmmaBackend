@@ -1,9 +1,4 @@
-package com.shefamma.shefamma.HostRepository;
-
-import com.shefamma.shefamma.entities.OrderEntity;
-
-import java.util.List;
-import java.util.Map;
+package com.shefamma.shefamma.Repository;
 
 public interface DevBoy {
 void assignOrdersToDevBoys(String mealType);

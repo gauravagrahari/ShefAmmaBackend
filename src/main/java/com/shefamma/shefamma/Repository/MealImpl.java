@@ -1,9 +1,8 @@
-package com.shefamma.shefamma.HostRepository;
+package com.shefamma.shefamma.Repository;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.shefamma.shefamma.entities.ItemEntity;
 import com.shefamma.shefamma.entities.MealEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

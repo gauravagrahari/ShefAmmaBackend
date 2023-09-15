@@ -1,4 +1,4 @@
-package com.shefamma.shefamma.HostRepository;
+package com.shefamma.shefamma.Repository;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
@@ -49,15 +49,24 @@ public class OrderImpl implements Order{
 //////        commonMethods.updateTimeSlotCapOrderEntity("pk", timeSlotpk,"slots","capacity","startTime",uniqueAttrValue, Integer.parseInt(noOfGuests),"1");
 //
 //    }
-    @Override
-    public OrderEntity createOrder(OrderEntity orderEntity) {
-        orderEntity.setUuidOrder("order#" + orderEntity.getUuidOrder());
-        dynamoDBMapper.save(orderEntity);
-
-        // Save the order to the appropriate Redis list based on mealType
-        redisOrderImpl.saveOrderToAppropriateList(orderEntity);
-        return orderEntity;
+@Override
+public OrderEntity createOrder(OrderEntity orderEntity) {
+    // Split the uuidOrder and replace "guest" with "order"
+    String[] parts = orderEntity.getUuidOrder().split("#");
+    if (parts.length != 2 || !parts[0].equalsIgnoreCase("guest")) {
+        // Handle invalid uuidOrder format
+        throw new IllegalArgumentException("Invalid uuidOrder format");
     }
+
+    String modifiedUuidOrder = "order#" + parts[1];
+    orderEntity.setUuidOrder(modifiedUuidOrder);
+
+    dynamoDBMapper.save(orderEntity);
+
+    // Save the order to the appropriate Redis list based on mealType
+    redisOrderImpl.saveOrderToAppropriateList(orderEntity);
+    return orderEntity;
+}
 
     public List<OrderEntity> getHostOrders(String uuidOrder) {
         OrderEntity gsiKeyCondition = new OrderEntity();
@@ -117,13 +126,29 @@ public class OrderImpl implements Order{
 
     @Override
     public List<OrderEntity> getGuestOrders(String uuidOrder) {
+        // Split the uuidOrder and use 'order' instead of the first part
+        String[] parts = uuidOrder.split("#");
+        if (parts.length != 2 || !parts[0].equalsIgnoreCase("guest")) {
+            // Handle invalid uuidOrder format
+            throw new IllegalArgumentException("Invalid uuidOrder format");
+        }
+
+        String modifiedUuidOrder = "order#" + parts[1];
+
         OrderEntity keyCondition = new OrderEntity();
-        keyCondition.setUuidOrder(uuidOrder);
+        keyCondition.setUuidOrder(modifiedUuidOrder);
+
         DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
                 .withHashKeyValues(keyCondition)
                 .withConsistentRead(false);
 
-        return dynamoDBMapper.query(OrderEntity.class, queryExpression);
+        List<OrderEntity> result = dynamoDBMapper.query(OrderEntity.class, queryExpression);
+
+        for (OrderEntity order : result) {
+            System.out.println(order);
+        }
+
+        return result;
     }
     @Override
 //    public void cancelOrder(String partition, String sort, String attributeName, String status) {
@@ -132,10 +157,14 @@ public class OrderImpl implements Order{
 //         Get the value of the specified attribute
         switch (attributeName) {
             case "status" -> value = orderEntity.getStatus();
-            case "review" -> value = orderEntity.getReview();
+            case "review" ->{
+                attributeName="rev";
+                value = orderEntity.getReview();}
             case "rating" -> {
                 value = orderEntity.getRating();
-                HostEntity hostEntity=host.updateHostRating(orderEntity.getUuidHost(), Double.parseDouble(value));
+                attributeName="rat";
+
+                HostEntity hostEntity=host.updateHostRating(orderEntity.getUuidHost(),orderEntity.getGeoHost(), Double.parseDouble(value));
                 System.out.println(hostEntity);
             }
             case "payment" -> value =orderEntity.getPayMode();

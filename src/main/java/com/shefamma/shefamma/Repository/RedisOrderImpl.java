@@ -1,4 +1,4 @@
-package com.shefamma.shefamma.HostRepository;
+package com.shefamma.shefamma.Repository;
 
 import com.shefamma.shefamma.entities.OrderEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +18,13 @@ public class RedisOrderImpl {
     public void saveOrderToAppropriateList(OrderEntity order) {
         String mealTypeKey;
         switch (order.getMealType()) {
-            case "breakfast":
+            case "b":
                 mealTypeKey = "breakfastOrders";
                 break;
-            case "lunch":
+            case "l":
                 mealTypeKey = "lunchOrders";
                 break;
-            case "dinner":
+            case "d":
                 mealTypeKey = "dinnerOrders";
                 break;
             default:
@@ -36,13 +36,13 @@ public class RedisOrderImpl {
         String mealTypeKey;
 
         switch (mealType) {
-            case "breakfast":
+            case "b":
                 mealTypeKey = "breakfastOrders";
                 break;
-            case "lunch":
+            case "l":
                 mealTypeKey = "lunchOrders";
                 break;
-            case "dinner":
+            case "d":
                 mealTypeKey = "dinnerOrders";
                 break;
             default:

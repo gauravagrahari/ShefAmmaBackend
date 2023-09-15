@@ -1,4 +1,4 @@
-package com.shefamma.shefamma.HostRepository;
+package com.shefamma.shefamma.Repository;
 
 import com.shefamma.shefamma.entities.AccountEntity;
 import org.springframework.http.ResponseEntity;

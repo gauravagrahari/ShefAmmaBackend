@@ -11,3 +11,5 @@ public interface Meal {
     List<MealEntity> getItems(String itemId);
     MealEntity getItem(String hostId, String nameItem, MealEntity itementity);
 }
+
+
