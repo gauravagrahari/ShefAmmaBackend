@@ -35,11 +35,11 @@ public class GuestImpl implements Guest {
 //        return guestentity;
 //    }
     @Override
-    public GuestEntity getGuest(String guestId, String nameGuest) {
+    public GuestEntity getGuestAddress(String guestId, String nameGuest) {
         return dynamoDBMapper.load(GuestEntity.class, guestId, nameGuest);
     }
 
-    public AdressSubEntity getGuest(String uuidGuest) {
+    public AdressSubEntity getGuestAddress(String uuidGuest) {
         DynamoDBQueryExpression<GuestEntity> queryExpression = new DynamoDBQueryExpression<GuestEntity>()
                  .withConsistentRead(false)
                 .withKeyConditionExpression("pk = :val")

@@ -5,9 +5,10 @@ import com.shefamma.shefamma.entities.OrderEntity;
 import java.util.List;
 
 public interface Order {
+    List<OrderEntity> getHostOrders(String hostID);
     OrderEntity createOrder(OrderEntity orderEntity);
 
-    List<OrderEntity> getHostOrders(String hostID);
+
     List<OrderEntity> getInProgressHostOrders(String hostID);
     List<OrderEntity> getInProgressDevBoyOrders(String uuidDevBoy);
 

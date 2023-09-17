@@ -81,11 +81,16 @@ public class HostImpl implements Host {
             case "currentMessage":
                 value = hostentity.getCurrentMessage();
                 break;
+            case "providedMeals":
+                value = hostentity.getProvidedMeals();
+                attributeName="provMeals";
             // Add more cases for other attributes if needed
             default:
                 // Invalid attribute name provided
                 throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
+
+        //attributeName given to this method should be the attribute corresponding to the name in dynamodb table.
          ResponseEntity<?> response= commonMethods.updateAttributeWithSortKey(partition,sort, attributeName, value);
         System.out.println(response);
         return hostentity;

@@ -57,4 +57,7 @@ public class HostEntity {
     private String ratingHost;
     @DynamoDBAttribute(attributeName = "noOfRat")
     private String noOfRating;
+    @DynamoDBAttribute(attributeName = "provMeals")
+    private String providedMeals;//bld meaning breakfast lunch dinner
+
 }

@@ -6,8 +6,8 @@ import com.shefamma.shefamma.entities.GuestEntity;
 public interface Guest {
     
     GuestEntity saveGuest(GuestEntity guestentity);
-    GuestEntity getGuest(String guestId, String nameGuest);
-    AdressSubEntity getGuest(String guestId);
+    GuestEntity getGuestAddress(String guestId, String nameGuest);
+    AdressSubEntity getGuestAddress(String guestId);
     GuestEntity updateGuest(String guestId, String nameGuest,String attributeName, GuestEntity guestentity);
 
     GuestEntity getGuestUsingPk(String uuidGuest);

@@ -16,7 +16,6 @@ public class HostCardEntity {
     public List<String> getItemNames() {
         return itemNames;
     }
-
     public void setItemNames(List<String> itemNames) {
         this.itemNames = itemNames;
     }

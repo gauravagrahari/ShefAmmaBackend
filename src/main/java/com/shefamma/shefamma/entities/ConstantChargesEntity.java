@@ -45,7 +45,12 @@ public class ConstantChargesEntity {
     private String lunchEndTime;
     @DynamoDBAttribute(attributeName = "DinnerEndTime")
     private String dinnerEndTime;
-
+    @DynamoDBAttribute(attributeName = "BreakfastBookTime")
+    private String breakfastBookTime;
+    @DynamoDBAttribute(attributeName = "LunchBookTime")
+    private String lunchBookTime;
+    @DynamoDBAttribute(attributeName = "DinnerBookTime")
+    private String dinnerBookTime;
     // Additional variables for other constant charges, if needed
     // @DynamoDBAttribute( attributeName = "otherConstantCharge")
     // private double otherConstantCharge;

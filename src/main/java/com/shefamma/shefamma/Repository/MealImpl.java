@@ -3,6 +3,7 @@ package com.shefamma.shefamma.Repository;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.shefamma.shefamma.entities.HostEntity;
 import com.shefamma.shefamma.entities.MealEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,8 @@ public class MealImpl implements  Meal{
     private DynamoDBMapper dynamoDBMapper;
     @Autowired
     private CommonMethods commonMethods;
+    @Autowired
+    HostEntity hostentity;
     @Override
     public ResponseEntity<MealEntity> createMeal(MealEntity mealEntity) {
         try {

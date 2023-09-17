@@ -97,16 +97,28 @@ public class MyController {
         return host.update(hostentity.getUuidHost(), hostentity.getGeocode(), attributeName, hostentity);
     }
     ///guest/hosts?radius=val
-    @GetMapping("/guest/hosts")
-    public List<HostCardEntity> getHostsWithinRadius(@RequestHeader("UUID") String uuidGuest, @RequestParam double radius) throws Exception {
-        GeocodingResult[] results = geocodingService.geocode(guest.getGuest(uuidGuest).convertToString());
+    @PostMapping("/guest/hosts")
+    public List<HostCardEntity> getHostsWithinRadius(
+            @RequestHeader String uuidGuest,
+            @RequestParam double radius,
+            @RequestBody( required = false) String address) throws Exception {
+
+        String guestAddress;
+//System.out.println(address);
+        // Use the provided address if available, otherwise use the guest's address
+        if (address != null && !address.trim().isEmpty()) {
+            guestAddress = address;
+        } else {
+            guestAddress = guest.getGuestAddress(uuidGuest).convertToString();
+        }
+
+        GeocodingResult[] results = geocodingService.geocode(guestAddress);
         double latitude = results[0].geometry.location.lat;
         double longitude = results[0].geometry.location.lng;
-        List<HostCardEntity> x = host.findRestaurantsWithinRadius(latitude, longitude, radius);
-        System.out.println(x);
-// return host.findRestaurantsWithinRadius(latitude, longitude, radius);
-        return x;
+
+        return host.findRestaurantsWithinRadius(latitude, longitude, radius);
     }
+
     @GetMapping("/guest/getHostUsingPk")
     public HostEntity getHostforGuest(@RequestHeader String uuidHost) {
         return host.getDataUsingPk(uuidHost);
@@ -121,7 +133,7 @@ public class MyController {
     public List<HostCardEntity> getHostsItemSearchFilter(@RequestHeader("UUID") String uuidGuest, @RequestParam String address, @RequestParam("item") String itemValue, @RequestParam double radius) throws Exception {
         GeocodingResult[] results;
         if (Objects.equals(address, "address")) {
-            results = geocodingService.geocode(guest.getGuest(uuidGuest).convertToString());
+            results = geocodingService.geocode(guest.getGuestAddress(uuidGuest).convertToString());
         } else {
             results = geocodingService.geocode(address);
         }
@@ -180,29 +192,43 @@ public class MyController {
 //    @RequestHeader("Authorization") String token
     @PostMapping("/guest")
     public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity) throws Exception {
+        System.out.println(guestEntity);
+
+        // Perform geocoding for the primary guest address
         GeocodingResult[] results = geocodingService.geocode(guestEntity.getAddressGuest().convertToString());
         double latitude = results[0].geometry.location.lat;
         double longitude = results[0].geometry.location.lng;
         String coordinates = String.format("%.6f,%.6f", latitude, longitude);
         guestEntity.setGeocode(coordinates);
         System.out.println(guestEntity);
-        String officeAddress = String.valueOf(guestEntity.getOfficeAddress());
-        if (!Objects.equals(officeAddress, null) && !officeAddress.isEmpty()) {
+
+        // Check if officeAddress is provided and not empty
+        if (guestEntity.getOfficeAddress() != null &&
+                (guestEntity.getOfficeAddress().getStreet() != null && !guestEntity.getOfficeAddress().getStreet().isEmpty()) &&
+                (guestEntity.getOfficeAddress().getHouseName() != null && !guestEntity.getOfficeAddress().getHouseName().isEmpty()) &&
+                (guestEntity.getOfficeAddress().getCity() != null && !guestEntity.getOfficeAddress().getCity().isEmpty()) &&
+                (guestEntity.getOfficeAddress().getState() != null && !guestEntity.getOfficeAddress().getState().isEmpty()) &&
+                (guestEntity.getOfficeAddress().getPinCode() != null && !guestEntity.getOfficeAddress().getPinCode().isEmpty())) {
+
+            String officeAddress = String.valueOf(guestEntity.getOfficeAddress());
             GeocodingResult[] resultsOffice = geocodingService.geocode(officeAddress.toString());
             double officeLatitude = resultsOffice[0].geometry.location.lat;
             double officeLongitude = resultsOffice[0].geometry.location.lng;
             String officeCoordinates = String.format("%.6f,%.6f", officeLatitude, officeLongitude);
             guestEntity.setGeocodeOffice(officeCoordinates);
         }
+
         return guest.saveGuest(guestEntity);
     }
-@PutMapping("/guest/updateDetails")
+
+
+    @PutMapping("/guest/updateDetails")
 public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Exception {
         return saveGuest(guestEntity);
 }
     @GetMapping("/host/guest")
     public GuestEntity getGuest(@RequestHeader String uuidGuest, @RequestHeader String geocode) {
-        return guest.getGuest(uuidGuest, geocode);
+        return guest.getGuestAddress(uuidGuest, geocode);
     }
     @GetMapping("/guest/getGuestUsingPk")
     public GuestEntity getGuestUsingPk(@RequestHeader String uuidGuest  ) {
@@ -281,8 +307,11 @@ public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Ex
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************Meal controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
+
     @PostMapping("/host/meal")
     public ResponseEntity<MealEntity> createMeal(@RequestBody MealEntity mealEntity) {
+
+
         return meal.createMeal(mealEntity);
     }
     @PutMapping("/host/meal")
