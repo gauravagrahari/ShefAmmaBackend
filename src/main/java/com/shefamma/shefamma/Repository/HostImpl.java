@@ -107,9 +107,9 @@ public class HostImpl implements Host {
                 .withKeyConditionExpression("gpk = :gpk AND begins_with(gsk, :gsk)")
                 .withExpressionAttributeValues(eav)
                 .withConsistentRead(false);
+//                .withProjectionExpression("geocode"); // Add projection attribute for geocode
 
         PaginatedQueryList<HostEntity> queryResult = dynamoDBMapper.query(HostEntity.class, queryExpression);
-
 
         return queryResult.stream()
                 .filter(restaurant -> {
@@ -120,26 +120,30 @@ public class HostImpl implements Host {
                     double distance = haversineDistance(latitude, longitude, lat, lng);
                     return distance <= radius;
                 })
-                .map(host -> {
+                .map(
+                        host -> {
                     String hostId = host.getUuidHost();
                     String[] hostIdString = hostId.split("#");
                     String itemId = "item#" + hostIdString[1];
 
-                    DynamoDBQueryExpression<ItemEntity> itemQueryExpression = new DynamoDBQueryExpression<ItemEntity>()
+                    DynamoDBQueryExpression<MealEntity> itemQueryExpression = new DynamoDBQueryExpression<MealEntity>()
                             .withConsistentRead(false)
                             .withKeyConditionExpression("pk=:pk")
                             .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
                                 put(":pk", new AttributeValue().withS(itemId));
                             }})
-                            .withScanIndexForward(true);
+                            .withScanIndexForward(true)
+                            .withProjectionExpression("sk, meal"); // Add projection attributes for nameItem and mealType
 
-                    List<ItemEntity> items = dynamoDBMapper.query(ItemEntity.class, itemQueryExpression);
-                    List<String> itemNames = items.stream().map(ItemEntity::getNameItem).collect(Collectors.toList());
+                    List<MealEntity> items = dynamoDBMapper.query(MealEntity.class, itemQueryExpression);
+                    List<String> itemNames = items.stream().map(MealEntity::getNameItem).collect(Collectors.toList());
+                    List<String> mealTypes = items.stream().map(MealEntity::getMealType).collect(Collectors.toList());
 
-                    return new HostCardEntity(host, itemNames);
+                    return new HostCardEntity(host, itemNames, mealTypes); // Modify HostCardEntity constructor to accept mealTypes
                 })
                 .collect(Collectors.toList());
     }
+
 
     private double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
         final int R = 6371; // Earth's radius in km
@@ -154,11 +158,10 @@ public class HostImpl implements Host {
         return R * c;
     }
 
-
     @Override
     public List<HostCardEntity> getHostsItemSearchFilter(double latitude, double longitude, double radius, String itemValue) {
-//        Map<String, AttributeValue> eav = new HashMap<>();
-//        eav.put(":pk", new AttributeValue().withS("#host"));
+////        Map<String, AttributeValue> eav = new HashMap<>();
+////        eav.put(":pk", new AttributeValue().withS("#host"));
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":gpk", new AttributeValue().withS("h"));
         eav.put(":gsk", new AttributeValue().withS("host#"));
@@ -203,23 +206,25 @@ public class HostImpl implements Host {
                     String[] hostIdString = hostId.split("#");
                     String itemId = "item#" + hostIdString[1];
 
-                    DynamoDBQueryExpression<ItemEntity> itemQueryExpression = new DynamoDBQueryExpression<ItemEntity>()
+                    DynamoDBQueryExpression<MealEntity> itemQueryExpression = new DynamoDBQueryExpression<MealEntity>()
                             .withConsistentRead(false)
                             .withKeyConditionExpression("pk=:pk AND begins_with(sk, :val)")
                             .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
                                 put(":pk", new AttributeValue().withS(itemId));
                                 put(":val", new AttributeValue().withS(itemValue));
                             }})
-                            .withScanIndexForward(true);
+                            .withScanIndexForward(true)
+                            .withProjectionExpression("sk, meal");
 
-                    List<ItemEntity> items = dynamoDBMapper.query(ItemEntity.class, itemQueryExpression);
-                    List<String> itemNames = items.stream().map(ItemEntity::getNameItem).collect(Collectors.toList());
+                    List<MealEntity> items = dynamoDBMapper.query(MealEntity.class, itemQueryExpression);
+                    List<String> itemNames = items.stream().map(MealEntity::getNameItem).collect(Collectors.toList());
+                    List<String> mealTypes = items.stream().map(MealEntity::getMealType).collect(Collectors.toList());
 
-
-                    return new HostCardEntity(host, itemNames);
+                    return new HostCardEntity(host, itemNames,mealTypes);
                 })
                 .collect(Collectors.toList());
     }
+
 
 //    this method has mistake, check the ends_with method, wrong logic
     @Override

@@ -13,10 +13,21 @@ import java.util.List;
 public class HostCardEntity {
     HostEntity hostEntity;
     List<String> itemNames;
+    List<String> mealTypes; // Add List<String> for mealTypes
+
     public List<String> getItemNames() {
         return itemNames;
     }
+
     public void setItemNames(List<String> itemNames) {
         this.itemNames = itemNames;
+    }
+
+    public List<String> getMealTypes() {
+        return mealTypes;
+    }
+
+    public void setMealTypes(List<String> mealTypes) {
+        this.mealTypes = mealTypes;
     }
 }

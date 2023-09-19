@@ -482,7 +482,7 @@ public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Ex
         return currentTime.isAfter(otpExpirationTime);
     }
 //    -----------------------------------------
-//Contstant Charges
+//Constant Charges
 //    -----------------------------------------
 @PostMapping("/admin/addCharges")
 public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity constantChargesEntity) {
@@ -627,10 +627,10 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
 
             // Generate the JWT token for the new user
             String token = jwtServices.generateToken(devBoyEntity.getPhone());
-            String uuidGuest = account.storeDevBoyUuid();
+            String uuidDevBoy = account.storeDevBoyUuid();
             String timestamp = account.storeTimestamp();
             Map<String, Object> response = new HashMap<>();
-            response.put("uuidHost", uuidGuest);
+            response.put("uuidDevBoy", uuidDevBoy);
             response.put("token", token);
             response.put("timeStamp", timestamp);
             return ResponseEntity.ok(response);

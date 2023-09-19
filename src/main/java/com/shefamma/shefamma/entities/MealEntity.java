@@ -28,7 +28,7 @@ public class MealEntity {
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidMeal;
     @DynamoDBRangeKey(attributeName = "sk")
-    private String itemNames;
+    private String nameItem;
     @DynamoDBAttribute(attributeName = "meal")
     private String mealType;//breakfast,lunch,dinner
 

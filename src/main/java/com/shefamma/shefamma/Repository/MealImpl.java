@@ -38,7 +38,7 @@ public class MealImpl implements  Meal{
         String value = null;
         switch (attributeName) {
             case "itemNames":
-                value = itemEntity.getItemNames();
+                value = itemEntity.getNameItem();
                 break;
             case "dishcategory":
                 value = itemEntity.getDishcategory();
