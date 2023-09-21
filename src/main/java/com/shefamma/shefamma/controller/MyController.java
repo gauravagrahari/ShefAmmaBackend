@@ -494,7 +494,7 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
         return constantCharges.updateCharges(constantChargesEntity);
     }
 
-    @GetMapping("/admin/getCharges")
+    @GetMapping("/guest/getCharges")
     public ResponseEntity<ConstantChargesEntity> getCharges() {
         return constantCharges.getCharges();
     }
