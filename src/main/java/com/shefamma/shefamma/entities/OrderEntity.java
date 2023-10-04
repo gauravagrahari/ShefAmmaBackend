@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @DynamoDBTable(tableName = "ShefAmma")
-public class OrderEntity implements Serializable {
+public class  OrderEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public OrderEntity(String order1, String geo11, String geo12, String lunch) {
@@ -37,26 +37,32 @@ public class OrderEntity implements Serializable {
     private String timeStampGsi;
       @DynamoDBIndexHashKey(attributeName = "gpk2", globalSecondaryIndexName = "gsi2")
     private String uuidDevBoy;
-//    @DynamoDBIndexRangeKey(attributeName = "gsk2",globalSecondaryIndexName = "gsi2")
-//    private String timeStampGsi;
+    @DynamoDBIndexRangeKey(attributeName = "gsk2",globalSecondaryIndexName = "gsi2")
+    private String timeStampGsiDev;
 
     @DynamoDBAttribute(attributeName = "nameG")
     private String nameGuest;//this name will be name of the guest
      @DynamoDBAttribute(attributeName = "nameH")
     private String nameHost;//this name will be name of the host
-
+    @DynamoDBAttribute(attributeName = "phoneG")
+    private String phoneGuest;//this name will be name of the guest
+    @DynamoDBAttribute(attributeName = "phoneH")
+    private String phoneHost;//this name will be name of the host
     @DynamoDBAttribute(attributeName = "geo1")
     private String geoGuest;
     @DynamoDBAttribute(attributeName = "geo2")
     private String geoHost;
-    private int itemQuantity;
     @DynamoDBAttribute(attributeName = "stts")
-    private String status;//new,inProgress,completed,cancelled,failed
+    private String status;//new,inProgress,pickedUp,completed,cancelled,unpicked,undelivered(new,ip,pkd,com,can,unpkd,undel)
     @DynamoDBAttribute(attributeName = "amtTot")
     private String amount;
 
     @DynamoDBAttribute(attributeName = "rat")
     private String rating;
+    @DynamoDBAttribute(attributeName = "pTime")
+    private String pickUpTime;
+    @DynamoDBAttribute(attributeName = "dTime")
+    private String deliverTime;
     @DynamoDBAttribute(attributeName="rev")
     private String review;
 

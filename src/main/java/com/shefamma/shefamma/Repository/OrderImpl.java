@@ -7,12 +7,11 @@ import com.amazonaws.services.dynamodbv2.model.*;
 import com.shefamma.shefamma.entities.GuestEntity;
 import com.shefamma.shefamma.entities.HostEntity;
 import com.shefamma.shefamma.entities.OrderEntity;
+import com.shefamma.shefamma.entities.OrderWithAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class OrderImpl implements Order{
@@ -68,23 +67,26 @@ public OrderEntity createOrder(OrderEntity orderEntity) {
     return orderEntity;
 }
 
-    public List<OrderEntity> getHostOrders(String uuidOrder) {
+    public List<OrderEntity> getAllOrders(String uuidOrder,String gsiName) {
         OrderEntity gsiKeyCondition = new OrderEntity();
-        gsiKeyCondition.setUuidHost(uuidOrder); // Assuming "gsi1pk" is the attribute for the GSI's PK
-
+        if(Objects.equals(gsiName, "gsi1")){
+        gsiKeyCondition.setUuidHost(uuidOrder); }// Assuming "gsi1pk" is the attribute for the GSI's PK
+else{
+            gsiKeyCondition.setUuidDevBoy(uuidOrder);
+        }
         DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
-                .withIndexName("gsi1") // Replace "gsi1" with the actual GSI name
+                .withIndexName(gsiName) // Replace "gsi1" with the actual GSI name
                 .withHashKeyValues(gsiKeyCondition)
                 .withConsistentRead(false);
 
         return dynamoDBMapper.query(OrderEntity.class, queryExpression);
     }
-    public List<OrderEntity> getInProgressHostOrders(String uuidOrder) {
+    public List<OrderEntity> getInProgressOrders(String uuidOrder, String gsiName) {
         OrderEntity gsiKeyCondition = new OrderEntity();
         gsiKeyCondition.setUuidHost(uuidOrder); // Assuming "gsi1pk" is the attribute for the GSI's PK
 
         DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
-                .withIndexName("gsi1") // Replace "gsi1" with the actual GSI name
+                .withIndexName(gsiName) // Replace "gsi1" with the actual GSI name
                 .withHashKeyValues(gsiKeyCondition)
                 .withConsistentRead(false);
 
@@ -95,23 +97,91 @@ public OrderEntity createOrder(OrderEntity orderEntity) {
 
         return dynamoDBMapper.query(OrderEntity.class, queryExpression);
     }
-    public List<OrderEntity> getInProgressDevBoyOrders(String uuidDevBoy) {
+    public List<OrderEntity> getInProgressAndPkdOrders(String uuidOrder, String gsiName) {
         OrderEntity gsiKeyCondition = new OrderEntity();
-        gsiKeyCondition.setUuidDevBoy(uuidDevBoy); // Assuming "gsi1pk" is the attribute for the GSI's PK
-//        gsiKeyCondition.setUuidDevBoy(uuidOrder); // Assuming "gsi1pk" is the attribute for the GSI's PK
+        gsiKeyCondition.setUuidHost(uuidOrder);
 
-        DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
-                .withIndexName("gsi2") // Replace "gsi1" with the actual GSI name
+        DynamoDBQueryExpression<OrderEntity> queryExpressionForIp = new DynamoDBQueryExpression<OrderEntity>()
+                .withIndexName(gsiName)
                 .withHashKeyValues(gsiKeyCondition)
                 .withConsistentRead(false);
 
         // Add a condition to fetch items where 'status' attribute is equal to "ip"
-        Map<String, Condition> queryFilter = new HashMap<>();
-        queryFilter.put("stts", new Condition().withComparisonOperator(ComparisonOperator.EQ).withAttributeValueList(new AttributeValue().withS("ip")));
-        queryExpression.withQueryFilter(queryFilter);
+        Map<String, Condition> queryFilterForIp = new HashMap<>();
+        queryFilterForIp.put("stts", new Condition().withComparisonOperator(ComparisonOperator.EQ).withAttributeValueList(new AttributeValue().withS("ip")));
+        queryExpressionForIp.withQueryFilter(queryFilterForIp);
 
-        return dynamoDBMapper.query(OrderEntity.class, queryExpression);
+        List<OrderEntity> ipOrders = dynamoDBMapper.query(OrderEntity.class, queryExpressionForIp);
+
+        DynamoDBQueryExpression<OrderEntity> queryExpressionForPkd = new DynamoDBQueryExpression<OrderEntity>()
+                .withIndexName(gsiName)
+                .withHashKeyValues(gsiKeyCondition)
+                .withConsistentRead(false);
+
+        // Add a condition to fetch items where 'status' attribute is equal to "pkd"
+        Map<String, Condition> queryFilterForPkd = new HashMap<>();
+        queryFilterForPkd.put("stts", new Condition().withComparisonOperator(ComparisonOperator.EQ).withAttributeValueList(new AttributeValue().withS("pkd")));
+        queryExpressionForPkd.withQueryFilter(queryFilterForPkd);
+
+        List<OrderEntity> pkdOrders = dynamoDBMapper.query(OrderEntity.class, queryExpressionForPkd);
+
+        ipOrders.addAll(pkdOrders);
+
+        return ipOrders;
     }
+    public List<OrderWithAddress> getInProgressDevBoyOrders(String uuidDevBoy) {
+        OrderEntity gsiKeyCondition = new OrderEntity();
+        gsiKeyCondition.setUuidDevBoy(uuidDevBoy);
+
+        Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
+        expressionAttributeValues.put(":statusVal1", new AttributeValue().withS("ip"));
+        expressionAttributeValues.put(":statusVal2", new AttributeValue().withS("pkd"));
+
+        DynamoDBQueryExpression<OrderEntity> orderQueryExpression = new DynamoDBQueryExpression<OrderEntity>()
+                .withIndexName("gsi2")
+                .withHashKeyValues(gsiKeyCondition)
+                .withConsistentRead(false)
+                .withFilterExpression("stts = :statusVal1 OR stts = :statusVal2")
+                .withExpressionAttributeValues(expressionAttributeValues);
+
+        List<OrderEntity> orders = dynamoDBMapper.query(OrderEntity.class, orderQueryExpression);
+
+        List<OrderWithAddress> detailedOrders = new ArrayList<>();
+
+        for (OrderEntity order : orders) {
+            // Query for Host address
+            DynamoDBQueryExpression<HostEntity> hostQueryExpression = new DynamoDBQueryExpression<HostEntity>()
+                    .withHashKeyValues(new HostEntity().setUuidHost(order.getUuidHost()))
+                    .withProjectionExpression("adr");
+
+            List<HostEntity> hostResults = dynamoDBMapper.query(HostEntity.class, hostQueryExpression);
+            String uuidGuest = order.getUuidOrder().replaceFirst("order#", "guest#");
+
+            // Query for Guest address
+            DynamoDBQueryExpression<GuestEntity> guestQueryExpression = new DynamoDBQueryExpression<GuestEntity>()
+                    .withHashKeyValues(new GuestEntity().setUuidGuest(uuidGuest))
+                    .withProjectionExpression("adr");
+
+            List<GuestEntity> guestResults = dynamoDBMapper.query(GuestEntity.class, guestQueryExpression);
+
+            OrderWithAddress orderDetail = new OrderWithAddress();
+            orderDetail.setOrder(order);
+
+            if (!hostResults.isEmpty()) {
+                orderDetail.setHostAddress(hostResults.get(0).getAddressHost());
+            }
+
+            if (!guestResults.isEmpty()) {
+                orderDetail.setGuestAddress(guestResults.get(0).getAddressGuest());
+            }
+
+            detailedOrders.add(orderDetail);
+        }
+
+        return detailedOrders;
+    }
+
+
     // Helper method to map the DynamoDB item to your OrderEntity class
 //    private OrderEntity mapDynamoDBItemToOrderEntity(Map<String, AttributeValue> item) {
 //        // Implement the mapping logic to convert the DynamoDB item to OrderEntity
@@ -151,12 +221,13 @@ public OrderEntity createOrder(OrderEntity orderEntity) {
         return result;
     }
     @Override
-//    public void cancelOrder(String partition, String sort, String attributeName, String status) {
     public OrderEntity updateOrder(String partition, String sort, String attributeName, OrderEntity orderEntity) {
         String value = null;
 //         Get the value of the specified attribute
         switch (attributeName) {
-            case "status" -> value = orderEntity.getStatus();
+            case "status" ->{ value = orderEntity.getStatus();
+                attributeName="stts";
+            }
             case "review" ->{
                 attributeName="rev";
                 value = orderEntity.getReview();}
@@ -168,13 +239,46 @@ public OrderEntity createOrder(OrderEntity orderEntity) {
                 System.out.println(hostEntity);
             }
             case "payment" -> value =orderEntity.getPayMode();
-            case "uuidDevBoy" -> value =orderEntity.getUuidDevBoy();
-
+            case "uuidDevBoy" ->{
+                attributeName="gpk2";
+                value =orderEntity.getUuidDevBoy();}
+            case "pickUpTime" ->{
+                attributeName="pTime";
+                value = orderEntity.getPickUpTime();}
+            case "deliverTime" -> {
+                value = orderEntity.getDeliverTime();
+                attributeName="dTime";
+            }
             default ->
                 // Invalid attribute name provided
                     throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
         commonMethods.updateAttributeWithSortKey(partition,sort,attributeName,value);
+        return orderEntity;
+    }
+    @Override
+    public OrderEntity updateOrderStatus(String uuidOrder, String timeStamp, String attributeName, String attributeName2, OrderEntity orderEntity) {
+        String value = null;
+        String value2 = null;
+
+        if(attributeName=="status"){
+            value = orderEntity.getStatus();
+            attributeName="stts";
+        }
+//         Get the value of the specified attribute
+        switch (attributeName2) {
+            case "pickUpTime" ->{
+                attributeName2="pTime";
+                value2 = orderEntity.getPickUpTime();}
+            case "deliverTime" -> {
+                value2 = orderEntity.getDeliverTime();
+                attributeName2="dTime";
+            }
+            default ->
+                // Invalid attribute name provided
+                    throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
+        }
+        commonMethods.updateTwoAttributesWithSortKey(uuidOrder,timeStamp,attributeName,value,attributeName2,value2);
         return orderEntity;
     }
     @Override
@@ -205,6 +309,8 @@ public OrderEntity createOrder(OrderEntity orderEntity) {
 
         commonMethods.updateMultipleAttributes(orderEntity.getUuidOrder(),orderEntity.getTimeStamp(), attributeUpdates);
     }
+
+
 }
 //see, I have already set up or tools and you helped me in its testing-----Now I will tell you my requirement again---there will be multiple orders, each order
 //        will have almost unique destinations(customers), but there's high chance that the source(cooks) of many orders might be same, now what will happen that the orders will be delivered in 3 different time slots(each slot would be for each meal , i.e breakfast, lunch and dinner)-----

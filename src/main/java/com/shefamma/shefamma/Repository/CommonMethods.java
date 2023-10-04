@@ -61,7 +61,6 @@ public class CommonMethods {
      */
     public ResponseEntity<?> updateAttributeWithSortKey(String partitionKeyValue, String sortKeyValue, String attributeName, String newValue) {
         try {
-//            attributeName="rev";
             Map<String, AttributeValue> key = new HashMap<>();
             key.put("pk", new AttributeValue(partitionKeyValue));
             key.put("sk", new AttributeValue(sortKeyValue));
@@ -76,6 +75,34 @@ public class CommonMethods {
                     .withExpressionAttributeValues(expressionAttributeValues);
 
             amazonDynamoDB.updateItem(updateItemRequest);
+
+            return ResponseEntity.ok("Update successful.");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+        }
+    }
+    public ResponseEntity<?> updateTwoAttributesWithSortKey(String pkValue, String skValue,
+                                                            String attrName1, String newValue1,
+                                                            String attrName2, String newValue2) {
+        try {
+            Map<String, AttributeValue> key = new HashMap<>();
+            key.put("pk", new AttributeValue(pkValue));
+            key.put("sk", new AttributeValue(skValue));
+
+            Map<String, AttributeValue> eav = new HashMap<>();
+            eav.put(":val1", new AttributeValue(newValue1));
+            eav.put(":val2", new AttributeValue(newValue2));
+
+            String updateExpr = String.format("SET %s = :val1, %s = :val2", attrName1, attrName2);
+
+            UpdateItemRequest req = new UpdateItemRequest()
+                    .withTableName(tableName)
+                    .withKey(key)
+                    .withUpdateExpression(updateExpr)
+                    .withExpressionAttributeValues(eav);
+
+            amazonDynamoDB.updateItem(req);
 
             return ResponseEntity.ok("Update successful.");
 

@@ -101,16 +101,17 @@ public class MyController {
     public List<HostCardEntity> getHostsWithinRadius(
             @RequestHeader String uuidGuest,
             @RequestParam double radius,
-            @RequestBody( required = false) String address) throws Exception {
+            @RequestBody(required = false) String address) throws Exception {
 
         String guestAddress;
-//System.out.println(address);
-        // Use the provided address if available, otherwise use the guest's address
+        System.out.println("Received address: '" + address + "'");
+
         if (address != null && !address.trim().isEmpty()) {
-            guestAddress = address;
+             guestAddress = address;
         } else {
             guestAddress = guest.getGuestAddress(uuidGuest).convertToString();
         }
+
 
         GeocodingResult[] results = geocodingService.geocode(guestAddress);
         double latitude = results[0].geometry.location.lat;
@@ -118,6 +119,7 @@ public class MyController {
 
         return host.findRestaurantsWithinRadius(latitude, longitude, radius);
     }
+
 
     @GetMapping("/guest/getHostUsingPk")
     public HostEntity getHostforGuest(@RequestHeader String uuidHost) {
@@ -389,14 +391,18 @@ public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Ex
 
     @GetMapping("/host/orders")
     public List<OrderEntity> getHostOrders(@RequestHeader String hostID) {
-        return order.getHostOrders(hostID);
+        return order.getAllOrders(hostID,"gsi1");
     }
 
     @GetMapping("/host/ipOrders")
     public List<OrderEntity> getInProgressHostOrders(@RequestHeader String hostID) {
-        return order.getInProgressHostOrders(hostID);
+        return order.getInProgressOrders(hostID,"gsi1" );
     }
+@GetMapping("/devBoy/ipOrders")
+public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
+    return order.getInProgressAndPkdOrders(uuidDevBoy,"gsi2" );
 
+}
     @GetMapping("/guest/orders")
     public List<OrderEntity> getGuestOrders(@RequestHeader String uuidOrder) {
         return order.getGuestOrders(uuidOrder);
@@ -421,11 +427,58 @@ public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Ex
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
         }
     }
-
+    @PutMapping("/devBoy/updateOrder")
+    public ResponseEntity<String> updateOrderDevBoy(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName,@RequestParam String attributeName2) {
+        try {
+            // Attempt to update the orderEntity
+            OrderEntity updatedOrder = order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
+            order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName2, orderEntity);
+            System.out.println(orderEntity);
+            if (updatedOrder != null) {
+                System.out.println(ResponseEntity.ok("Order updated successfully"));
+                // Successfully updated the order
+                return ResponseEntity.ok("Order updated successfully");
+            } else {
+                // Order update failed (handle this case as needed)
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update order");
+            }
+        } catch (Exception e) {
+            // Handle exceptions (e.g., validation errors, database errors)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
+        }
+    }
+//@PutMapping("/devBoy/updateOrder")
+//public ResponseEntity<String> updateOrderDevBoy(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName,@RequestParam String attributeName2) {
+//    try {
+//        // Attempt to update the orderEntity
+//        OrderEntity updatedOrder = order.updateOrderStatus(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName,attributeName2, orderEntity);
+//        System.out.println(orderEntity);
+//        if (updatedOrder != null) {
+//            System.out.println(ResponseEntity.ok("Order updated successfully"));
+//            // Successfully updated the order
+//            return ResponseEntity.ok("Order updated successfully");
+//        } else {
+//            // Order update failed (handle this case as needed)
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update order");
+//        }
+//    } catch (Exception e) {
+//        // Handle exceptions (e.g., validation errors, database errors)
+//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
+//    }
+//}
     @PutMapping("/host/payment")
     public void updatePayment(@RequestBody OrderEntity orderEntity) {
 //        return order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), "pyMd", orderEntity);
         order.updatePayment(orderEntity);
+    }
+    @GetMapping("/devBoy/ipDevBoyOrders")
+    public List<OrderWithAddress> ipDevBoyOrders(@RequestHeader String uuidDevBoy) {
+        return order.getInProgressDevBoyOrders(uuidDevBoy);
+    }
+    @GetMapping("/devBoy/devBoyOrders")
+    public List<OrderEntity> devBoyOrders(@RequestHeader String uuidDevBoy) {
+        return order.getAllOrders(uuidDevBoy,"gsi2");
+//        return order.getInProgressDevBoyOrders(uuidDevBoy);
     }
 
     //    @PostMapping("/guest/order/rating")
@@ -434,7 +487,7 @@ public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Ex
 //    ------------------------------------------------------------------------------------------------------
 //    **************************************Otp controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
-    @PostMapping("/host/generateOtp")
+    @PostMapping("/generateOtp")
     public ResponseEntity<String> generateOtp(@RequestBody Map<String, String> payload) {
         String input = payload.get("phone") != null ? payload.get("phone") : payload.get("email");
 
@@ -449,12 +502,12 @@ public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Ex
         }
     }
 
-    @PostMapping("/host/otpPhone")
+    @PostMapping("/otpPhone")
     public ResponseEntity<?> verifySms(@RequestBody OtpVerificationClass otpVerificationClass) {
         return verifyOtp(otpVerificationClass.getPhoneOtp());
     }
 
-    @PostMapping("/host/otpEmail")
+    @PostMapping("/otpEmail")
     public ResponseEntity<?> verifyEmail(@RequestBody OtpVerificationClass otpVerificationClass) {
         return verifyOtp(otpVerificationClass.getEmailOtp());
     }
@@ -516,7 +569,7 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
                 String errorMessage = "User already exists for email: " + hostEntity.getEmail();
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
             }
-
+           hostEntity.setRole("host");
             // User doesn't exist, proceed with saving the details
             AccountEntity newAccountEntity = account.saveSignup(hostEntity, "host");
 
@@ -592,6 +645,7 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
             return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
         } catch (UsernameNotFoundException e) {
 
+            guestEntity.setRole("guest");
             // User doesn't exist, proceed with saving the details
             AccountEntity newAccountEntity = account.saveSignup(guestEntity, "guest");
 
@@ -621,7 +675,7 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
             String errorMessage = "User already exists for phone: " + devBoyEntity.getPhone();
             return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
         } catch (UsernameNotFoundException e) {
-
+            devBoyEntity.setRole("devBoy");
             // User doesn't exist, proceed with saving the details
             AccountEntity newAccountEntity = account.saveSignup(devBoyEntity, "devBoy");
 
@@ -661,10 +715,6 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
         }
     }
 
-    @GetMapping("/host/ipDevBoyOrders")
-    public List<OrderEntity> ipDevBoyOrders(@RequestHeader String uuidDevBoy) {
-        return order.getInProgressDevBoyOrders(uuidDevBoy);
-    }
 
     //    -----------------------------------------
 //change password

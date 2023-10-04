@@ -14,13 +14,15 @@ import org.springframework.stereotype.Component;
 @DynamoDBTable(tableName = "ShefAmma")
 public class GuestEntity {
 
-    public void setUuidGuest(String uuidGuest) {
+    public GuestEntity setUuidGuest(String uuidGuest) {
         if (uuidGuest.startsWith("guest#")) {
             this.uuidGuest = uuidGuest;
         } else {
             this.uuidGuest = "guest#" + uuidGuest;
         }
+        return this;  // Return the current instance of GuestEntity.
     }
+
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidGuest;
     @DynamoDBRangeKey(attributeName = "sk")
@@ -40,7 +42,8 @@ public class GuestEntity {
     private String dob;
     @DynamoDBAttribute(attributeName = "gen")
     private String gender;
-
+    @DynamoDBAttribute(attributeName = "phone")
+    private String phone;
 //    public String getOfficeAddress() {
 //        return officeAddress != null ? officeAddress.convertToString() : null;
 //    }

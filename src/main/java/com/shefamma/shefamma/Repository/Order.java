@@ -1,16 +1,17 @@
 package com.shefamma.shefamma.Repository;
 
 import com.shefamma.shefamma.entities.OrderEntity;
+import com.shefamma.shefamma.entities.OrderWithAddress;
 
 import java.util.List;
 
 public interface Order {
-    List<OrderEntity> getHostOrders(String hostID);
+    List<OrderEntity> getAllOrders(String hostID,String gsiName);
     OrderEntity createOrder(OrderEntity orderEntity);
 
 
-    List<OrderEntity> getInProgressHostOrders(String hostID);
-    List<OrderEntity> getInProgressDevBoyOrders(String uuidDevBoy);
+    List<OrderEntity> getInProgressOrders(String hostID, String gsiName);
+    List<OrderWithAddress> getInProgressDevBoyOrders(String uuidDevBoy);
 
     List<OrderEntity> getGuestOrders(String uuidOrder);
 
@@ -20,4 +21,8 @@ public interface Order {
     OrderEntity cancelOrder(OrderEntity orderEntity);
 
     void updatePayment(OrderEntity orderEntity);
+
+    OrderEntity updateOrderStatus(String uuidOrder, String timeStamp, String attributeName, String attributeName2, OrderEntity orderEntity);
+
+    List<OrderEntity> getInProgressAndPkdOrders(String uuidDevBoy, String gsi2);
 }
