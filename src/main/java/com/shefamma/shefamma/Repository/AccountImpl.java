@@ -3,6 +3,7 @@ package com.shefamma.shefamma.Repository;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 import com.shefamma.shefamma.config.AccountEntityUserDetails;
 import com.shefamma.shefamma.entities.AccountEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,15 +80,23 @@ public class AccountImpl implements Account, UserDetailsService{
     }
 
     @Override
-    public ResponseEntity<?> changePassword(String phone,String timeStamp, String newPassword) {
+    public ResponseEntity<?> changePassword(String phone, String timeStamp, String newPassword) {
         AccountEntity accountEntity = findUserByPhone(phone);
 
         if (accountEntity == null) {
             String errorMessage = "User not found for phone: " + phone;
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
         }
-        return commonMethods.updateAttributeWithSortKey(phone,timeStamp, "pass", passwordEncoder.encode(newPassword));
+
+        UpdateItemResult result = commonMethods.updateAttributeWithSortKey(phone, timeStamp, "pass", passwordEncoder.encode(newPassword));
+
+        if (result != null && result.getAttributes() != null && !result.getAttributes().isEmpty()) {
+            return ResponseEntity.ok("Password updated successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update password.");
+        }
     }
+
 
     @Override
     public boolean isPasswordCorrect(String uuidHost, String oldPassword) {

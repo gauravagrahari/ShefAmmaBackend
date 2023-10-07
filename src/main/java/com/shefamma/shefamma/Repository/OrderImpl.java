@@ -253,8 +253,14 @@ else{
                 // Invalid attribute name provided
                     throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
-        commonMethods.updateAttributeWithSortKey(partition,sort,attributeName,value);
-        return orderEntity;
+        UpdateItemResult result = commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
+
+        // Check if the update was successful
+        if (result != null && result.getAttributes() != null && !result.getAttributes().isEmpty()) {
+            return orderEntity;
+        } else {
+            throw new RuntimeException("Failed to update order"); // Or handle this error in another way
+        }
     }
     @Override
     public OrderEntity updateOrderStatus(String uuidOrder, String timeStamp, String attributeName, String attributeName2, OrderEntity orderEntity) {

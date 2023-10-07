@@ -4,8 +4,11 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
+import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 import com.shefamma.shefamma.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
@@ -83,18 +86,31 @@ public class HostImpl implements Host {
                 break;
             case "providedMeals":
                 value = hostentity.getProvidedMeals();
-                attributeName="provMeals";
+                attributeName = "provMeals";
+                break;
             // Add more cases for other attributes if needed
             default:
                 // Invalid attribute name provided
                 throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
 
-        //attributeName given to this method should be the attribute corresponding to the name in dynamodb table.
-         ResponseEntity<?> response= commonMethods.updateAttributeWithSortKey(partition,sort, attributeName, value);
+        // attributeName given to this method should be the attribute corresponding to the name in dynamodb table.
+        UpdateItemResult response = commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
         System.out.println(response);
-        return hostentity;
+
+        try {
+            commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
+            return hostentity;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update Host entity. Error: " + e.getMessage());
+        }
     }
+
+
+
+
+
+
 
     @Override
     public List<HostCardEntity> findRestaurantsWithinRadius(double latitude, double longitude, double radius) {

@@ -65,6 +65,8 @@ public class MyController {
     private GeocodingService geocodingService;
     @Autowired
     private PinpointClass pinpointClass;
+    @Autowired
+    private Capacity capacity;
     private String generatedOtp; // Store the generated OTP here
     //    ---------------------------------------------------------
     private LocalDateTime otpExpirationTime; // Store the expiration time here
@@ -340,6 +342,25 @@ public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Ex
         return meal.getItem(mealEntity.getUuidMeal(), mealEntity.getMealType(), mealEntity);
     }
     //    ------------------------------------------------------------------------------------------------------
+//    **************************************Capacity controllers******************************************
+//    ------------------------------------------------------------------------------------------------------
+@PostMapping("/host/capacity")
+public CapacityEntity createCapacity(@RequestBody CapacityEntity capacityentity) {
+    String newUuidTime = capacityentity.getUuidCapacity().replace("host#", "capacity#");
+    capacityentity.setUuidCapacity(newUuidTime);
+    System.out.println(capacityentity);
+    return capacity.createCapacity(capacityentity);
+
+}
+    @GetMapping("/guest/host/capacity")
+    public CapacityEntity getCapacity(@RequestHeader String id) {
+        String[] idSplit = id.split("#");
+        CapacityEntity capacity = this.capacity.getCapacity("capacity#" + idSplit[1]);
+        System.out.println(capacity);
+        return capacity;
+    }
+
+    //    ------------------------------------------------------------------------------------------------------
 //    **************************************TimeSlot controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
     @PostMapping("/host/timeSlot")
@@ -381,9 +402,19 @@ public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Ex
 //    **************************************Order controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
     @PostMapping("/guest/order")
-    public OrderEntity createOrder(@RequestBody OrderEntity orderEntity) {
-        return order.createOrder(orderEntity);
+    public ResponseEntity<?> createOrder(@RequestBody OrderEntity orderEntity, @RequestHeader String capacityUuid) {
+        ResponseEntity<String> capacityUpdateResponse = capacity.updateCapacity(orderEntity.getMealType(), capacityUuid, Integer.parseInt(orderEntity.getNoOfServing()));
+
+        // Check if the capacity was updated successfully
+        if (capacityUpdateResponse.getStatusCode() == HttpStatus.OK) {
+            OrderEntity createdOrder = order.createOrder(orderEntity);
+            return ResponseEntity.ok(createdOrder);
+        } else {
+            // Return the response from the capacity update (either an error about the number of meals or another issue)
+            return capacityUpdateResponse;
+        }
     }
+
 
     //need to make changes in the bwloe controller to get orders based on status, i.e in-progress, completed
 //host/orders?status=val
@@ -431,15 +462,13 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
     public ResponseEntity<String> updateOrderDevBoy(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName,@RequestParam String attributeName2) {
         try {
             // Attempt to update the orderEntity
-            OrderEntity updatedOrder = order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
-            order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName2, orderEntity);
+            OrderEntity updatedOrder1 = order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
+            OrderEntity updatedOrder2 = order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName2, orderEntity);
             System.out.println(orderEntity);
-            if (updatedOrder != null) {
-                System.out.println(ResponseEntity.ok("Order updated successfully"));
-                // Successfully updated the order
+            // Check if the update was successful based on updatedOrder1 and updatedOrder2
+            if (updatedOrder1 != null && updatedOrder2 != null) {
                 return ResponseEntity.ok("Order updated successfully");
             } else {
-                // Order update failed (handle this case as needed)
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update order");
             }
         } catch (Exception e) {

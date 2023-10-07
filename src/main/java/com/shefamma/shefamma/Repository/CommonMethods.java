@@ -2,9 +2,7 @@ package com.shefamma.shefamma.Repository;
 
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
-import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.ConditionalCheckFailedException;
-import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
+import com.amazonaws.services.dynamodbv2.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,12 +52,13 @@ public class CommonMethods {
     }
     /**
      * Updates a specific attribute in a DynamoDB table using the primary key (partition key and sort key).
+     *
      * @param partitionKeyValue The value of the partition key attribute.
      * @param sortKeyValue      The value of the sort key attribute.
      * @param attributeName     The name of the attribute to update, it is the value present in the dynamoDb table not the variable name in the Entity class.
      * @param newValue          The new value for the attribute.
      */
-    public ResponseEntity<?> updateAttributeWithSortKey(String partitionKeyValue, String sortKeyValue, String attributeName, String newValue) {
+    public UpdateItemResult updateAttributeWithSortKey(String partitionKeyValue, String sortKeyValue, String attributeName, String newValue) {
         try {
             Map<String, AttributeValue> key = new HashMap<>();
             key.put("pk", new AttributeValue(partitionKeyValue));
@@ -72,14 +71,12 @@ public class CommonMethods {
                     .withTableName(tableName)
                     .withKey(key)
                     .withUpdateExpression("SET " + attributeName + " = :newValue")
-                    .withExpressionAttributeValues(expressionAttributeValues);
+                    .withExpressionAttributeValues(expressionAttributeValues)
+                    .withReturnValues(ReturnValue.ALL_NEW); // Add this line
 
-            amazonDynamoDB.updateItem(updateItemRequest);
-
-            return ResponseEntity.ok("Update successful.");
-
+            return amazonDynamoDB.updateItem(updateItemRequest);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred: " + e.getMessage());
+            throw new RuntimeException("An error occurred: " + e.getMessage());
         }
     }
     public ResponseEntity<?> updateTwoAttributesWithSortKey(String pkValue, String skValue,
