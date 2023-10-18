@@ -26,8 +26,8 @@ public class PinpointClass {
     public static String appId = "da84a0d8ff3445fb9ba714de83df2c8e";
 
     private static final int OTP_EXPIRATION_SECONDS = 45;
-    public static void sendEmail(String subject,String senderAddress, String toAddress) {
-        AwsCredentials credentials = AwsBasicCredentials.create("AKIATDGNA7XLUHRU2K4O", "5FKad7I/6hCmBreMZ/SCZqyL1zJTWu2rJkdaby3");
+    public static void sendEmail(String subject, String senderAddress, String toAddress, String otpContent) {
+        AwsCredentials credentials = AwsBasicCredentials.create("AKIATDGNA7XLUHRU2K4O", "5FKad7I/6hCmBreMZ/SCZqyL1zJTWu2rJkdaby3T");
 
         PinpointClient pinpoint = PinpointClient.builder()
                 .region(Region.AP_SOUTH_1)
@@ -41,10 +41,12 @@ public class PinpointClass {
                     .channelType(ChannelType.EMAIL)
                     .build();
 
-            addressMap.put(toAddress, configuration);
+            addressMap.put("gauravagrahari158@gmail.com", configuration);
+
+            String emailBody = "Your OTP is: " + otpContent; // Customize this as per your requirements
 
             SimpleEmailPart emailPart = SimpleEmailPart.builder()
-                    .data(HTML_BODY)
+                    .data(emailBody)
                     .charset(CHARSET)
                     .build();
 
@@ -60,7 +62,7 @@ public class PinpointClass {
 
             EmailMessage emailMessage = EmailMessage.builder()
                     .body(HTML_BODY)
-                    .fromAddress(senderAddress)
+                    .fromAddress("shefamma@gmail.com")
                     .simpleEmail(simpleEmail)
                     .build();
 
@@ -88,10 +90,10 @@ public class PinpointClass {
     }
 
     public static void sendSMS(String message, String originationNumber, String destinationNumber) {
-        AwsCredentials credentials = AwsBasicCredentials.create("AKIATDGNA7XLUHRU2K4O", "5FKad7I/6hCmBreMZ/SCZqyL1zJTWu2rJkdaby3");
+        AwsCredentials credentials = AwsBasicCredentials.create("AKIATDGNA7XLUHRU2K4O", "5FKad7I/6hCmBreMZ/SCZqyL1zJTWu2rJkdaby3T");
+
 
         PinpointClient pinpoint = PinpointClient.builder()
-//                .region(Region.AP_SOUTH_1)
                 .region(Region.of("ap-south-1"))
                 .credentialsProvider(() -> credentials)
                 .build();
@@ -102,12 +104,12 @@ public class PinpointClass {
                     .channelType(ChannelType.SMS)
                     .build();
 
-            addressMap.put(destinationNumber, addConfig);
+            addressMap.put("+919875503630", addConfig);
 
             SMSMessage smsMessage = SMSMessage.builder()
                     .body(message)
                     .messageType("TRANSACTIONAL")
-                    .originationNumber(originationNumber)
+                    .originationNumber("+919875406458")
                     .senderId("MySenderID")
                     .build();
 
@@ -125,15 +127,18 @@ public class PinpointClass {
                     .messageRequest(messageRequest)
                     .build();
 
+            System.out.println("Sending SMS...");
+
             pinpoint.sendMessages(sendMessagesRequest);
+
             System.out.println("SMS sent successfully.");
         } catch (PinpointException e) {
             System.err.println("Error sending SMS: " + e.awsErrorDetails().errorMessage());
+            e.printStackTrace();  // Print the full exception for more details
         } finally {
             pinpoint.close();
         }
     }
-
 
 
     public static String generateOTPWithExpiration() {

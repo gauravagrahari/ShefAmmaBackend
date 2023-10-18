@@ -57,18 +57,18 @@ public class HostEntity {
     @DynamoDBAttribute(attributeName = "curMes")
     private String currentMessage;
 
-    @DynamoDBAttribute(attributeName = "bCap")
-    private String breakfastCapacity;
-    @DynamoDBAttribute(attributeName = "curBCap")
-    private String currentBreakfastCapacity;
-    @DynamoDBAttribute(attributeName = "lCap")
-    private String lunchCapacity;
-    @DynamoDBAttribute(attributeName = "curLCap")
-    private String currentLunchCapacity;
-    @DynamoDBAttribute(attributeName = "dCap")
-    private String dinnerCapacity;
-    @DynamoDBAttribute(attributeName = "curDCap")
-    private String currentDinnerCapacity;
+//    @DynamoDBAttribute(attributeName = "bCap")
+//    private String breakfastCapacity;
+//    @DynamoDBAttribute(attributeName = "curBCap")
+//    private String currentBreakfastCapacity;
+//    @DynamoDBAttribute(attributeName = "lCap")
+//    private String lunchCapacity;
+//    @DynamoDBAttribute(attributeName = "curLCap")
+//    private String currentLunchCapacity;
+//    @DynamoDBAttribute(attributeName = "dCap")
+//    private String dinnerCapacity;
+//    @DynamoDBAttribute(attributeName = "curDCap")
+//    private String currentDinnerCapacity;
 
     @DynamoDBAttribute(attributeName = "ratH")
     private String ratingHost;

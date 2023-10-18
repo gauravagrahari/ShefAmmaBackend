@@ -59,9 +59,8 @@ public OrderEntity createOrder(OrderEntity orderEntity) {
 
     String modifiedUuidOrder = "order#" + parts[1];
     orderEntity.setUuidOrder(modifiedUuidOrder);
-
     dynamoDBMapper.save(orderEntity);
-
+  System.out.println(orderEntity);
     // Save the order to the appropriate Redis list based on mealType
     redisOrderImpl.saveOrderToAppropriateList(orderEntity);
     return orderEntity;

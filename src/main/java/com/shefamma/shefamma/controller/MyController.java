@@ -518,18 +518,49 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
 //    ------------------------------------------------------------------------------------------------------
     @PostMapping("/generateOtp")
     public ResponseEntity<String> generateOtp(@RequestBody Map<String, String> payload) {
-        String input = payload.get("phone") != null ? payload.get("phone") : payload.get("email");
+        String phone = payload.get("phone");
+        String email = payload.get("email");
 
-        try {
-            userDetailsService.loadUserByUsername(input);
-            String errorMessage = "User already exists for phone: " + input;
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
-        } catch (UsernameNotFoundException e) {
-            generatedOtp = PinpointClass.generateOTPWithExpiration();
-            otpExpirationTime = LocalDateTime.now().plusSeconds(PinpointClass.getOtpExpirationSeconds());
-            return ResponseEntity.ok("OTP generated successfully: " + generatedOtp);
+        // Check if neither phone nor email is provided
+        if (phone == null && email == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please provide either phone or email.");
         }
+
+        // If phone is provided, check if user exists with that phone number
+        if (phone != null) {
+            try {
+                userDetailsService.loadUserByUsername(phone);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists for phone: " + phone);
+            } catch (UsernameNotFoundException ignored) {
+            }
+        }
+
+        // If email is provided, check if user exists with that email
+        if (email != null) {
+            try {
+                userDetailsService.loadUserByUsername(email);
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists for email: " + email);
+            } catch (UsernameNotFoundException ignored) {
+            }
+        }
+
+        // If we've reached here, then the user doesn't exist with either phone or email
+        generatedOtp = PinpointClass.generateOTPWithExpiration();
+        otpExpirationTime = LocalDateTime.now().plusSeconds(PinpointClass.getOtpExpirationSeconds());
+
+        // Send OTP
+        if (phone != null) {
+            PinpointClass.sendSMS(generatedOtp, "+919", phone); // Make sure you replace "YourOriginationNumber" with the actual number.
+        }
+        if (email != null) {
+            String subject = "Your OTP Code";
+            String senderAddress = "noreply@yourdomain.com"; // replace with your email
+            PinpointClass.sendEmail(subject, senderAddress, email, generatedOtp); // I assumed your sendEmail method might also need the actual OTP content.
+        }
+
+        return ResponseEntity.ok("OTP generated and sent successfully.");
     }
+
 
     @PostMapping("/otpPhone")
     public ResponseEntity<?> verifySms(@RequestBody OtpVerificationClass otpVerificationClass) {
@@ -544,8 +575,8 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
 //    public ResponseEntity<?> verifySmsGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
 //        return verifyOtp(otpVerificationClass.getPhoneOtp());
 //    }
-
-    //    @PostMapping("/host/otpEmail")
+//
+//        @PostMapping("/host/otpEmail")
 //    public ResponseEntity<?> verifyEmailGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
 //        return verifyOtp(otpVerificationClass.getEmailOtp());
 //    }

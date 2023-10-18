@@ -70,6 +70,8 @@ public class  OrderEntity implements Serializable {
     private String payMode;
     @DynamoDBAttribute(attributeName = "delTD")
     private String delTimeAndDay;
+    @DynamoDBAttribute(attributeName = "delAdd")
+    private AdressSubEntity delAddress;
 //    for meals
     @DynamoDBAttribute(attributeName = "meal")
     private String mealType;//b, d, l
