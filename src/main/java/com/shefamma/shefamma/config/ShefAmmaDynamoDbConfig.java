@@ -6,11 +6,16 @@ import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ShefAmmaDynamoDbConfig {
+    @Value("${aws.access.key}")
+    public static String awsAccessKey;
+    @Value("${aws.private.key}")
+    public static String awsPrivateKey;
 
     @Bean
     public AmazonDynamoDB amazonDynamoDB() {
@@ -25,8 +30,8 @@ public class ShefAmmaDynamoDbConfig {
                 .withCredentials(
                         new AWSStaticCredentialsProvider(
                                 new BasicAWSCredentials(
-                                        "AKIATDGNA7XLUHRU2K4O",
-                                        "5FKad7I/6hCmBreMZ/SCZqyL1zJTWu2rJkdaby3T"
+                                        awsAccessKey,
+                                        awsPrivateKey
                                 )
                         )
                 )
@@ -38,5 +43,3 @@ public class ShefAmmaDynamoDbConfig {
         return new DynamoDBMapper(amazonDynamoDB());
     }
 }
-//   "AKIATDGNA7XLUHRU2K4O",
-//           "5FKad7I/6hCmBreMZ/SCZqyL1zJTWu2rJkdaby3

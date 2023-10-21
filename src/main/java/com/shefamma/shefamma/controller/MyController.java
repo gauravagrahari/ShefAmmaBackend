@@ -67,6 +67,8 @@ public class MyController {
     private PinpointClass pinpointClass;
     @Autowired
     private Capacity capacity;
+    @Autowired
+    private Pincode pincode;
     private String generatedOtp; // Store the generated OTP here
     //    ---------------------------------------------------------
     private LocalDateTime otpExpirationTime; // Store the expiration time here
@@ -77,6 +79,23 @@ public class MyController {
         System.out.println(message);
         return homeEntity.getFName();
     }
+//    ----------------------------
+//    Pincode controller
+//    ---------------------------
+    @PostMapping("/admin/addPincode")
+    public PincodeEntity addPincode(@RequestBody PincodeEntity pincodeEntity) {
+        return pincode.addPincode(pincodeEntity);
+    }
+@GetMapping("/guest/checkService")
+public ResponseEntity<String> checkService(@RequestHeader String pinCode){
+    boolean isAvailable = pincode.checkPincodeAvailability(pinCode);
+    if(isAvailable) {
+        return ResponseEntity.ok("Service is available in your area.Try updating your address in the Profile section.");
+    } else {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sorry, service is not available in your area.");
+    }
+}
+
 // ------------------------------------------------------------------------------------------------------
 // **************************************Host controllers******************************************
 // ------------------------------------------------------------------------------------------------------
@@ -227,7 +246,7 @@ public class MyController {
 
 
     @PutMapping("/guest/updateDetails")
-public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Exception {
+    public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Exception {
         return saveGuest(guestEntity);
 }
     @GetMapping("/host/guest")
@@ -235,10 +254,9 @@ public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Ex
         return guest.getGuestAddress(uuidGuest, geocode);
     }
     @GetMapping("/guest/getGuestUsingPk")
-    public GuestEntity getGuestUsingPk(@RequestHeader String uuidGuest  ) {
+    public GuestEntity getGuestUsingPk(@RequestHeader String uuidGuest) {
         return guest.getGuestUsingPk(uuidGuest);
     }
-
     ///guest?attributeName=val
     @PutMapping("/guest")
     public GuestEntity updateGuest(@RequestBody GuestEntity guestentity, @RequestParam String attributeName) {

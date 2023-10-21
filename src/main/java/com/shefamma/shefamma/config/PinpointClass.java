@@ -1,5 +1,6 @@
 package com.shefamma.shefamma.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
@@ -26,8 +27,12 @@ public class PinpointClass {
     public static String appId = "da84a0d8ff3445fb9ba714de83df2c8e";
 
     private static final int OTP_EXPIRATION_SECONDS = 45;
+    @Value("${aws.access.key}")
+    public static String awsAccessKey;
+    @Value("${aws.private.key}")
+    public static String awsPrivateKey;
     public static void sendEmail(String subject, String senderAddress, String toAddress, String otpContent) {
-        AwsCredentials credentials = AwsBasicCredentials.create("AKIATDGNA7XLUHRU2K4O", "5FKad7I/6hCmBreMZ/SCZqyL1zJTWu2rJkdaby3T");
+        AwsCredentials credentials = AwsBasicCredentials.create(awsAccessKey, awsPrivateKey);
 
         PinpointClient pinpoint = PinpointClient.builder()
                 .region(Region.AP_SOUTH_1)
@@ -90,7 +95,7 @@ public class PinpointClass {
     }
 
     public static void sendSMS(String message, String originationNumber, String destinationNumber) {
-        AwsCredentials credentials = AwsBasicCredentials.create("AKIATDGNA7XLUHRU2K4O", "5FKad7I/6hCmBreMZ/SCZqyL1zJTWu2rJkdaby3T");
+        AwsCredentials credentials = AwsBasicCredentials.create(awsAccessKey, awsPrivateKey);
 
 
         PinpointClient pinpoint = PinpointClient.builder()
