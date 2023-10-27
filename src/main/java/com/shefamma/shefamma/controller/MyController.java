@@ -1,5 +1,7 @@
 package com.shefamma.shefamma.controller;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.maps.model.GeocodingResult;
 import com.shefamma.shefamma.Repository.*;
 import com.shefamma.shefamma.Repository.Account;
@@ -126,21 +128,24 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
 
         String guestAddress;
         System.out.println("Received address: '" + address + "'");
+        String pinCode = null;
 
         if (address != null && !address.trim().isEmpty()) {
              guestAddress = address;
+            // Parse the address string to extract the pincode
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode addressNode = objectMapper.readTree(address);
+             pinCode = addressNode.get("address").get("pinCode").asText();
+            System.out.println("Extracted pinCode: " + pinCode);
         } else {
             guestAddress = guest.getGuestAddress(uuidGuest).convertToString();
         }
-
-
         GeocodingResult[] results = geocodingService.geocode(guestAddress);
         double latitude = results[0].geometry.location.lat;
         double longitude = results[0].geometry.location.lng;
-
+        boolean isAvailable = pincode.checkPincodeAvailability(pinCode);
         return host.findRestaurantsWithinRadius(latitude, longitude, radius);
     }
-
 
     @GetMapping("/guest/getHostUsingPk")
     public HostEntity getHostforGuest(@RequestHeader String uuidHost) {

@@ -13,9 +13,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ShefAmmaDynamoDbConfig {
     @Value("${aws.access.key}")
-    public static String awsAccessKey;
+    public String awsAccessKey;
     @Value("${aws.private.key}")
-    public static String awsPrivateKey;
+    public String awsPrivateKey;
 
     @Bean
     public AmazonDynamoDB amazonDynamoDB() {
