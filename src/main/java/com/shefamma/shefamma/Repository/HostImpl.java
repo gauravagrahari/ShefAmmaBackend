@@ -4,12 +4,9 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.amazonaws.services.dynamodbv2.model.UpdateItemRequest;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 import com.shefamma.shefamma.entities.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -149,13 +146,21 @@ public class HostImpl implements Host {
                                 put(":pk", new AttributeValue().withS(itemId));
                             }})
                             .withScanIndexForward(true)
-                            .withProjectionExpression("sk, meal"); // Add projection attributes for nameItem and mealType
+                            .withProjectionExpression("dp,meal,sk"); // Add projection attributes for nameItem and mealType
 
                     List<MealEntity> items = dynamoDBMapper.query(MealEntity.class, itemQueryExpression);
                     List<String> itemNames = items.stream().map(MealEntity::getNameItem).collect(Collectors.toList());
                     List<String> mealTypes = items.stream().map(MealEntity::getMealType).collect(Collectors.toList());
+                    List<String> imageMeal = items.stream().map(MealEntity::getDp).collect(Collectors.toList());
+//                            for (String image : imageMeal) {
+//                                System.out.println(image);
+//                            }
 
-                    return new HostCardEntity(host, itemNames, mealTypes); // Modify HostCardEntity constructor to accept mealTypes
+                            System.out.println(imageMeal);
+                            System.out.println(mealTypes);
+                            System.out.println(itemNames);
+
+                    return new HostCardEntity(host, itemNames, mealTypes,imageMeal); // Modify HostCardEntity constructor to accept mealTypes
                 })
                 .collect(Collectors.toList());
     }
@@ -230,13 +235,15 @@ public class HostImpl implements Host {
                                 put(":val", new AttributeValue().withS(itemValue));
                             }})
                             .withScanIndexForward(true)
-                            .withProjectionExpression("sk, meal");
+                            .withProjectionExpression("sk, meal, dp"); // Add projection attributes for nameItem and mealType
 
                     List<MealEntity> items = dynamoDBMapper.query(MealEntity.class, itemQueryExpression);
                     List<String> itemNames = items.stream().map(MealEntity::getNameItem).collect(Collectors.toList());
                     List<String> mealTypes = items.stream().map(MealEntity::getMealType).collect(Collectors.toList());
+                    List<String> imageMeal = items.stream().map(MealEntity::getDp).collect(Collectors.toList());
+                    System.out.println(imageMeal);
 
-                    return new HostCardEntity(host, itemNames,mealTypes);
+                    return new HostCardEntity(host, itemNames, mealTypes,imageMeal);
                 })
                 .collect(Collectors.toList());
     }

@@ -14,6 +14,7 @@ public class HostCardEntity {
     HostEntity hostEntity;
     List<String> itemNames;
     List<String> mealTypes; // Add List<String> for mealTypes
+    List<String> imageMeal; // Add List<String> for mealTypes
 
     public List<String> getItemNames() {
         return itemNames;
@@ -30,4 +31,14 @@ public class HostCardEntity {
     public void setMealTypes(List<String> mealTypes) {
         this.mealTypes = mealTypes;
     }
+    public List<String> getImageMeal() {
+        return imageMeal;
+    }
+
+    public void setImageMeal(List<String> imageMeal) {
+        this.imageMeal = imageMeal;
+    }
+
+
+
 }

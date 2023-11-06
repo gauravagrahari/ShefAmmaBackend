@@ -46,6 +46,8 @@ public class  OrderEntity implements Serializable {
     private String nameHost;//this name will be name of the host
     @DynamoDBAttribute(attributeName = "phoneG")
     private String phoneGuest;//this name will be name of the guest
+    @DynamoDBAttribute(attributeName = "phoneGAlt")
+    private String phoneGuestAlt;//this name will be name of the guest
     @DynamoDBAttribute(attributeName = "phoneH")
     private String phoneHost;//this name will be name of the host
     @DynamoDBAttribute(attributeName = "geo1")

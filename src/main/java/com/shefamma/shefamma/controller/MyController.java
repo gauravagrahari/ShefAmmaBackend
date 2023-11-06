@@ -222,31 +222,38 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity) throws Exception {
         System.out.println(guestEntity);
 
-        // Perform geocoding for the primary guest address
-        GeocodingResult[] results = geocodingService.geocode(guestEntity.getAddressGuest().convertToString());
-        double latitude = results[0].geometry.location.lat;
-        double longitude = results[0].geometry.location.lng;
-        String coordinates = String.format("%.6f,%.6f", latitude, longitude);
-        guestEntity.setGeocode(coordinates);
-        System.out.println(guestEntity);
+        // Check if geocode needs to be generated (for new entities)
+        if (guestEntity.getGeocode() == null || guestEntity.getGeocode().isEmpty()) {
+            GeocodingResult[] results = geocodingService.geocode(guestEntity.getAddressGuest().convertToString());
+            double latitude = results[0].geometry.location.lat;
+            double longitude = results[0].geometry.location.lng;
+            String coordinates = String.format("%.6f,%.6f", latitude, longitude);
+            guestEntity.setGeocode(coordinates);
+        }
 
-        // Check if officeAddress is provided and not empty
+        // Always calculate geocode for office address if provided and not empty
         if (guestEntity.getOfficeAddress() != null &&
-                (guestEntity.getOfficeAddress().getStreet() != null && !guestEntity.getOfficeAddress().getStreet().isEmpty()) &&
-                (guestEntity.getOfficeAddress().getHouseName() != null && !guestEntity.getOfficeAddress().getHouseName().isEmpty()) &&
-                (guestEntity.getOfficeAddress().getCity() != null && !guestEntity.getOfficeAddress().getCity().isEmpty()) &&
-                (guestEntity.getOfficeAddress().getState() != null && !guestEntity.getOfficeAddress().getState().isEmpty()) &&
-                (guestEntity.getOfficeAddress().getPinCode() != null && !guestEntity.getOfficeAddress().getPinCode().isEmpty())) {
+                isNotEmpty(guestEntity.getOfficeAddress().getStreet()) &&
+                isNotEmpty(guestEntity.getOfficeAddress().getHouseName()) &&
+                isNotEmpty(guestEntity.getOfficeAddress().getCity()) &&
+                isNotEmpty(guestEntity.getOfficeAddress().getState()) &&
+                isNotEmpty(guestEntity.getOfficeAddress().getPinCode())) {
 
-            String officeAddress = String.valueOf(guestEntity.getOfficeAddress());
-            GeocodingResult[] resultsOffice = geocodingService.geocode(officeAddress.toString());
+            String officeAddress = guestEntity.getOfficeAddress().convertToString();
+            GeocodingResult[] resultsOffice = geocodingService.geocode(officeAddress);
             double officeLatitude = resultsOffice[0].geometry.location.lat;
             double officeLongitude = resultsOffice[0].geometry.location.lng;
             String officeCoordinates = String.format("%.6f,%.6f", officeLatitude, officeLongitude);
             guestEntity.setGeocodeOffice(officeCoordinates);
         }
 
+        System.out.println("the data is guest entity - "+guestEntity);
         return guest.saveGuest(guestEntity);
+    }
+
+    // Helper method to check if a string is not empty
+    private boolean isNotEmpty(String string) {
+        return string != null && !string.isEmpty();
     }
 
 
@@ -328,8 +335,6 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     public ItemEntity getItem(@RequestBody ItemEntity itementity) {
         return item.getItem(itementity.getUuidItem(), itementity.getNameItem(), itementity);
     }
-
-
 
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************Meal controllers******************************************
