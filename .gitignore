@@ -26,3 +26,5 @@ replay_pid*
 # Application configuration files
 **/application.properties
 **/application.yml
+src/main/resources/application.properties
+target/classes/application.properties
