@@ -44,7 +44,7 @@ public class MealImpl implements  Meal{
                 value = itemEntity.getDishcategory();
                 break;
             case "DP":
-                value = itemEntity.getDP();
+                value = itemEntity.getDp();
                 break;
             case "status":
                 value = itemEntity.getStatus();

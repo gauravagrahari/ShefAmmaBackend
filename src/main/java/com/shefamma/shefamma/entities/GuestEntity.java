@@ -31,7 +31,7 @@ public class GuestEntity {
     private String geocodeOffice;
     @DynamoDBAttribute(attributeName = "name")
     private String name;
-    @DynamoDBAttribute(attributeName = "DP")
+    @DynamoDBAttribute(attributeName = "dp")
     private String DP;
     @DynamoDBAttribute(attributeName = "adr")
     private AdressSubEntity addressGuest;
@@ -44,6 +44,8 @@ public class GuestEntity {
     private String gender;
     @DynamoDBAttribute(attributeName = "phone")
     private String phone;
+    @DynamoDBAttribute(attributeName = "phoneA")
+    private String alternateMobile;
 //    public String getOfficeAddress() {
 //        return officeAddress != null ? officeAddress.convertToString() : null;
 //    }

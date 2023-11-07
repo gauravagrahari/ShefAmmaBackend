@@ -46,7 +46,8 @@ public class MyController {
     private ConstantCharges constantCharges;
     @Autowired
     private Account account;
-
+    @Autowired
+    private SmsService smsService;
     @Autowired
     private HomeEntity homeEntity;
     @Autowired
@@ -578,7 +579,11 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
 
         // Send OTP
         if (phone != null) {
-            PinpointClass.sendSMS(generatedOtp, "+919", phone); // Make sure you replace "YourOriginationNumber" with the actual number.
+            String otpMessage = "Your OTP is: " + generatedOtp;
+            ResponseEntity<SmsService.SmsResponse> response = smsService.sendOtpSms(phone, otpMessage);
+            if (response.getStatusCode() != HttpStatus.OK) {
+                return ResponseEntity.status(response.getStatusCode()).body("Failed to send OTP SMS");
+            }
         }
         if (email != null) {
             String subject = "Your OTP Code";
@@ -599,15 +604,6 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
     public ResponseEntity<?> verifyEmail(@RequestBody OtpVerificationClass otpVerificationClass) {
         return verifyOtp(otpVerificationClass.getEmailOtp());
     }
-//    @PostMapping("/host/otpMob")
-//    public ResponseEntity<?> verifySmsGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
-//        return verifyOtp(otpVerificationClass.getPhoneOtp());
-//    }
-//
-//        @PostMapping("/host/otpEmail")
-//    public ResponseEntity<?> verifyEmailGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
-//        return verifyOtp(otpVerificationClass.getEmailOtp());
-//    }
     private ResponseEntity<?> verifyOtp(String userOtp) {
         if (isOTPExpired()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("OTP has expired");
@@ -622,6 +618,15 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
         LocalDateTime currentTime = LocalDateTime.now();
         return currentTime.isAfter(otpExpirationTime);
     }
+    //    @PostMapping("/host/otpMob")
+//    public ResponseEntity<?> verifySmsGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
+//        return verifyOtp(otpVerificationClass.getPhoneOtp());
+//    }
+//
+//        @PostMapping("/host/otpEmail")
+//    public ResponseEntity<?> verifyEmailGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
+//        return verifyOtp(otpVerificationClass.getEmailOtp());
+//    }
 //    -----------------------------------------
 //Constant Charges
 //    -----------------------------------------

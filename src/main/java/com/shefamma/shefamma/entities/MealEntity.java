@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBRangeKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Data
@@ -25,15 +26,15 @@ public class MealEntity {
         // Convert the nameItem to lowercase before setting the value
         this.mealType = mealType.toLowerCase();
     }
+
     @DynamoDBHashKey(attributeName = "pk")
     private String uuidMeal;
     @DynamoDBRangeKey(attributeName = "sk")
     private String nameItem;
     @DynamoDBAttribute(attributeName = "meal")
     private String mealType;//breakfast,lunch,dinner
-
-    @DynamoDBAttribute(attributeName = "DP")
-    private String DP;
+    @DynamoDBAttribute(attributeName = "dp")
+    private String dp;
     @DynamoDBAttribute(attributeName = "stts")
     private String status;
     @DynamoDBAttribute(attributeName = "desc")
