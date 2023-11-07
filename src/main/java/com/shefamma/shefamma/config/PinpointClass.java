@@ -24,8 +24,9 @@ public class PinpointClass {
             + "<p>This email was sent through the <a href='https://aws.amazon.com/pinpoint/'>"
             + "Amazon Pinpoint</a> Email API using the "
             + "<a href='https://aws.amazon.com/sdk-for-java/'>AWS SDK for Java 2.x</a>";
-    public static String appId = "da84a0d8ff3445fb9ba714de83df2c8e";
 
+    @Value("${aws.pinpoint.appId}")
+    public static String appId;
     private static final int OTP_EXPIRATION_SECONDS = 45;
     @Value("${aws.access.key}")
     public static String awsAccessKey;
