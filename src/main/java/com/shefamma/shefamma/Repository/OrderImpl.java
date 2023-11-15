@@ -49,7 +49,7 @@ public class OrderImpl implements Order{
 //
 //    }
 @Override
-public OrderEntity createOrder(OrderEntity orderEntity) {
+public OrderEntity  createOrder(OrderEntity orderEntity) {
     // Split the uuidOrder and replace "guest" with "order"
     String[] parts = orderEntity.getUuidOrder().split("#");
     if (parts.length != 2 || !parts[0].equalsIgnoreCase("guest")) {
@@ -247,6 +247,10 @@ else{
             case "deliverTime" -> {
                 value = orderEntity.getDeliverTime();
                 attributeName="dTime";
+            }
+            case "cancelledTime" -> {
+                value = orderEntity.getCancelledTime();
+                attributeName="cTime";
             }
             default ->
                 // Invalid attribute name provided

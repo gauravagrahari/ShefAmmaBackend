@@ -65,6 +65,8 @@ public class  OrderEntity implements Serializable {
     private String pickUpTime;
     @DynamoDBAttribute(attributeName = "dTime")
     private String deliverTime;
+    @DynamoDBAttribute(attributeName = "cTime")
+    private String cancelledTime;
     @DynamoDBAttribute(attributeName="rev")
     private String review;
 
