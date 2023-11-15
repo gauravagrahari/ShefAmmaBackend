@@ -25,7 +25,7 @@ public class AccountEntity {
     @DynamoDBAttribute(attributeName = "uuid")
     private String uuid;
     @DynamoDBAttribute(attributeName = "role")
-    private String role; // You can adjust the data type as needed, e.g., 'String' for role names
+    private String role;
 
 }
 //    @DynamoDBIndexHashKey(attributeName = "gpk2",globalSecondaryIndexName = "gsi2")

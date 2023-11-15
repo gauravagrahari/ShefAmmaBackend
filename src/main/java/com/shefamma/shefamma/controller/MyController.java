@@ -6,6 +6,7 @@ import com.google.maps.model.GeocodingResult;
 import com.shefamma.shefamma.Repository.*;
 import com.shefamma.shefamma.Repository.Account;
 import com.shefamma.shefamma.Repository.ConstantCharges;
+import com.shefamma.shefamma.config.AccountEntityUserDetails;
 import com.shefamma.shefamma.config.GeocodingService;
 import com.shefamma.shefamma.config.PinpointClass;
 import com.shefamma.shefamma.entities.*;
@@ -20,6 +21,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -787,9 +789,17 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
     @PostMapping("/devBoyLogin")
     public ResponseEntity<?> devBoyLogin(@RequestBody AccountEntity authRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getPhone(), authRequest.getPassword()));
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authRequest.getPhone(), authRequest.getPassword()));
 
             if (authentication.isAuthenticated()) {
+                AccountEntityUserDetails userDetails = (AccountEntityUserDetails) authentication.getPrincipal();
+                String userRole = userDetails.getRole(); // Extract role
+
+                if (!userRole.equals("devBoy")) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied for role: " + userRole);
+                }
+
                 String token = jwtServices.generateToken(authRequest.getPhone());
                 String uuidDevBoy = account.storeDevBoyUuid();
                 String timestamp = account.storeTimestamp();

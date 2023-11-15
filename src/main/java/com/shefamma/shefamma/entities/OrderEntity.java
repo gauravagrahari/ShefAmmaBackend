@@ -87,6 +87,8 @@ public class  OrderEntity implements Serializable {
     private String itemPrice;
     @DynamoDBAttribute(attributeName="nOS")
     private String noOfServing;
+    @DynamoDBAttribute(attributeName="prefTime")
+    private String preferredTime;
 
 //    @DynamoDBAttribute(attributeName = "nOG")
 //    private int noOfGuest;

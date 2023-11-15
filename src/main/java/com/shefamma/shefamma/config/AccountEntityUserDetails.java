@@ -1,6 +1,7 @@
 package com.shefamma.shefamma.config;
 
 import com.shefamma.shefamma.entities.AccountEntity;
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -11,10 +12,14 @@ public class AccountEntityUserDetails implements UserDetails {
 
     private String name;
     private String password;
+    @Getter
+    private String role;
 
     public AccountEntityUserDetails(AccountEntity userInfo) {
         name = userInfo.getPhone();
         password = userInfo.getPassword();
+        this.role = userInfo.getRole();
+
     }
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
