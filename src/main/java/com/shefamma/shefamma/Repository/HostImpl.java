@@ -114,11 +114,13 @@ public class HostImpl implements Host {
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":gpk", new AttributeValue().withS("h"));
         eav.put(":gsk", new AttributeValue().withS("host#"));
+        eav.put(":statusVal", new AttributeValue().withBOOL(true)); // Assuming the status attribute is a boolean
 
         DynamoDBQueryExpression<HostEntity> queryExpression = new DynamoDBQueryExpression<HostEntity>()
                 .withIndexName("gsi1")
                 .withKeyConditionExpression("gpk = :gpk AND begins_with(gsk, :gsk)")
                 .withExpressionAttributeValues(eav)
+                .withFilterExpression("status = :statusVal") // Add filter expression for status
                 .withConsistentRead(false);
 //                .withProjectionExpression("geocode"); // Add projection attribute for geocode
 

@@ -445,8 +445,6 @@ public CapacityEntity createCapacity(@RequestBody CapacityEntity capacityentity)
             return capacityUpdateResponse;
         }
     }
-
-
     //need to make changes in the bwloe controller to get orders based on status, i.e in-progress, completed
 //host/orders?status=val
 //instead of sending orderEntity in body send the hostUuid or guestUUid as that would keep the logic in the backend
@@ -463,7 +461,6 @@ public CapacityEntity createCapacity(@RequestBody CapacityEntity capacityentity)
 @GetMapping("/devBoy/ipOrders")
 public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
     return order.getInProgressAndPkdOrders(uuidDevBoy,"gsi2" );
-
 }
     @GetMapping("/guest/orders")
     public List<OrderEntity> getGuestOrders(@RequestHeader String uuidOrder) {

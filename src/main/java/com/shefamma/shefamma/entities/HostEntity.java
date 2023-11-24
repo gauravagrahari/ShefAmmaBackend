@@ -21,11 +21,11 @@ public class HostEntity {
         return this;
     }
 
-    public void setUuidHostGsi(String uuidHostGsi) {
-        if (uuidHostGsi.startsWith("host#")) {
-            this.uuidHostGsi = uuidHostGsi;
+    public void setGsiSk(String gsiSk) { //need to add gsiSk
+        if (gsiSk.startsWith("host#")) {
+            this.gsiSk = gsiSk;
         } else {
-            this.uuidHostGsi = "host#" + uuidHostGsi;
+            this.gsiSk = "host#" + gsiSk;
         }
     }
 
@@ -41,7 +41,7 @@ public class HostEntity {
     @DynamoDBIndexHashKey(attributeName = "gpk",globalSecondaryIndexName = "gsi1")
     private String gsiPk;
     @DynamoDBIndexRangeKey(attributeName = "gsk",globalSecondaryIndexName = "gsi1")
-    private String uuidHostGsi;
+    private String gsiSk;
     @DynamoDBAttribute(attributeName = "dCat")
     private String dineCategory;
     @DynamoDBAttribute(attributeName = "DDP")
@@ -56,7 +56,8 @@ public class HostEntity {
     private String descriptionHost;
     @DynamoDBAttribute(attributeName = "curMes")
     private String currentMessage;
-
+    @DynamoDBAttribute(attributeName = "stts")
+    private String status;
 //    @DynamoDBAttribute(attributeName = "bCap")
 //    private String breakfastCapacity;
 //    @DynamoDBAttribute(attributeName = "curBCap")

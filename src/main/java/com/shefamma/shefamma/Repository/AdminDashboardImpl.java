@@ -4,7 +4,11 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.shefamma.shefamma.entities.AdminDashboardEntity;
+import com.shefamma.shefamma.entities.DevBoyEntity;
+import com.shefamma.shefamma.entities.HostEntity;
 import com.shefamma.shefamma.services.JwtServices;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +28,7 @@ public class AdminDashboardImpl implements AdminDashboard{
     private DynamoDBMapper dynamoDBMapper;
     @Autowired
     private PasswordEncoder passwordEncoder;
+    Logger logger = LoggerFactory.getLogger(getClass());
     @Override
     public ResponseEntity<String> login(AdminDashboardEntity adminDashboardEntity) {
         boolean isPasswordCorrect = isPasswordCorrect(adminDashboardEntity.getId(), adminDashboardEntity.getPassword());
@@ -74,5 +79,54 @@ public class AdminDashboardImpl implements AdminDashboard{
         dynamoDBMapper.save(adminDashboardEntity);
         return ResponseEntity.status(HttpStatus.CREATED).body("Signup successful");
     }
+
+    @Override
+    public List<DevBoyEntity> getAllDevBoys() {
+        try {
+            // Define expression attribute values for querying the GSI
+            Map<String, AttributeValue> eav = new HashMap<>();
+            eav.put(":gpk", new AttributeValue().withS("d")); // Assuming 'h' is the common value for all hosts in 'gpk'
+            eav.put(":gsk", new AttributeValue().withS("devBoy#"));
+
+            // Define the query expression for the GSI
+            DynamoDBQueryExpression<DevBoyEntity> queryExpression = new DynamoDBQueryExpression<DevBoyEntity>()
+                    .withIndexName("gsi1")
+                    .withKeyConditionExpression("gpk = :gpk AND begins_with(gsk, :gsk)")
+                    .withExpressionAttributeValues(eav)
+                    .withConsistentRead(false);
+
+            return dynamoDBMapper.query(DevBoyEntity.class, queryExpression);
+
+        } catch (Exception e) {
+            // Log the exception and handle it as per your application's error handling policy
+            logger.error("Error fetching all hosts from DynamoDB", e);
+            throw new RuntimeException("Error fetching all hosts from DynamoDB", e);
+        }
+    }
+
+    @Override
+    public List<HostEntity> getAllHosts() {
+        try {
+            // Define expression attribute values for querying the GSI
+            Map<String, AttributeValue> eav = new HashMap<>();
+            eav.put(":gpk", new AttributeValue().withS("h")); // Assuming 'h' is the common value for all hosts in 'gpk'
+            eav.put(":gsk", new AttributeValue().withS("host#"));
+
+            // Define the query expression for the GSI
+            DynamoDBQueryExpression<HostEntity> queryExpression = new DynamoDBQueryExpression<HostEntity>()
+                    .withIndexName("gsi1")
+                    .withKeyConditionExpression("gpk = :gpk AND begins_with(gsk, :gsk)")
+                    .withExpressionAttributeValues(eav)
+                    .withConsistentRead(false);
+
+            return dynamoDBMapper.query(HostEntity.class, queryExpression);
+
+        } catch (Exception e) {
+            // Log the exception and handle it as per your application's error handling policy
+            logger.error("Error fetching all hosts from DynamoDB", e);
+            throw new RuntimeException("Error fetching all hosts from DynamoDB", e);
+        }
+    }
+
 
 }

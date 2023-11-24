@@ -70,7 +70,7 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
         OrderEntity gsiKeyCondition = new OrderEntity();
         if(Objects.equals(gsiName, "gsi1")){
         gsiKeyCondition.setUuidHost(uuidOrder); }// Assuming "gsi1pk" is the attribute for the GSI's PK
-else{
+        else{
             gsiKeyCondition.setUuidDevBoy(uuidOrder);
         }
         DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
@@ -191,7 +191,27 @@ else{
 //        // Return an instance of OrderEntity
 //        return new OrderEntity(uuidOrder, timeStamp, /* Other attributes */);
 //    }
+    public List<OrderEntity> getOrdersByStatus(String uuidOrder, String gsiName, String status) {
+        OrderEntity gsiKeyCondition = new OrderEntity();
+        if(Objects.equals(gsiName, "gsi1")){
+            gsiKeyCondition.setUuidHost(uuidOrder); }// Assuming "gsi1pk" is the attribute for the GSI's PK
+        else{
+            gsiKeyCondition.setUuidDevBoy(uuidOrder);
+        }
 
+        DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
+                .withIndexName(gsiName)
+                .withHashKeyValues(gsiKeyCondition)
+                .withConsistentRead(false);
+
+//        // Add a condition to fetch items where 'status' attribute is equal to the provided status
+        Map<String, Condition> queryFilter = new HashMap<>();
+        queryFilter.put("stts", new Condition().withComparisonOperator(ComparisonOperator.EQ).withAttributeValueList(new AttributeValue().withS(status)));
+        queryExpression.withQueryFilter(queryFilter);
+
+        List<OrderEntity> list = dynamoDBMapper.query(OrderEntity.class, queryExpression);
+        return list;
+    }
 
     @Override
     public List<OrderEntity> getGuestOrders(String uuidOrder) {

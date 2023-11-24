@@ -25,4 +25,6 @@ public interface Order {
     OrderEntity updateOrderStatus(String uuidOrder, String timeStamp, String attributeName, String attributeName2, OrderEntity orderEntity);
 
     List<OrderEntity> getInProgressAndPkdOrders(String uuidDevBoy, String gsi2);
+
+    List<OrderEntity> getOrdersByStatus(String id, String gsiName, String status);
 }
