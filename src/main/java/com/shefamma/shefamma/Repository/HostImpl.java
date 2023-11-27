@@ -81,6 +81,9 @@ public class HostImpl implements Host {
             case "currentMessage":
                 value = hostentity.getCurrentMessage();
                 break;
+            case "stts":
+                value = hostentity.getStatus();
+                break;
             case "providedMeals":
                 value = hostentity.getProvidedMeals();
                 attributeName = "provMeals";
@@ -102,72 +105,67 @@ public class HostImpl implements Host {
             throw new RuntimeException("Failed to update Host entity. Error: " + e.getMessage());
         }
     }
-
-
-
-
-
-
-
     @Override
     public List<HostCardEntity> findRestaurantsWithinRadius(double latitude, double longitude, double radius) {
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":gpk", new AttributeValue().withS("h"));
         eav.put(":gsk", new AttributeValue().withS("host#"));
-        eav.put(":statusVal", new AttributeValue().withBOOL(true)); // Assuming the status attribute is a boolean
+
+        String projectionExpression = "pk, sk";
 
         DynamoDBQueryExpression<HostEntity> queryExpression = new DynamoDBQueryExpression<HostEntity>()
                 .withIndexName("gsi1")
                 .withKeyConditionExpression("gpk = :gpk AND begins_with(gsk, :gsk)")
                 .withExpressionAttributeValues(eav)
-                .withFilterExpression("status = :statusVal") // Add filter expression for status
+                .withProjectionExpression(projectionExpression)
                 .withConsistentRead(false);
-//                .withProjectionExpression("geocode"); // Add projection attribute for geocode
 
         PaginatedQueryList<HostEntity> queryResult = dynamoDBMapper.query(HostEntity.class, queryExpression);
 
         return queryResult.stream()
-                .filter(restaurant -> {
-                    String[] geocode = restaurant.getGeocode().split(",");
-                    double lat = Double.parseDouble(geocode[0]);
-                    double lng = Double.parseDouble(geocode[1]);
-
-                    double distance = haversineDistance(latitude, longitude, lat, lng);
-                    return distance <= radius;
-                })
-                .map(
-                        host -> {
-                    String hostId = host.getUuidHost();
-                    String[] hostIdString = hostId.split("#");
-                    String itemId = "item#" + hostIdString[1];
-
-                    DynamoDBQueryExpression<MealEntity> itemQueryExpression = new DynamoDBQueryExpression<MealEntity>()
-                            .withConsistentRead(false)
-                            .withKeyConditionExpression("pk=:pk")
-                            .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
-                                put(":pk", new AttributeValue().withS(itemId));
-                            }})
-                            .withScanIndexForward(true)
-                            .withProjectionExpression("dp,meal,sk"); // Add projection attributes for nameItem and mealType
-
-                    List<MealEntity> items = dynamoDBMapper.query(MealEntity.class, itemQueryExpression);
-                    List<String> itemNames = items.stream().map(MealEntity::getNameItem).collect(Collectors.toList());
-                    List<String> mealTypes = items.stream().map(MealEntity::getMealType).collect(Collectors.toList());
-                    List<String> imageMeal = items.stream().map(MealEntity::getDp).collect(Collectors.toList());
-//                            for (String image : imageMeal) {
-//                                System.out.println(image);
-//                            }
-
-                            System.out.println(imageMeal);
-                            System.out.println(mealTypes);
-                            System.out.println(itemNames);
-
-                    return new HostCardEntity(host, itemNames, mealTypes,imageMeal); // Modify HostCardEntity constructor to accept mealTypes
-                })
+                .filter(restaurant -> isWithinRadius(restaurant.getGeocode(), latitude, longitude, radius))
+                .map(host -> fetchFullHostDetails(host.getUuidHost(),host.getGeocode()))
+                .filter(Objects::nonNull) // Filter out null values if any
+                .map(this::createHostCardEntity)
                 .collect(Collectors.toList());
     }
 
+    private HostEntity fetchFullHostDetails(String pk,String sk) {
 
+        return dynamoDBMapper.load(HostEntity.class, pk,sk);
+    }
+
+
+
+    private boolean isWithinRadius(String geocode, double latitude, double longitude, double radius) {
+        String[] geocodeParts = geocode.split(",");
+        double lat = Double.parseDouble(geocodeParts[0]);
+        double lng = Double.parseDouble(geocodeParts[1]);
+
+        double distance = haversineDistance(latitude, longitude, lat, lng);
+        return distance <= radius;
+    }
+
+    private HostCardEntity createHostCardEntity(HostEntity host) {
+        String hostId = host.getUuidHost();
+        String itemId = "item#" + hostId.split("#")[1];
+
+        DynamoDBQueryExpression<MealEntity> itemQueryExpression = new DynamoDBQueryExpression<MealEntity>()
+                .withConsistentRead(false)
+                .withKeyConditionExpression("pk = :pk")
+                .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
+                    put(":pk", new AttributeValue().withS(itemId));
+                }})
+                .withScanIndexForward(true)
+                .withProjectionExpression("dp, meal, sk"); // Projection for meal entity
+
+        List<MealEntity> items = dynamoDBMapper.query(MealEntity.class, itemQueryExpression);
+        List<String> itemNames = items.stream().map(MealEntity::getNameItem).collect(Collectors.toList());
+        List<String> mealTypes = items.stream().map(MealEntity::getMealType).collect(Collectors.toList());
+        List<String> imageMeal = items.stream().map(MealEntity::getDp).collect(Collectors.toList());
+
+        return new HostCardEntity(host, itemNames, mealTypes, imageMeal); // Modify HostCardEntity constructor accordingly
+    }
     private double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
         final int R = 6371; // Earth's radius in km
         double dLat = Math.toRadians(lat2 - lat1);

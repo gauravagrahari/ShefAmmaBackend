@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface AdminDashboard {
+    List<DevBoyEntity> getAllDevBoysIds();
+
     List<HostEntity> getAllHosts();
 
     ResponseEntity<String> login(AdminDashboardEntity adminDashboardEntity);
@@ -17,4 +19,6 @@ public interface AdminDashboard {
     ResponseEntity<String> saveSignup(AdminDashboardEntity adminDashboardEntity);
 
     List<DevBoyEntity> getAllDevBoys();
+
+    List<HostEntity>  getAllHostsIds();
 }

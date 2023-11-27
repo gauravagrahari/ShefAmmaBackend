@@ -1,6 +1,8 @@
 package com.shefamma.shefamma.controller;
 
 import com.shefamma.shefamma.Repository.AdminDashboard;
+import com.shefamma.shefamma.Repository.DevBoy;
+import com.shefamma.shefamma.Repository.Host;
 import com.shefamma.shefamma.Repository.Order;
 import com.shefamma.shefamma.entities.AdminDashboardEntity;
 import com.shefamma.shefamma.entities.DevBoyEntity;
@@ -22,6 +24,10 @@ public class AdminDashboardController {
     AdminDashboard adminDashboard;
     @Autowired
     private Order order;
+    @Autowired
+    private Host host;
+    @Autowired
+    private DevBoy devBoy;
     @PostMapping("/admin/login")
     public ResponseEntity<Map<String, String>> adminLogin(@RequestBody AdminDashboardEntity adminDashboardEntity) {
         ResponseEntity<String> response = adminDashboard.login(adminDashboardEntity);
@@ -59,10 +65,24 @@ public class AdminDashboardController {
     public List<OrderEntity> getOrdersByStatus(@RequestHeader String id,@RequestParam String gsiName,@RequestParam String status){
         return order.getOrdersByStatus(id,gsiName,status);
     }
-    @GetMapping("/admin/getHosts")
-    public ResponseEntity<String> getHosts() {
-        return null;
+    @GetMapping("/admin/getAllOrdersByStatus")
+    public List<OrderEntity> getAllOrdersByStatus(@RequestParam List<String> ids, @RequestParam String gsiName, @RequestParam String status) {
+        return order.getAllOrdersByStatus(ids, gsiName, status);
     }
+
+    @PutMapping("/admin/updateHost")
+    public HostEntity updateHost(@RequestBody HostEntity hostentity, @RequestParam String attributeName) {
+        return host.update(hostentity.getUuidHost(), hostentity.getGeocode(), attributeName, hostentity);
+    }
+    @PutMapping("/admin/updateDevBoy")
+    public DevBoyEntity updateDevBoy(@RequestBody DevBoyEntity hostentity, @RequestParam String attributeName) {
+        return devBoy.update(hostentity.getUuidDevBoy(), hostentity.getGeocode(), attributeName, hostentity);
+    }
+    @PutMapping("/admin/updateOrder")
+    public OrderEntity updateOrder(@RequestBody OrderEntity orderData, @RequestParam String attributeName) {
+        return order.updateOrder(orderData.getUuidOrder(), orderData.getTimeStamp(), attributeName, orderData);
+    }
+
     @PutMapping("/admin/assignDev")
     public ResponseEntity<String> assignDev(@RequestBody AdminDashboardEntity adminDashboardEntity) {
         return null;

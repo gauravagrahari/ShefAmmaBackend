@@ -1,10 +1,14 @@
 package com.shefamma.shefamma.Repository;
 
+import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 import com.shefamma.shefamma.deliveryOptimization.DistanceMatrixService;
 import com.shefamma.shefamma.deliveryOptimization.VRPData;
 import com.shefamma.shefamma.deliveryOptimization.VRPSolver;
+import com.shefamma.shefamma.entities.DevBoyEntity;
+import com.shefamma.shefamma.entities.HostEntity;
 import com.shefamma.shefamma.entities.OrderEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
 
 import java.util.Arrays;
 import java.util.ArrayList;
@@ -12,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Repository
 public class DevBoyImpl implements DevBoy{
     @Autowired
     private RedisOrderImpl redisOrderImpl;
@@ -19,7 +24,8 @@ public class DevBoyImpl implements DevBoy{
     private Order orderInterface;
     @Autowired
     private DistanceMatrixService distanceMatrixService;
-
+    @Autowired
+    private CommonMethods commonMethods;
     private Map<String, String> devBoyData;//key is uuidDevBoy, value is geocode
 
     // Method to get orders and prepare the maps
@@ -81,5 +87,29 @@ public class DevBoyImpl implements DevBoy{
         return allOrders.get(index);
     }
 
+    public DevBoyEntity update(String partition, String sort, String attributeName, DevBoyEntity dev) {
+        String value = null;
+        // Get the value of the specified attribute
+        switch (attributeName) {
+            case "stts":
+                value = dev.getStatus();
+                break;
+            case "veh":
+                value = dev.getVehicleType();
+                break;
+            // Add more cases for other attributes if needed
+            default:
+                // Invalid attribute name provided
+                throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
+        }
+        // attributeName given to this method should be the attribute corresponding to the name in dynamodb table.
+        UpdateItemResult response = commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
+        System.out.println(response);
 
-}
+        try {
+            commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
+            return dev;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to update Host entity. Error: " + e.getMessage());
+        }
+}}

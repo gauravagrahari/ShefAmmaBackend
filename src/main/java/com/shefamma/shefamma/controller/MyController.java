@@ -49,6 +49,8 @@ public class MyController {
     @Autowired
     private Account account;
     @Autowired
+    private DevBoy devBoy;
+    @Autowired
     private SmsService smsService;
     @Autowired
     private HomeEntity homeEntity;
@@ -814,7 +816,11 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
         }
     }
-
+//    **************************************************
+@PutMapping("/devBoy")
+public DevBoyEntity updateDevBoy(@RequestBody DevBoyEntity hostentity, @RequestParam String attributeName) {
+    return devBoy.update(hostentity.getUuidDevBoy(), hostentity.getGeocode(), attributeName, hostentity);
+}
 
     //    -----------------------------------------
 //change password

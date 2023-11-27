@@ -191,12 +191,12 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
 //        // Return an instance of OrderEntity
 //        return new OrderEntity(uuidOrder, timeStamp, /* Other attributes */);
 //    }
-    public List<OrderEntity> getOrdersByStatus(String uuidOrder, String gsiName, String status) {
+    public List<OrderEntity> getOrdersByStatus(String id, String gsiName, String status) {
         OrderEntity gsiKeyCondition = new OrderEntity();
         if(Objects.equals(gsiName, "gsi1")){
-            gsiKeyCondition.setUuidHost(uuidOrder); }// Assuming "gsi1pk" is the attribute for the GSI's PK
+            gsiKeyCondition.setUuidHost(id); }// Assuming "gsi1pk" is the attribute for the GSI's PK
         else{
-            gsiKeyCondition.setUuidDevBoy(uuidOrder);
+            gsiKeyCondition.setUuidDevBoy(id);
         }
 
         DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
@@ -211,6 +211,36 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
 
         List<OrderEntity> list = dynamoDBMapper.query(OrderEntity.class, queryExpression);
         return list;
+    }
+    public List<OrderEntity> getAllOrdersByStatus(List<String> ids, String gsiName, String status) {
+        List<OrderEntity> allOrders = new ArrayList<>();
+
+        for (String id : ids) {
+            OrderEntity gsiKeyCondition = new OrderEntity();
+            if(Objects.equals(gsiName, "gsi1")) {
+                gsiKeyCondition.setUuidHost(id);
+            } else {
+                gsiKeyCondition.setUuidDevBoy(id);
+            }
+
+            DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
+                    .withIndexName(gsiName)
+                    .withHashKeyValues(gsiKeyCondition)
+                    .withConsistentRead(false);
+
+            Map<String, Condition> queryFilter = new HashMap<>();
+            queryFilter.put("stts", new Condition().withComparisonOperator(ComparisonOperator.EQ).withAttributeValueList(new AttributeValue().withS(status)));
+            queryExpression.withQueryFilter(queryFilter);
+
+            List<OrderEntity> ordersForId = dynamoDBMapper.query(OrderEntity.class, queryExpression);
+
+            allOrders.addAll(ordersForId);
+        }
+        for (OrderEntity order : allOrders) {
+            System.out.println(order);
+        }
+
+        return allOrders;
     }
 
     @Override
