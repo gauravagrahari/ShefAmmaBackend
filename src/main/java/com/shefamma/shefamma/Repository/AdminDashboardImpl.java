@@ -79,99 +79,45 @@ public class AdminDashboardImpl implements AdminDashboard{
         dynamoDBMapper.save(adminDashboardEntity);
         return ResponseEntity.status(HttpStatus.CREATED).body("Signup successful");
     }
-
     @Override
     public List<DevBoyEntity> getAllDevBoys() {
-        try {
-            // Define expression attribute values for querying the GSI
-            Map<String, AttributeValue> eav = new HashMap<>();
-            eav.put(":gpk", new AttributeValue().withS("d")); // Assuming 'h' is the common value for all hosts in 'gpk'
-            eav.put(":gsk", new AttributeValue().withS("devBoy#"));
-
-            // Define the query expression for the GSI
-            DynamoDBQueryExpression<DevBoyEntity> queryExpression = new DynamoDBQueryExpression<DevBoyEntity>()
-                    .withIndexName("gsi1")
-                    .withKeyConditionExpression("gpk = :gpk AND begins_with(gsk, :gsk)")
-                    .withExpressionAttributeValues(eav)
-                    .withConsistentRead(false);
-
-            return dynamoDBMapper.query(DevBoyEntity.class, queryExpression);
-
-        } catch (Exception e) {
-            // Log the exception and handle it as per your application's error handling policy
-            logger.error("Error fetching all hosts from DynamoDB", e);
-            throw new RuntimeException("Error fetching all hosts from DynamoDB", e);
-        }
+        return queryDynamoDB(DevBoyEntity.class, "gsi1", "d", "devBoy#", null);
     }
+
     @Override
     public List<DevBoyEntity> getAllDevBoysIds() {
-        try {
-            // Define expression attribute values for querying the GSI
-            Map<String, AttributeValue> eav = new HashMap<>();
-            eav.put(":gpk", new AttributeValue().withS("d")); // Assuming 'h' is the common value for all hosts in 'gpk'
-            eav.put(":gsk", new AttributeValue().withS("devBoy#"));
-
-            // Define the query expression for the GSI
-            DynamoDBQueryExpression<DevBoyEntity> queryExpression = new DynamoDBQueryExpression<DevBoyEntity>()
-                    .withIndexName("gsi1")
-                    .withKeyConditionExpression("gpk = :gpk AND begins_with(gsk, :gsk)")
-                    .withExpressionAttributeValues(eav)
-                    .withConsistentRead(false)
-                    .withProjectionExpression("gsk");;
-
-            return dynamoDBMapper.query(DevBoyEntity.class, queryExpression);
-
-        } catch (Exception e) {
-            // Log the exception and handle it as per your application's error handling policy
-            logger.error("Error fetching all hosts from DynamoDB", e);
-            throw new RuntimeException("Error fetching all hosts from DynamoDB", e);
-        }
+        return queryDynamoDB(DevBoyEntity.class, "gsi1", "d", "devBoy#", "gsk");
     }
-    @Override
-    public List<HostEntity>  getAllHosts() {
-        try {
-            // Define expression attribute values for querying the GSI
-            Map<String, AttributeValue> eav = new HashMap<>();
-            eav.put(":gpk", new AttributeValue().withS("h")); // Assuming 'h' is the common value for all hosts in 'gpk'
-            eav.put(":gsk", new AttributeValue().withS("host#"));
 
-            // Define the query expression for the GSI
-            DynamoDBQueryExpression<HostEntity> queryExpression = new DynamoDBQueryExpression<HostEntity>()
-                    .withIndexName("gsi1")
+    @Override
+    public List<HostEntity> getAllHosts() {
+        return queryDynamoDB(HostEntity.class, "gsi1", "h", "host#", null);
+    }
+
+    @Override
+    public List<HostEntity> getAllHostsIds() {
+        return queryDynamoDB(HostEntity.class, "gsi1", "h", "host#", "gsk");
+    }
+    private <T> List<T> queryDynamoDB(Class<T> clazz, String gsiName, String partitionKey, String sortKeyPrefix, String projectionExpression) {
+        try {
+            Map<String, AttributeValue> eav = new HashMap<>();
+            eav.put(":gpk", new AttributeValue().withS(partitionKey));
+            eav.put(":gsk", new AttributeValue().withS(sortKeyPrefix));
+
+            DynamoDBQueryExpression<T> queryExpression = new DynamoDBQueryExpression<T>()
+                    .withIndexName(gsiName)
                     .withKeyConditionExpression("gpk = :gpk AND begins_with(gsk, :gsk)")
                     .withExpressionAttributeValues(eav)
                     .withConsistentRead(false);
 
-            return dynamoDBMapper.query(HostEntity.class, queryExpression);
+            if (projectionExpression != null) {
+                queryExpression.withProjectionExpression(projectionExpression);
+            }
 
+            return dynamoDBMapper.query(clazz, queryExpression);
         } catch (Exception e) {
-            // Log the exception and handle it as per your application's error handling policy
-            logger.error("Error fetching all hosts from DynamoDB", e);
-            throw new RuntimeException("Error fetching all hosts from DynamoDB", e);
-        }
-    }
-    @Override
-    public List<HostEntity>  getAllHostsIds() {
-        try {
-            // Define expression attribute values for querying the GSI
-            Map<String, AttributeValue> eav = new HashMap<>();
-            eav.put(":gpk", new AttributeValue().withS("h")); // Assuming 'h' is the common value for all hosts in 'gpk'
-            eav.put(":gsk", new AttributeValue().withS("host#"));
-
-            // Define the query expression for the GSI
-            DynamoDBQueryExpression<HostEntity> queryExpression = new DynamoDBQueryExpression<HostEntity>()
-                    .withIndexName("gsi1")
-                    .withKeyConditionExpression("gpk = :gpk AND begins_with(gsk, :gsk)")
-                    .withExpressionAttributeValues(eav)
-                    .withConsistentRead(false)
-                    .withProjectionExpression("gsk");
-
-            return dynamoDBMapper.query(HostEntity.class, queryExpression);
-
-        } catch (Exception e) {
-            // Log the exception and handle it as per your application's error handling policy
-            logger.error("Error fetching all hosts from DynamoDB", e);
-            throw new RuntimeException("Error fetching all hosts from DynamoDB", e);
+            logger.error("Error fetching data from DynamoDB for " + clazz.getSimpleName(), e);
+            throw new RuntimeException("Error fetching data from DynamoDB for " + clazz.getSimpleName(), e);
         }
     }
 

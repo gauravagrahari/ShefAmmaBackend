@@ -77,9 +77,14 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
                 .withIndexName(gsiName) // Replace "gsi1" with the actual GSI name
                 .withHashKeyValues(gsiKeyCondition)
                 .withConsistentRead(false);
-
-        return dynamoDBMapper.query(OrderEntity.class, queryExpression);
+        List<OrderEntity> allOrders=dynamoDBMapper.query(OrderEntity.class, queryExpression);
+        for (OrderEntity order : allOrders) {
+            System.out.println("dev order ---->"+order);
+        }
+        return allOrders;
     }
+
+
     public List<OrderEntity> getInProgressOrders(String uuidOrder, String gsiName) {
         OrderEntity gsiKeyCondition = new OrderEntity();
         gsiKeyCondition.setUuidHost(uuidOrder); // Assuming "gsi1pk" is the attribute for the GSI's PK
