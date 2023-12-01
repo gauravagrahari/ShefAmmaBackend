@@ -29,4 +29,8 @@ public interface Order {
     List<OrderEntity> getOrdersByStatus(String id, String gsiName, String status);
 
     List<OrderEntity> getAllOrdersByStatus(List<String> ids, String gsiName, String status);
+
+    List<OrderEntity> getOrdersBetweenTimestamps(String gsiName, String startTimestamp, String endTimestamp);
+
+    List<OrderEntity> getOrdersBetweenTimestampsForMultipleIds(List<String> ids, String gsiName, String startTimestamp, String endTimestamp);
 }

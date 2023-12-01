@@ -1,13 +1,9 @@
 package com.shefamma.shefamma.controller;
 
-import com.shefamma.shefamma.Repository.AdminDashboard;
-import com.shefamma.shefamma.Repository.DevBoy;
-import com.shefamma.shefamma.Repository.Host;
-import com.shefamma.shefamma.Repository.Order;
-import com.shefamma.shefamma.entities.AdminDashboardEntity;
-import com.shefamma.shefamma.entities.DevBoyEntity;
-import com.shefamma.shefamma.entities.HostEntity;
-import com.shefamma.shefamma.entities.OrderEntity;
+import com.shefamma.shefamma.Repository.*;
+import com.shefamma.shefamma.entities.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +20,8 @@ public class AdminDashboardController {
     AdminDashboard adminDashboard;
     @Autowired
     private Order order;
+    @Autowired
+    private Meal meal;
     @Autowired
     private Host host;
     @Autowired
@@ -86,5 +84,30 @@ public class AdminDashboardController {
     @PutMapping("/admin/assignDev")
     public ResponseEntity<String> assignDev(@RequestBody AdminDashboardEntity adminDashboardEntity) {
         return null;
+    }
+    @GetMapping("/admin/getAllOrdersBetweenTimestamp")
+    public List<OrderEntity> getOrdersBetweenTimestampsForMultipleIds(@RequestParam List<String> ids, @RequestParam String startTime, @RequestParam String EndTime) {
+        return order.getOrdersBetweenTimestampsForMultipleIds(ids, "gsi1", startTime,EndTime);
+    }
+    @GetMapping("/admin/getOrdersBetweenTimestamp")
+    public List<OrderEntity> getOrdersBetweenTimestamp(@RequestParam String startTime, @RequestParam String EndTime) {
+        return order.getOrdersBetweenTimestamps("gsi1", startTime,EndTime);
+    }
+
+//    ************************for meal****************************
+    @GetMapping("/admin/host/mealItems")
+    public List<MealEntity> getMealItems(@RequestHeader String id) {
+        try {
+            String[] idSplit = id.split("#");
+            return meal.getItems("item#" + idSplit[1]);
+        } catch (Exception e) {
+            Logger logger = LoggerFactory.getLogger(getClass());
+            logger.error("Error occurred while fetching items", e);
+            throw new RuntimeException("Error occurred while fetching items", e);
+        }
+    }
+    @PutMapping("/admin/host/meal")
+    public MealEntity updateMealAttribute(@RequestBody MealEntity mealEntity, @RequestParam String attributeName) {
+        return meal.updateMealAttribute(mealEntity.getUuidMeal(), mealEntity.getNameItem(),attributeName, mealEntity);
     }
 }

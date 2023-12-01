@@ -39,24 +39,31 @@ public class MealImpl implements  Meal{
         switch (attributeName) {
             case "itemNames":
                 value = itemEntity.getNameItem();
+                attributeName = "sk";
                 break;
             case "dishcategory":
                 value = itemEntity.getDishcategory();
+                attributeName = "provMeals";
                 break;
             case "DP":
                 value = itemEntity.getDp();
+                attributeName = "dp";
                 break;
             case "status":
                 value = itemEntity.getStatus();
+                attributeName = "stts";
                 break;
             case "description":
                 value = itemEntity.getDescription();
+                attributeName = "desc";
                 break;
             case "vegetarian":
                 value = itemEntity.getVegetarian();
+                attributeName = "veg";
                 break;
             case "amount":
                 value = itemEntity.getAmount();
+                attributeName = "amnt";
                 break;
             // Add more cases for other attributes if needed
             default:

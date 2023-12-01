@@ -8,6 +8,8 @@ import com.shefamma.shefamma.entities.GuestEntity;
 import com.shefamma.shefamma.entities.HostEntity;
 import com.shefamma.shefamma.entities.OrderEntity;
 import com.shefamma.shefamma.entities.OrderWithAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -28,7 +30,7 @@ public class OrderImpl implements Order{
     private Host host;
     @Autowired
     private RedisOrderImpl redisOrderImpl;
-
+    Logger logger = LoggerFactory.getLogger(getClass());
 //    @Override
 //    public OrderEntity createOrder(OrderEntity orderEntity) {
 //        orderEntity.setUuidOrder("order#"+orderEntity.getUuidOrder());
@@ -62,7 +64,7 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
     dynamoDBMapper.save(orderEntity);
   System.out.println(orderEntity);
     // Save the order to the appropriate Redis list based on mealType
-    redisOrderImpl.saveOrderToAppropriateList(orderEntity);
+//    redisOrderImpl.saveOrderToAppropriateList(orderEntity);
     return orderEntity;
 }
 
@@ -373,7 +375,47 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
 
         commonMethods.updateMultipleAttributes(orderEntity.getUuidOrder(),orderEntity.getTimeStamp(), attributeUpdates);
     }
+    @Override
+    public List<OrderEntity> getOrdersBetweenTimestamps(String gsiName, String startTimestamp, String endTimestamp) {
+        String keyConditionExpression = "gpk = :gpk AND gsk BETWEEN :startTs AND :endTs";
+        Map<String, AttributeValue> eav = new HashMap<>();
+        eav.put(":gpk", new AttributeValue().withS("gpkValue")); // Replace with actual GPK value
+        eav.put(":startTs", new AttributeValue().withS(startTimestamp));
+        eav.put(":endTs", new AttributeValue().withS(endTimestamp));
 
+        return executeQueryForOrders(gsiName, keyConditionExpression, eav);
+    }
+    @Override
+    public List<OrderEntity> getOrdersBetweenTimestampsForMultipleIds(List<String> ids, String gsiName, String startTimestamp, String endTimestamp) {
+        List<OrderEntity> allOrders = new ArrayList<>();
+        for (String id : ids) {
+            String keyConditionExpression = "gpk = :gpk AND gsk BETWEEN :startTs AND :endTs";
+            Map<String, AttributeValue> eav = new HashMap<>();
+            eav.put(":gpk", new AttributeValue().withS(id));
+            eav.put(":startTs", new AttributeValue().withS(startTimestamp));
+            eav.put(":endTs", new AttributeValue().withS(endTimestamp));
+
+            allOrders.addAll(executeQueryForOrders(gsiName, keyConditionExpression, eav));
+        }
+        return allOrders;
+    }
+
+    private List<OrderEntity> executeQueryForOrders(String gsiName, String keyConditionExpression, Map<String, AttributeValue> expressionAttributeValues) {
+        try {
+            // Create the query expression
+            DynamoDBQueryExpression<OrderEntity> queryExpression = new DynamoDBQueryExpression<OrderEntity>()
+                    .withIndexName(gsiName)
+                    .withKeyConditionExpression(keyConditionExpression)
+                    .withExpressionAttributeValues(expressionAttributeValues)
+                    .withConsistentRead(false);
+
+            // Execute the query
+            return dynamoDBMapper.query(OrderEntity.class, queryExpression);
+        } catch (Exception e) {
+            logger.error("Error executing query for orders in DynamoDB", e);
+            throw new RuntimeException("Error executing query for orders in DynamoDB", e);
+        }
+    }
 
 }
 //see, I have already set up or tools and you helped me in its testing-----Now I will tell you my requirement again---there will be multiple orders, each order
