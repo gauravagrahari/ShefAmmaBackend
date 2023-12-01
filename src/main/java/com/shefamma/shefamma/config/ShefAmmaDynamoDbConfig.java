@@ -16,6 +16,10 @@ public class ShefAmmaDynamoDbConfig {
     public String awsAccessKey;
     @Value("${aws.private.key}")
     public String awsPrivateKey;
+    @Value("${aws.db.serviceEndpoint}")
+    public String serviceEndpoint;
+    @Value("${aws.db.serviceRegiont}")
+    public String serviceRegiont;
 
     @Bean
     public AmazonDynamoDB amazonDynamoDB() {
@@ -23,8 +27,8 @@ public class ShefAmmaDynamoDbConfig {
                 .standard()
                 .withEndpointConfiguration(
                         new AwsClientBuilder.EndpointConfiguration(
-                                "dynamodb.ap-southeast-2.amazonaws.com",
-                                "ap-southeast-2"
+                                serviceEndpoint,
+                                serviceRegiont
                         )
                 )
                 .withCredentials(
