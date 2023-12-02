@@ -817,7 +817,39 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
         }
     }
 //    **************************************************
-@PutMapping("/devBoy")
+@PostMapping("/adminLogin")
+public ResponseEntity<?> adminLogin(@RequestBody AccountEntity authRequest) {
+    try {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(authRequest.getPhone(), authRequest.getPassword()));
+
+        if (authentication.isAuthenticated()) {
+            AccountEntityUserDetails userDetails = (AccountEntityUserDetails) authentication.getPrincipal();
+            String userRole = userDetails.getRole(); // Extract role
+
+            if (!userRole.equals("admin")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied for role: " + userRole);
+            }
+
+            String token = jwtServices.generateToken(authRequest.getPhone());
+            String uuidAdmin = account.storeAdminUuid();
+            String timestamp = account.storeTimestamp();
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("uuidAdmin", uuidAdmin);
+            response.put("token", token);
+            response.put("timeStamp", timestamp);
+
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+        }
+    } catch (AuthenticationException e) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+    }
+}
+
+    @PutMapping("/devBoy")
 public DevBoyEntity updateDevBoy(@RequestBody DevBoyEntity hostentity, @RequestParam String attributeName) {
     return devBoy.update(hostentity.getUuidDevBoy(), hostentity.getGeocode(), attributeName, hostentity);
 }

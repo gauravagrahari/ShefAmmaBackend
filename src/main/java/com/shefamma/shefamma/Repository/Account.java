@@ -19,6 +19,8 @@ public interface Account {
     String storeDevBoyUuid();
 
     String storeTimestamp();
+
+    String storeAdminUuid();
 //    AccountEntity findUserByEmail(String email,String phone);
 }
 
