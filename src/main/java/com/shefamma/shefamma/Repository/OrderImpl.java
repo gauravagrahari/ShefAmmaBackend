@@ -28,8 +28,7 @@ public class OrderImpl implements Order{
     private CommonMethods commonMethods;
     @Autowired
     private Host host;
-    @Autowired
-    private RedisOrderImpl redisOrderImpl;
+
     Logger logger = LoggerFactory.getLogger(getClass());
 //    @Override
 //    public OrderEntity createOrder(OrderEntity orderEntity) {

@@ -18,8 +18,7 @@ import java.util.Map;
 
 @Repository
 public class DevBoyImpl implements DevBoy{
-    @Autowired
-    private RedisOrderImpl redisOrderImpl;
+
     @Autowired
     private Order orderInterface;
     @Autowired
@@ -30,22 +29,22 @@ public class DevBoyImpl implements DevBoy{
 
     // Method to get orders and prepare the maps
     public void assignOrdersToDevBoys(String mealType){
-//        public void assignOrdersToDevBoys(String mealType, List<OrderEntity> retrievedOrders){
-
-            List<OrderEntity> retrievedOrders = redisOrderImpl.getOrdersByMealType(mealType);
-
-        // Create a map to store geocodes with their associated orders
-        Map<String, List<OrderEntity>> guestGeocodeOrderMap = new HashMap<>();
-        Map<String, List<OrderEntity>> hostGeocodeOrderMap = new HashMap<>();
-
-        for (OrderEntity order : retrievedOrders) {
-            guestGeocodeOrderMap.computeIfAbsent(order.getGeoGuest(), k -> new ArrayList<>()).add(order);
-            hostGeocodeOrderMap.computeIfAbsent(order.getGeoHost(), k -> new ArrayList<>()).add(order);
-        }
-
-
-        // Call the VRP method for order assignment
-        assignOrdersToDevBoysWithVRP(devBoyData, guestGeocodeOrderMap, hostGeocodeOrderMap);
+////        public void assignOrdersToDevBoys(String mealType, List<OrderEntity> retrievedOrders){
+//
+//            List<OrderEntity> retrievedOrders = redisOrderImpl.getOrdersByMealType(mealType);
+//
+//        // Create a map to store geocodes with their associated orders
+//        Map<String, List<OrderEntity>> guestGeocodeOrderMap = new HashMap<>();
+//        Map<String, List<OrderEntity>> hostGeocodeOrderMap = new HashMap<>();
+//
+//        for (OrderEntity order : retrievedOrders) {
+//            guestGeocodeOrderMap.computeIfAbsent(order.getGeoGuest(), k -> new ArrayList<>()).add(order);
+//            hostGeocodeOrderMap.computeIfAbsent(order.getGeoHost(), k -> new ArrayList<>()).add(order);
+//        }
+//
+//
+//        // Call the VRP method for order assignment
+//        assignOrdersToDevBoysWithVRP(devBoyData, guestGeocodeOrderMap, hostGeocodeOrderMap);
     }
 
     // Method that utilizes VRP for order assignment

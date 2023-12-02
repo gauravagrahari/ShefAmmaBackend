@@ -137,6 +137,15 @@ public class AccountImpl implements Account, UserDetailsService{
     public String storeTimestamp() {
         return storedTimestamp;
     }
+
+    @Override
+    public String storeAdminUuid() {
+        if (storedUuid != null && !storedUuid.startsWith("admin#")) {
+            return "admin#" + storedUuid;
+        }
+        return storedUuid;
+    }
+
     public void setStoredTimestamp(String storedTimestamp) {
         this.storedTimestamp = storedTimestamp;
     }
