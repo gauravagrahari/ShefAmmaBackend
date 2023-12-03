@@ -62,27 +62,34 @@ public class HostImpl implements Host {
         switch (attributeName) {
             case "geocode":
                 value = hostentity.getGeocode();
+//                attributeName = "dsec";
                 break;
             case "dineCategory":
                 value = hostentity.getDineCategory();
+                attributeName = "dCaT";
                 break;
             case "DDP":
                 value = hostentity.getDDP();
+                attributeName = "DDP";
                 break;
             case "nameHost":
                 value = hostentity.getNameHost();
+                attributeName = "name";
                 break;
             case "DP":
                 value = hostentity.getDP();
+                attributeName = "DP";
                 break;
             case "descriptionHost":
                 value = hostentity.getDescriptionHost();
+                attributeName = "dsec";
                 break;
             case "currentMessage":
                 value = hostentity.getCurrentMessage();
                 break;
-            case "stts":
+            case "status":
                 value = hostentity.getStatus();
+                attributeName = "stts";
                 break;
             case "providedMeals":
                 value = hostentity.getProvidedMeals();

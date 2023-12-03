@@ -44,13 +44,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        return http.csrf().disable()
+        return http.cors().and().csrf().disable()
                 .authorizeHttpRequests()
-                .requestMatchers("/hostSignup", "/hostLogin","/guestSignup","/guestLogin","/host/**","/devBoySignup","/devBoyLogin","/generateOtp","/otpPhone","/otpEmail","/adminLogin","/guest/checkService","/api/**").permitAll()
+                .requestMatchers("/hostSignup", "/hostLogin","/guestSignup","/guestLogin","/host/**","/devBoySignup","/devBoyLogin","/admin/Login","/generateOtp","/otpPhone","/otpEmail","/guest/checkService","/api/**").permitAll()
                 .and()
 //                .authorizeHttpRequests().requestMatchers("/gaurav")
 //                .authorizeHttpRequests().requestMatchers("/devBoy/**")
-                .authorizeHttpRequests().requestMatchers("/guest/**","/devBoy/**")
+                .authorizeHttpRequests().requestMatchers("/guest/**","/devBoy/**","/admin/**")
                 .authenticated().and()
                 .sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

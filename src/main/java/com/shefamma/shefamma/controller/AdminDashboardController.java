@@ -48,7 +48,7 @@ public class AdminDashboardController {
     }
     @PostMapping("/admin/getAllDevBoys") // Changed the mapping URL to "/admin/signup"
     public List<DevBoyEntity> getAllDevBoys() {
-        return adminDashboard.getAllDevBoys();
+         return adminDashboard.getAllDevBoys();
     }
 
     @GetMapping("/admin/devOrders")

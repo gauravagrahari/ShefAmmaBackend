@@ -817,7 +817,7 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
         }
     }
 //    **************************************************
-@PostMapping("/adminLogin")
+@PostMapping("/admin/Login")
 public ResponseEntity<?> adminLogin(@RequestBody AccountEntity authRequest) {
     try {
         Authentication authentication = authenticationManager.authenticate(

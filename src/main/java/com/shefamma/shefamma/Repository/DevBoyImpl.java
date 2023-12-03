@@ -91,11 +91,13 @@ public class DevBoyImpl implements DevBoy{
         String value = null;
         // Get the value of the specified attribute
         switch (attributeName) {
-            case "stts":
+            case "status":
                 value = dev.getStatus();
+                attributeName="stts";
                 break;
-            case "veh":
+            case "vehicleType":
                 value = dev.getVehicleType();
+                attributeName="veh";
                 break;
             // Add more cases for other attributes if needed
             default:
@@ -107,7 +109,7 @@ public class DevBoyImpl implements DevBoy{
         System.out.println(response);
 
         try {
-            commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
+//            commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
             return dev;
         } catch (Exception e) {
             throw new RuntimeException("Failed to update Host entity. Error: " + e.getMessage());
