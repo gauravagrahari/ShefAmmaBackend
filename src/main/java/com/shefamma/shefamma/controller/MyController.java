@@ -636,10 +636,6 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
     return constantCharges.addCharges(constantChargesEntity);
 }
 
-    @PutMapping("/admin/updateCharges")
-    public ResponseEntity<String> updateCharges(@RequestBody ConstantChargesEntity constantChargesEntity) {
-        return constantCharges.updateCharges(constantChargesEntity);
-    }
 
     @GetMapping("/guest/getCharges")
     public ResponseEntity<ConstantChargesEntity> getCharges() {

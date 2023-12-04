@@ -26,6 +26,8 @@ public class AdminDashboardController {
     private Host host;
     @Autowired
     private DevBoy devBoy;
+    @Autowired
+    private ConstantCharges constantCharges;
     @PostMapping("/admin/login")
     public ResponseEntity<Map<String, String>> adminLogin(@RequestBody AdminDashboardEntity adminDashboardEntity) {
         ResponseEntity<String> response = adminDashboard.login(adminDashboardEntity);
@@ -41,6 +43,14 @@ public class AdminDashboardController {
 //    public ResponseEntity<String> adminSignup(@RequestBody AdminDashboardEntity adminDashboardEntity) {
 //        return adminDashboard.saveSignup(adminDashboardEntity);
 //    }
+@GetMapping("/admin/getCharges")
+public ResponseEntity<ConstantChargesEntity> getCharges() {
+    return constantCharges.getCharges();
+}
+    @PutMapping("/admin/updateCharges")
+    public ResponseEntity<String> updateCharges(@RequestBody ConstantChargesEntity constantChargesEntity) {
+        return constantCharges.updateCharges(constantChargesEntity);
+    }
 
     @PostMapping("/admin/getAllHosts") // Changed the mapping URL to "/admin/signup"
     public List<HostEntity> getAllHosts() {

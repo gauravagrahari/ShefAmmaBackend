@@ -37,7 +37,7 @@ public class MealEntity {
     private String dp;
     @DynamoDBAttribute(attributeName = "stts")
     private String status;
-    @DynamoDBAttribute(attributeName = "desc")
+    @DynamoDBAttribute(attributeName = "dsec")
     private String description;
     @DynamoDBAttribute(attributeName = "veg")
     private String vegetarian;
