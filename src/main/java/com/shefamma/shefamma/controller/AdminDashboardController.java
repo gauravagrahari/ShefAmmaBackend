@@ -120,4 +120,8 @@ public ResponseEntity<ConstantChargesEntity> getCharges() {
     public MealEntity updateMealAttribute(@RequestBody MealEntity mealEntity, @RequestParam String attributeName) {
         return meal.updateMealAttribute(mealEntity.getUuidMeal(), mealEntity.getNameItem(),attributeName, mealEntity);
     }
+    @PostMapping("/admin/meal")
+    public ResponseEntity<MealEntity> createMeal(@RequestBody MealEntity mealEntity) {
+        return meal.createMeal(mealEntity);
+    }
 }

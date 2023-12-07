@@ -347,8 +347,6 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
 
     @PostMapping("/host/meal")
     public ResponseEntity<MealEntity> createMeal(@RequestBody MealEntity mealEntity) {
-
-
         return meal.createMeal(mealEntity);
     }
     @PutMapping("/host/meal")
