@@ -347,8 +347,6 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
 
     @PostMapping("/host/meal")
     public ResponseEntity<MealEntity> createMeal(@RequestBody MealEntity mealEntity) {
-
-
         return meal.createMeal(mealEntity);
     }
     @PutMapping("/host/meal")
@@ -636,10 +634,6 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
     return constantCharges.addCharges(constantChargesEntity);
 }
 
-    @PutMapping("/admin/updateCharges")
-    public ResponseEntity<String> updateCharges(@RequestBody ConstantChargesEntity constantChargesEntity) {
-        return constantCharges.updateCharges(constantChargesEntity);
-    }
 
     @GetMapping("/guest/getCharges")
     public ResponseEntity<ConstantChargesEntity> getCharges() {
@@ -817,7 +811,7 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
         }
     }
 //    **************************************************
-@PostMapping("/adminLogin")
+@PostMapping("/admin/Login")
 public ResponseEntity<?> adminLogin(@RequestBody AccountEntity authRequest) {
     try {
         Authentication authentication = authenticationManager.authenticate(

@@ -26,6 +26,8 @@ public class AdminDashboardController {
     private Host host;
     @Autowired
     private DevBoy devBoy;
+    @Autowired
+    private ConstantCharges constantCharges;
     @PostMapping("/admin/login")
     public ResponseEntity<Map<String, String>> adminLogin(@RequestBody AdminDashboardEntity adminDashboardEntity) {
         ResponseEntity<String> response = adminDashboard.login(adminDashboardEntity);
@@ -41,6 +43,14 @@ public class AdminDashboardController {
 //    public ResponseEntity<String> adminSignup(@RequestBody AdminDashboardEntity adminDashboardEntity) {
 //        return adminDashboard.saveSignup(adminDashboardEntity);
 //    }
+@GetMapping("/admin/getCharges")
+public ResponseEntity<ConstantChargesEntity> getCharges() {
+    return constantCharges.getCharges();
+}
+    @PutMapping("/admin/updateCharges")
+    public ResponseEntity<String> updateCharges(@RequestBody ConstantChargesEntity constantChargesEntity) {
+        return constantCharges.updateCharges(constantChargesEntity);
+    }
 
     @PostMapping("/admin/getAllHosts") // Changed the mapping URL to "/admin/signup"
     public List<HostEntity> getAllHosts() {
@@ -48,7 +58,7 @@ public class AdminDashboardController {
     }
     @PostMapping("/admin/getAllDevBoys") // Changed the mapping URL to "/admin/signup"
     public List<DevBoyEntity> getAllDevBoys() {
-        return adminDashboard.getAllDevBoys();
+         return adminDashboard.getAllDevBoys();
     }
 
     @GetMapping("/admin/devOrders")
@@ -109,5 +119,9 @@ public class AdminDashboardController {
     @PutMapping("/admin/host/meal")
     public MealEntity updateMealAttribute(@RequestBody MealEntity mealEntity, @RequestParam String attributeName) {
         return meal.updateMealAttribute(mealEntity.getUuidMeal(), mealEntity.getNameItem(),attributeName, mealEntity);
+    }
+    @PostMapping("/admin/meal")
+    public ResponseEntity<MealEntity> createMeal(@RequestBody MealEntity mealEntity) {
+        return meal.createMeal(mealEntity);
     }
 }

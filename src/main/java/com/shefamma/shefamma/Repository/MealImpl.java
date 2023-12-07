@@ -55,7 +55,7 @@ public class MealImpl implements  Meal{
                 break;
             case "description":
                 value = itemEntity.getDescription();
-                attributeName = "desc";
+                attributeName = "dsec";
                 break;
             case "vegetarian":
                 value = itemEntity.getVegetarian();

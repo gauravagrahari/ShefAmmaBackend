@@ -72,7 +72,7 @@ public class CommonMethods {
                     .withKey(key)
                     .withUpdateExpression("SET " + attributeName + " = :newValue")
                     .withExpressionAttributeValues(expressionAttributeValues)
-                    .withReturnValues(ReturnValue.ALL_NEW); // Add this line
+                     .withReturnValues(ReturnValue.ALL_NEW); // Add this line
 
             return amazonDynamoDB.updateItem(updateItemRequest);
         } catch (Exception e) {

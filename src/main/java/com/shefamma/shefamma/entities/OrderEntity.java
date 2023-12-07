@@ -90,6 +90,15 @@ public class  OrderEntity implements Serializable {
     @DynamoDBAttribute(attributeName="prefTime")
     private String preferredTime;
 
+    @DynamoDBAttribute(attributeName="amtCook")
+    private String amtCook;
+
+    @DynamoDBAttribute(attributeName="amtDel")
+    private String amtDelivery;
+    @DynamoDBAttribute(attributeName="amtPack")
+    private String amtPackaging;
+
+
 //    @DynamoDBAttribute(attributeName = "nOG")
 //    private int noOfGuest;
 //    @DynamoDBAttribute(attributeName = "pkUp")

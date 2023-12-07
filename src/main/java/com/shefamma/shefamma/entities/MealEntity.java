@@ -32,12 +32,12 @@ public class MealEntity {
     @DynamoDBRangeKey(attributeName = "sk")
     private String nameItem;
     @DynamoDBAttribute(attributeName = "meal")
-    private String mealType;//breakfast,lunch,dinner
+    private String mealType;//breakfast,lunch,dinnern
     @DynamoDBAttribute(attributeName = "dp")
     private String dp;
     @DynamoDBAttribute(attributeName = "stts")
     private String status;
-    @DynamoDBAttribute(attributeName = "desc")
+    @DynamoDBAttribute(attributeName = "dsec")
     private String description;
     @DynamoDBAttribute(attributeName = "veg")
     private String vegetarian;
