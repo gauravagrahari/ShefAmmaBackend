@@ -20,6 +20,8 @@ public interface Host {
 
     List<HostEntity> getHostsTimeSlotSearchFilter(int startTime, int endTime, String timeDuration);
 
+    boolean areAddressesWithinRadius(String geoHost, String geoDelivery, double radius);
+
     List<HostCardEntity> findRestaurantsWithinRadius(double latitude, double longitude, double radius);
 
     OrderEntity getHostRatingReview(HostEntity hostEntity);

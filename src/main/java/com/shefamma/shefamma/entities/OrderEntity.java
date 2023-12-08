@@ -107,6 +107,15 @@ public class  OrderEntity implements Serializable {
 //    private int startTime;
     @DynamoDBAttribute(attributeName = "ordItms")
     private List<OrderedItem> orderedItems;
+    public String addressToString(AdressSubEntity address) {
+        return String.format("%s, %s, %s, %s, %s",
+                address.getHouseName(),
+                address.getStreet(),
+                address.getCity(),
+                address.getState(),
+                address.getPinCode());
+    }
+
 //    public OrderEntity(String s) {
 ////        this.s = s;
 //    }
