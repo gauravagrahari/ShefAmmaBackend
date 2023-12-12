@@ -89,10 +89,7 @@ public class MyController {
 //    ----------------------------
 //    Pincode controller
 //    ---------------------------
-    @PostMapping("/admin/addPincode")
-    public PincodeEntity addPincode(@RequestBody PincodeEntity pincodeEntity) {
-        return pincode.addPincode(pincodeEntity);
-    }
+
 @GetMapping("/guest/checkService")
 public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     boolean isAvailable = pincode.checkPincodeAvailability(pinCode);
@@ -102,6 +99,11 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sorry, service is not available in your area.");
     }
 }
+
+//    @PostMapping("/admin/deactivatePincode")
+//    public ResponseEntity<String> deactivatePincode(@RequestBody String pin) {
+//        return pincode.deactivatePincode(pin);
+//    }
 
 // ------------------------------------------------------------------------------------------------------
 // **************************************Host controllers******************************************
