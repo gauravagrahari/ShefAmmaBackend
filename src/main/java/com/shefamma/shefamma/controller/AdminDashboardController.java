@@ -9,10 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 public class AdminDashboardController {
@@ -24,6 +21,8 @@ public class AdminDashboardController {
     private Meal meal;
     @Autowired
     private Host host;
+    @Autowired
+    private Pincode pincode;
     @Autowired
     private DevBoy devBoy;
     @Autowired
@@ -124,4 +123,41 @@ public ResponseEntity<ConstantChargesEntity> getCharges() {
     public ResponseEntity<MealEntity> createMeal(@RequestBody MealEntity mealEntity) {
         return meal.createMeal(mealEntity);
     }
+
+//    **************************************************************
+@PostMapping("/admin/deactivatePincode")
+public ResponseEntity<String> deactivatePincode(@RequestHeader String pin) {
+    return pincode.deactivatePincode(pin);
+}
+    @PostMapping("/admin/updatePincodeStatus")
+    public ResponseEntity<String> updatePincodeStatus(@RequestBody PincodeEntity pincodeEntity) {
+        return pincode.updatePincodeStatus(pincodeEntity);
+    }
+    @PostMapping("/admin/addPincode")
+    public PincodeEntity addPincode(@RequestBody PincodeEntity pincodeEntity) {
+        return pincode.addPincode(pincodeEntity);
+    }
+    @GetMapping("/admin/checkService")
+    public ResponseEntity<String> checkServiceAdmin(@RequestHeader String pinCode){
+        boolean isAvailable = pincode.checkPincodeAvailability(pinCode);
+        if(isAvailable) {
+            return ResponseEntity.ok("Service is available at " +pinCode);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sorry, service is not available in your area.");
+        }
+    }
+    @GetMapping("/admin/getAllPincodes")
+    public ResponseEntity<List<PincodeEntity>> getAllPincodes() {
+
+        List<PincodeEntity> pincodes = pincode.getAllPincodes();
+        if(pincodes.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ArrayList<>());
+        }
+        return ResponseEntity.ok(pincodes);
+    }
+//    @GetMapping("/admin/allPincodes")
+//    public List<PincodeEntity> getAllPincodes() {
+//        return pincode.getAllPincodes();
+//    }
+
 }

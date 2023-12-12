@@ -113,6 +113,19 @@ public class HostImpl implements Host {
         }
     }
     @Override
+    public boolean areAddressesWithinRadius(String geoHost, String geoDelivery, double radius) {
+        // Extract latitudes and longitudes from the geocodes
+        String[] hostCoords = geoHost.split(",");
+        String[] deliveryCoords = geoDelivery.split(",");
+        double lat1 = Double.parseDouble(hostCoords[0]);
+        double lon1 = Double.parseDouble(hostCoords[1]);
+        double lat2 = Double.parseDouble(deliveryCoords[0]);
+        double lon2 = Double.parseDouble(deliveryCoords[1]);
+
+        // Use the existing method for calculating the distance
+        return haversineDistance(lat1, lon1, lat2, lon2) <= radius;
+}
+    @Override
     public List<HostCardEntity> findRestaurantsWithinRadius(double latitude, double longitude, double radius) {
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":gpk", new AttributeValue().withS("h"));

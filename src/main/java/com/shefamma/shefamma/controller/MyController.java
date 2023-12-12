@@ -89,10 +89,7 @@ public class MyController {
 //    ----------------------------
 //    Pincode controller
 //    ---------------------------
-    @PostMapping("/admin/addPincode")
-    public PincodeEntity addPincode(@RequestBody PincodeEntity pincodeEntity) {
-        return pincode.addPincode(pincodeEntity);
-    }
+
 @GetMapping("/guest/checkService")
 public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     boolean isAvailable = pincode.checkPincodeAvailability(pinCode);
@@ -102,6 +99,11 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sorry, service is not available in your area.");
     }
 }
+
+//    @PostMapping("/admin/deactivatePincode")
+//    public ResponseEntity<String> deactivatePincode(@RequestBody String pin) {
+//        return pincode.deactivatePincode(pin);
+//    }
 
 // ------------------------------------------------------------------------------------------------------
 // **************************************Host controllers******************************************
@@ -126,7 +128,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     }
     ///guest/hosts?radius=val
     @PostMapping("/guest/hosts")
-    public List<HostCardEntity> getHostsWithinRadius(
+    public ResponseEntity<?> getHostsWithinRadius(
             @RequestHeader String uuidGuest,
             @RequestParam double radius,
             @RequestBody(required = false) String address) throws Exception {
@@ -136,20 +138,30 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         String pinCode = null;
 
         if (address != null && !address.trim().isEmpty()) {
-             guestAddress = address;
+            guestAddress = address;
             // Parse the address string to extract the pincode
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode addressNode = objectMapper.readTree(address);
-             pinCode = addressNode.get("address").get("pinCode").asText();
+            pinCode = addressNode.get("address").get("pinCode").asText();
             System.out.println("Extracted pinCode: " + pinCode);
         } else {
             guestAddress = guest.getGuestAddress(uuidGuest).convertToString();
         }
+
         GeocodingResult[] results = geocodingService.geocode(guestAddress);
         double latitude = results[0].geometry.location.lat;
         double longitude = results[0].geometry.location.lng;
+
         boolean isAvailable = pincode.checkPincodeAvailability(pinCode);
-        return host.findRestaurantsWithinRadius(latitude, longitude, radius);
+
+        if (isAvailable) {
+            List<HostCardEntity> hosts = host.findRestaurantsWithinRadius(latitude, longitude, radius);
+            return ResponseEntity.ok(hosts);
+        } else {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Service is not available in your area.");
+        }
     }
 
     @GetMapping("/guest/getHostUsingPk")
@@ -433,7 +445,30 @@ public CapacityEntity createCapacity(@RequestBody CapacityEntity capacityentity)
 //    **************************************Order controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
     @PostMapping("/guest/order")
-    public ResponseEntity<?> createOrder(@RequestBody OrderEntity orderEntity, @RequestHeader String capacityUuid) {
+    public ResponseEntity<?> createOrder(@RequestBody OrderEntity orderEntity, @RequestHeader String capacityUuid) throws Exception {
+        // Extracting geocode and pincode from the orderEntity
+         String geoHost = orderEntity.getGeoHost();
+        AdressSubEntity deliveryAddress = orderEntity.getDelAddress();
+        String guestPinCode = deliveryAddress.getPinCode();
+
+        String deliveryAddressStr = orderEntity.addressToString(orderEntity.getDelAddress());
+        GeocodingResult[] resultsDelivery = geocodingService.geocode(deliveryAddressStr);
+        double deliveryLatitude = resultsDelivery[0].geometry.location.lat;
+        double deliveryLongitude = resultsDelivery[0].geometry.location.lng;
+        String geoDelivery = String.format("%.6f,%.6f", deliveryLatitude, deliveryLongitude);
+
+        // Check if the two addresses are within the specified radius (4 km)
+        if (!host.areAddressesWithinRadius(geoHost, geoDelivery, 10)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order cannot be placed due to long distance between you and cook.");
+        }
+
+        // Check if service is available at the provided pincode
+        boolean isAvailable = pincode.checkPincodeAvailability(guestPinCode);
+        if (!isAvailable) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Service is not available at pincode - "+guestPinCode);
+        }
+
+        // Proceed with order creation if both checks pass
         ResponseEntity<String> capacityUpdateResponse = capacity.updateCapacity(orderEntity.getMealType(), capacityUuid, Integer.parseInt(orderEntity.getNoOfServing()));
 
         // Check if the capacity was updated successfully
