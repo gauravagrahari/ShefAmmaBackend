@@ -15,13 +15,13 @@ import lombok.NoArgsConstructor;
 @DynamoDBTable(tableName = "ShefAmma")
 public class MealEntity {
 
-    public void setUuidMeal(String uuidMeal) {
-        if (uuidMeal.startsWith("item#")) {
-            this.uuidMeal = uuidMeal;
-        } else {
-            this.uuidMeal = "item#" + uuidMeal;
-        }
-    }
+//    public void setUuidMeal(String uuidMeal) {
+//        if (uuidMeal.startsWith("item#")) {
+//            this.uuidMeal = uuidMeal;
+//        } else {
+//            this.uuidMeal = "item#" + uuidMeal;
+//        }
+//    }
     public void setMealType(String mealType) {
         // Convert the nameItem to lowercase before setting the value
         this.mealType = mealType.toLowerCase();
@@ -32,7 +32,7 @@ public class MealEntity {
     @DynamoDBRangeKey(attributeName = "sk")
     private String nameItem;
     @DynamoDBAttribute(attributeName = "meal")
-    private String mealType;//breakfast,lunch,dinnern
+    private String mealType;//breakfast,lunch,dinner
     @DynamoDBAttribute(attributeName = "dp")
     private String dp;
     @DynamoDBAttribute(attributeName = "stts")

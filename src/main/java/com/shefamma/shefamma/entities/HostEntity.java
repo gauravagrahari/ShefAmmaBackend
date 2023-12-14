@@ -42,22 +42,30 @@ public class HostEntity {
     private String gsiPk;
     @DynamoDBIndexRangeKey(attributeName = "gsk",globalSecondaryIndexName = "gsi1")
     private String gsiSk;
-    @DynamoDBAttribute(attributeName = "dCat")
-    private String dineCategory;
-    @DynamoDBAttribute(attributeName = "DDP")
-    private String DDP;
     @DynamoDBAttribute(attributeName = "phone")
     private String phone;
      @DynamoDBAttribute(attributeName = "name")
     private String nameHost;
-    @DynamoDBAttribute(attributeName = "DP")
-    private String DP;
     @DynamoDBAttribute(attributeName = "dsec")
     private String descriptionHost;
-    @DynamoDBAttribute(attributeName = "curMes")
-    private String currentMessage;
     @DynamoDBAttribute(attributeName = "stts")
     private String status;
+    @DynamoDBAttribute(attributeName = "ratH")
+    private String ratingHost;
+    @DynamoDBAttribute(attributeName = "noOfRat")
+    private String noOfRating;
+    @DynamoDBAttribute(attributeName = "provMeals")
+    private String providedMeals;//bld meaning breakfast lunch dinner
+
+//    -------------------------------
+    @DynamoDBAttribute(attributeName = "DP")
+    private String DP;
+    @DynamoDBAttribute(attributeName = "DDP")
+    private String DDP;
+    @DynamoDBAttribute(attributeName = "dCat")
+    private String dineCategory;
+    @DynamoDBAttribute(attributeName = "curMes")
+    private String currentMessage;
 //    @DynamoDBAttribute(attributeName = "bCap")
 //    private String breakfastCapacity;
 //    @DynamoDBAttribute(attributeName = "curBCap")
@@ -70,12 +78,4 @@ public class HostEntity {
 //    private String dinnerCapacity;
 //    @DynamoDBAttribute(attributeName = "curDCap")
 //    private String currentDinnerCapacity;
-
-    @DynamoDBAttribute(attributeName = "ratH")
-    private String ratingHost;
-    @DynamoDBAttribute(attributeName = "noOfRat")
-    private String noOfRating;
-    @DynamoDBAttribute(attributeName = "provMeals")
-    private String providedMeals;//bld meaning breakfast lunch dinner
-
 }
