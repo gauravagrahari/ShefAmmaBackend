@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -79,6 +80,8 @@ public class MyController {
     private String generatedOtp; // Store the generated OTP here
     //    ---------------------------------------------------------
     private LocalDateTime otpExpirationTime; // Store the expiration time here
+    @Value("${map.host.radius}")
+    private double radius;
 
     @CrossOrigin(origins = "*")
     @PostMapping("/home")
@@ -130,7 +133,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     @PostMapping("/guest/hosts")
     public ResponseEntity<?> getHostsWithinRadius(
             @RequestHeader String uuidGuest,
-            @RequestParam double radius,
+//            @RequestParam double radius,
             @RequestBody(required = false) String address) throws Exception {
 
         String guestAddress;
@@ -359,8 +362,16 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
 
     @PostMapping("/host/meal")
     public ResponseEntity<MealEntity> createMeal(@RequestBody MealEntity mealEntity) {
+        String uuid = mealEntity.getUuidMeal();
+
+        if (uuid.startsWith("host")) {
+            String newUuidMeal = uuid.replace("host", "item");
+            mealEntity.setUuidMeal(newUuidMeal);
+        }
+
         return meal.createMeal(mealEntity);
     }
+
     @PutMapping("/host/meal")
     public MealEntity updateMealAttribute(@RequestBody MealEntity mealEntity, @RequestParam String attributeName) {
         return meal.updateMealAttribute(mealEntity.getUuidMeal(), mealEntity.getMealType(),attributeName, mealEntity);
@@ -387,14 +398,19 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************Capacity controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
-@PostMapping("/host/capacity")
-public CapacityEntity createCapacity(@RequestBody CapacityEntity capacityentity) {
-    String newUuidTime = capacityentity.getUuidCapacity().replace("host#", "capacity#");
-    capacityentity.setUuidCapacity(newUuidTime);
-    System.out.println(capacityentity);
-    return capacity.createCapacity(capacityentity);
+    @PostMapping("/host/capacity")
+    public CapacityEntity createCapacity(@RequestBody CapacityEntity capacityEntity) {
+        String uuid = capacityEntity.getUuidCapacity();
 
-}
+        if (uuid.startsWith("host#")) {
+            String newUuidTime = uuid.replace("host#", "capacity#");
+            capacityEntity.setUuidCapacity(newUuidTime);
+        }
+
+        System.out.println(capacityEntity);
+        return capacity.createCapacity(capacityEntity);
+    }
+
     @GetMapping("/guest/host/capacity")
     public CapacityEntity getCapacity(@RequestHeader String id) {
         String[] idSplit = id.split("#");
@@ -458,7 +474,7 @@ public CapacityEntity createCapacity(@RequestBody CapacityEntity capacityentity)
         String geoDelivery = String.format("%.6f,%.6f", deliveryLatitude, deliveryLongitude);
 
         // Check if the two addresses are within the specified radius (4 km)
-        if (!host.areAddressesWithinRadius(geoHost, geoDelivery, 10)) {
+        if (!host.areAddressesWithinRadius(geoHost, geoDelivery, radius)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order cannot be placed due to long distance between you and cook.");
         }
 
