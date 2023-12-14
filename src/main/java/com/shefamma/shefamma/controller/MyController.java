@@ -613,12 +613,12 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
 
         // Send OTP
         if (phone != null) {
-            String otpMessage = "Your OTP is: " + generatedOtp;
-            ResponseEntity<SmsService.SmsResponse> response = smsService.sendOtpSms(phone, otpMessage);
+            ResponseEntity<SmsService.SmsResponse> response = smsService.sendOtpSms(phone, generatedOtp);
             if (response.getStatusCode() != HttpStatus.OK) {
                 return ResponseEntity.status(response.getStatusCode()).body("Failed to send OTP SMS");
             }
         }
+
         if (email != null) {
             String subject = "Your OTP Code";
             String senderAddress = "noreply@yourdomain.com"; // replace with your email

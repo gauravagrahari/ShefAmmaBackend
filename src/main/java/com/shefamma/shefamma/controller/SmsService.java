@@ -1,7 +1,6 @@
 package com.shefamma.shefamma.controller;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.protobuf.ServiceException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -9,10 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import java.util.Base64;
 import org.slf4j.Logger;
@@ -29,8 +24,10 @@ public class SmsService {
 
     @Value("${authToken}")
     private String authToken;
+    @Value("${sms.otp.template}")
+    private String otpTemplate;
 
-    public ResponseEntity<SmsResponse> sendOtpSms(String number, String otpMessage) {
+    public ResponseEntity<SmsResponse> sendOtpSms(String number, String otp) {
         RestTemplate restTemplate = new RestTemplate();
 
         String authStr = authKey + ":" + authToken;
@@ -40,7 +37,9 @@ public class SmsService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", base64AuthStr);
 
-        OutgoingSmsRequest outgoingRequest = new OutgoingSmsRequest(otpMessage, "91" + number, "SMSCOU", "https://www.domainname.com/notifyurl", "POST", "API");
+        String otpMessage = String.format(otpTemplate, otp);
+
+        OutgoingSmsRequest outgoingRequest = new OutgoingSmsRequest(otpMessage, "91" + number, "SHFAMA", "https://www.domainname.com/notifyurl", "POST", "API");
 
         HttpEntity<OutgoingSmsRequest> request = new HttpEntity<>(outgoingRequest, headers);
 
@@ -50,7 +49,10 @@ public class SmsService {
             ResponseEntity<SmsResponse> response = restTemplate.exchange(smsUrl, HttpMethod.POST, request, SmsResponse.class);
             if (response.getStatusCode().is2xxSuccessful()) {
                 SmsResponse smsResponse = response.getBody();
-                if (smsResponse != null && smsResponse.isSuccess()) {
+                logger.info("SMS response: {}", smsResponse); // Log the entire response
+
+                if (smsResponse != null) {
+//                if (smsResponse != null && smsResponse.isSuccess()) {
                     logger.info("SMS sent successfully: {}", smsResponse.getMessage());
                     return ResponseEntity.ok(smsResponse);
                 } else {
@@ -61,12 +63,9 @@ public class SmsService {
                 logger.error("Failed to send SMS, HTTP status code: {}", response.getStatusCode());
                 return ResponseEntity.status(response.getStatusCode()).body(response.getBody());
             }
-        } catch (HttpClientErrorException | HttpServerErrorException e) {
-            logger.error("HTTP exception occurred while sending SMS: {}", e.getMessage());
-            throw e; // You might want to handle this differently depending on your application's requirements
-        } catch (RestClientException e) {
-            logger.error("Client exception occurred while sending SMS: {}", e.getMessage());
-            throw new ServiceException("An error occurred while sending SMS", e);
+        } catch (Exception e) {
+            logger.error("Exception occurred while sending SMS: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new SmsResponse(null, false, "Exception occurred", null));
         }
     }
 
@@ -119,10 +118,10 @@ public class SmsService {
     @AllArgsConstructor
     @NoArgsConstructor
     public static class SmsResponse {
-        private String ApiId;
-        private boolean Success;
-        private String Message;
-        private String MessageUUID;
+        private String apiId;
+        private boolean success;
+        private String message;
+        private String messageUUID;
     }
     public static class ServiceException extends RuntimeException {
         public ServiceException(String message, Throwable cause) {
