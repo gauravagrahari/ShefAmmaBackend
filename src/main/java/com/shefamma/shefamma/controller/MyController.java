@@ -53,8 +53,7 @@ public class MyController {
     private DevBoy devBoy;
     @Autowired
     private SmsService smsService;
-    @Autowired
-    private HomeEntity homeEntity;
+
     @Autowired
 //    @Qualifier("hostUserDetailsService")
     private UserDetailsService userDetailsService;
@@ -83,12 +82,7 @@ public class MyController {
     @Value("${map.host.radius}")
     private double radius;
 
-    @CrossOrigin(origins = "*")
-    @PostMapping("/home")
-    public String home(@RequestBody String message) {
-        System.out.println(message);
-        return homeEntity.getFName();
-    }
+
 //    ----------------------------
 //    Pincode controller
 //    ---------------------------

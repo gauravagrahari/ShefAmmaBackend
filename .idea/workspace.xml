@@ -135,11 +135,6 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/MyController.java</url>
-          <line>336</line>
-          <option name="timeStamp" value="22" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/Repository/GuestImpl.java</url>
           <line>90</line>
           <option name="timeStamp" value="30" />
@@ -160,11 +155,6 @@
           <option name="timeStamp" value="80" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/MyController.java</url>
-          <line>558</line>
-          <option name="timeStamp" value="89" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/Repository/CommonMethods.java</url>
           <line>85</line>
           <option name="timeStamp" value="92" />
@@ -173,11 +163,6 @@
           <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/entities/HostEntity.java</url>
           <line>13</line>
           <option name="timeStamp" value="93" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/MyController.java</url>
-          <line>399</line>
-          <option name="timeStamp" value="96" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/Repository/CapacityImpl.java</url>
@@ -195,36 +180,6 @@
           <option name="timeStamp" value="154" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/MyController.java</url>
-          <line>875</line>
-          <option name="timeStamp" value="176" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/MyController.java</url>
-          <line>878</line>
-          <option name="timeStamp" value="177" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/MyController.java</url>
-          <line>835</line>
-          <option name="timeStamp" value="178" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/MyController.java</url>
-          <line>836</line>
-          <option name="timeStamp" value="179" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/MyController.java</url>
-          <line>838</line>
-          <option name="timeStamp" value="180" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/MyController.java</url>
-          <line>866</line>
-          <option name="timeStamp" value="181" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/Repository/HostImpl.java</url>
           <line>59</line>
           <option name="timeStamp" value="184" />
@@ -236,7 +191,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/Repository/DevBoyImpl.java</url>
-          <line>89</line>
+          <line>83</line>
           <option name="timeStamp" value="187" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
@@ -251,28 +206,13 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/Repository/DevBoyImpl.java</url>
-          <line>106</line>
+          <line>100</line>
           <option name="timeStamp" value="193" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/Repository/OrderImpl.java</url>
-          <line>70</line>
-          <option name="timeStamp" value="195" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/Repository/MealImpl.java</url>
           <line>72</line>
           <option name="timeStamp" value="197" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/MyController.java</url>
-          <line>281</line>
-          <option name="timeStamp" value="200" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/MyController.java</url>
-          <line>107</line>
-          <option name="timeStamp" value="201" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/Repository/PincodeImpl.java</url>
@@ -308,16 +248,6 @@
           <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/SmsService.java</url>
           <line>41</line>
           <option name="timeStamp" value="209" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" log-message="true" suspend="NONE" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/MyController.java</url>
-          <line>597</line>
-          <option name="timeStamp" value="210" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/MyController.java</url>
-          <line>364</line>
-          <option name="timeStamp" value="211" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
