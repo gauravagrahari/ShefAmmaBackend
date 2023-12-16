@@ -1,5 +1,6 @@
 package com.shefamma.shefamma.Repository;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 import com.shefamma.shefamma.deliveryOptimization.DistanceMatrixService;
 import com.shefamma.shefamma.deliveryOptimization.VRPData;
@@ -20,6 +21,9 @@ import java.util.Map;
 public class DevBoyImpl implements DevBoy{
     @Autowired
     private RedisOrderImpl redisOrderImpl;
+
+    private DynamoDBMapper dynamoDBMapper;
+
     @Autowired
     private Order orderInterface;
     @Autowired
@@ -114,4 +118,11 @@ public class DevBoyImpl implements DevBoy{
         } catch (Exception e) {
             throw new RuntimeException("Failed to update Host entity. Error: " + e.getMessage());
         }
-}}
+}
+
+    public DevBoyEntity saveDevBoy(DevBoyEntity devBoyEntity) {
+        // Implement the logic to save the DevBoyEntity to DynamoDB
+         dynamoDBMapper.save(devBoyEntity);
+        return devBoyEntity;
+    }
+}

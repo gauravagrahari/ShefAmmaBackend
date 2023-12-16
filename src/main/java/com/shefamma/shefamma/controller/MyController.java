@@ -861,6 +861,17 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
         }
     }
+    @PostMapping("/devBoy/createDevBoy")
+    public ResponseEntity<DevBoyEntity> saveDevBoy(@RequestBody DevBoyEntity devBoyEntity) throws Exception {
+        GeocodingResult[] results = geocodingService.geocode(devBoyEntity.getLocationDevBoy().convertToString());
+        double latitude = results[0].geometry.location.lat;
+        double longitude = results[0].geometry.location.lng;
+        String coordinates = String.format("%.6f,%.6f", latitude, longitude);
+        devBoyEntity.setGeocode(coordinates);
+
+        DevBoyEntity savedEntity = devBoy.saveDevBoy(devBoyEntity);
+        return ResponseEntity.ok(savedEntity);
+    }
 //    **************************************************
 @PostMapping("/admin/Login")
 public ResponseEntity<?> adminLogin(@RequestBody AccountEntity authRequest) {

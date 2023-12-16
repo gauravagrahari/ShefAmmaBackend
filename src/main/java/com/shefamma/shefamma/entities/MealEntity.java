@@ -32,7 +32,7 @@ public class MealEntity {
     @DynamoDBRangeKey(attributeName = "sk")
     private String nameItem;
     @DynamoDBAttribute(attributeName = "meal")
-    private String mealType;//breakfast,lunch,dinner
+    private String mealType;//breakfast,lunch,dinner(b,l,d)
     @DynamoDBAttribute(attributeName = "dp")
     private String dp;
     @DynamoDBAttribute(attributeName = "stts")
