@@ -14,5 +14,4 @@ public interface Pincode {
      List<PincodeEntity> getAllPincodes();
 
      ResponseEntity<String> updatePincodeStatus(PincodeEntity pincodeEntity);
-//     List<PincodeEntity> getAllPincodes();
 }

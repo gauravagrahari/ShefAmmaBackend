@@ -43,8 +43,7 @@ public class PincodeImpl implements Pincode{
     @Override
     public List<PincodeEntity> getAllPincodes() {
         PincodeEntity hashKeyValues = new PincodeEntity();
-        hashKeyValues.setPk("pin"); // Assuming setPk method sets the pk field and returns void
-
+        hashKeyValues.setPk("pin");
         DynamoDBQueryExpression<PincodeEntity> queryExpression = new DynamoDBQueryExpression<PincodeEntity>()
                 .withHashKeyValues(hashKeyValues);
 

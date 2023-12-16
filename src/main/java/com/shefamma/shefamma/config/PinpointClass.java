@@ -29,15 +29,15 @@ public class PinpointClass {
         LocalDateTime createdTime = LocalDateTime.now();
         LocalDateTime expirationTime = createdTime.plusSeconds(OTP_EXPIRATION_SECONDS);
 
-        System.out.println("Created Time: " + createdTime);
-        System.out.println("Expiration Time: " + expirationTime);
+        
+        
 
         if (isOTPExpired(createdTime)) {
-            System.out.println("OTP has expired.");
+            
         } else {
-            System.out.println("OTP is valid.");
+            
         }
-        System.out.println(otp);
+        
         return otp.toString();
     }
 

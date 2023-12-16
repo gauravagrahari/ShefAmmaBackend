@@ -25,15 +25,9 @@ public class GuestImpl implements Guest {
     @Override
     public GuestEntity saveGuest(GuestEntity guestentity) {
         dynamoDBMapper.save(guestentity);
-        System.out.println(guestentity);
+        .println(guestentity);
         return guestentity;
     }
-//    @Override
-//    public GuestEntity updateGuest(String guestId, String nameGuest, List<String> attributeName, GuestEntity guestentity) {
-//        dynamoDBMapper.save(guestentity);
-//        System.out.println(guestentity);
-//        return guestentity;
-//    }
     @Override
     public GuestEntity getGuestAddress(String guestId, String nameGuest) {
         return dynamoDBMapper.load(GuestEntity.class, guestId, nameGuest);
@@ -88,17 +82,6 @@ public class GuestImpl implements Guest {
 
     @Override
     public GuestEntity getGuestUsingPk(String pk) {
-//        GuestEntity hashKeyValues = new GuestEntity();
-//        hashKeyValues.setUuidGuest(pk);
-//
-//
-//        DynamoDBQueryExpression<GuestEntity> queryExpression = new DynamoDBQueryExpression<GuestEntity>()
-//                .withHashKeyValues(hashKeyValues);
-//
-//        List<GuestEntity> result = dynamoDBMapper.query(GuestEntity.class, queryExpression);
-//
-//        return result.isEmpty() ? null : result.get(0);
-//    }
         Map<String, AttributeValue> expressionAttributeValues = new HashMap<>();
         expressionAttributeValues.put(":pk", new AttributeValue().withS(pk));
 

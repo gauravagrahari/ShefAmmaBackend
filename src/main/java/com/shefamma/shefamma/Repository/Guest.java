@@ -11,5 +11,4 @@ public interface Guest {
     GuestEntity updateGuest(String guestId, String nameGuest,String attributeName, GuestEntity guestentity);
 
     GuestEntity getGuestUsingPk(String uuidGuest);
-//    GuestEntity updateGuest(String guestId, String nameGuest, List<String> attributeName, GuestEntity guestentity);
 }

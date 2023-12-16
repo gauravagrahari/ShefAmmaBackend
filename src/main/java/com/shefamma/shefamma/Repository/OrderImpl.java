@@ -44,7 +44,7 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
     String modifiedUuidOrder = "order#" + parts[1];
     orderEntity.setUuidOrder(modifiedUuidOrder);
     dynamoDBMapper.save(orderEntity);
-  System.out.println(orderEntity);
+  .println(orderEntity);
     
 
     return orderEntity;
@@ -63,7 +63,7 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
                 .withConsistentRead(false);
         List<OrderEntity> allOrders=dynamoDBMapper.query(OrderEntity.class, queryExpression);
         for (OrderEntity order : allOrders) {
-            System.out.println("dev order ---->"+order);
+            .println("dev order ---->"+order);
         }
         return allOrders;
     }
@@ -214,7 +214,7 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
             allOrders.addAll(ordersForId);
         }
         for (OrderEntity order : allOrders) {
-            System.out.println(order);
+            .println(order);
         }
 
         return allOrders;
@@ -241,7 +241,7 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
         List<OrderEntity> result = dynamoDBMapper.query(OrderEntity.class, queryExpression);
 
         for (OrderEntity order : result) {
-            System.out.println(order);
+            .println(order);
         }
 
         return result;
@@ -262,7 +262,7 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
                 attributeName="rat";
 
                 HostEntity hostEntity=host.updateHostRating(orderEntity.getUuidHost(),orderEntity.getGeoHost(), Double.parseDouble(value));
-                System.out.println(hostEntity);
+                .println(hostEntity);
             }
             case "payment" -> value =orderEntity.getPayMode();
             case "uuidDevBoy" ->{

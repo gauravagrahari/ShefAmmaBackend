@@ -125,7 +125,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
             @RequestBody(required = false) String address) throws Exception {
 
         String guestAddress;
-        System.out.println("Received address: '" + address + "'");
+        
         String pinCode = null;
 
         if (address != null && !address.trim().isEmpty()) {
@@ -134,7 +134,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode addressNode = objectMapper.readTree(address);
             pinCode = addressNode.get("address").get("pinCode").asText();
-            System.out.println("Extracted pinCode: " + pinCode);
+            
         } else {
             guestAddress = guest.getGuestAddress(uuidGuest).convertToString();
         }
@@ -190,7 +190,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
 
     @PostMapping("/guest")
     public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity) throws Exception {
-        System.out.println(guestEntity);
+        
 
         
         if (guestEntity.getGeocode() == null || guestEntity.getGeocode().isEmpty()) {
@@ -217,7 +217,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
             guestEntity.setGeocodeOffice(officeCoordinates);
         }
 
-        System.out.println("the data is guest entity - "+guestEntity);
+        
         return guest.saveGuest(guestEntity);
     }
 
@@ -242,7 +242,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     
     @PutMapping("/guest")
     public GuestEntity updateGuest(@RequestBody GuestEntity guestentity, @RequestParam String attributeName) {
-        System.out.println(attributeName);
+        
         return guest.updateGuest(guestentity.getUuidGuest(), guestentity.getGeocode(), attributeName, guestentity);
     }
 
@@ -257,7 +257,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
             ItemEntity savedItem = item.saveItem(itemEntity);
             items.add(savedItem);
         }
-        System.out.println(items);
+        
         return items;
     }
 
@@ -276,7 +276,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
             String[] idSplit = id.split("#");
             List<ItemEntity> items = item.getItems("item#" + idSplit[1]);
             for (ItemEntity itemEntity : items) {
-                System.out.println(itemEntity);
+                
             }
             return items;
         } catch (Exception e) {
@@ -312,7 +312,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
             String[] idSplit = id.split("#");
             List<MealEntity> items = meal.getItems("item#" + idSplit[1]);
             for (MealEntity itemEntity : items) {
-                System.out.println(itemEntity);
+                
             }
             return items;
         } catch (Exception e) {
@@ -337,7 +337,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
             capacityEntity.setUuidCapacity(newUuidTime);
         }
 
-        System.out.println(capacityEntity);
+        
         return capacity.createCapacity(capacityEntity);
     }
 
@@ -345,7 +345,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     public CapacityEntity getCapacity(@RequestHeader String id) {
         String[] idSplit = id.split("#");
         CapacityEntity capacity = this.capacity.getCapacity("capacity#" + idSplit[1]);
-        System.out.println(capacity);
+        
         return capacity;
     }
 
@@ -409,9 +409,9 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
         try {
             
             OrderEntity updatedOrder = order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
-             System.out.println(orderEntity);
+             
             if (updatedOrder != null) {
-                System.out.println(ResponseEntity.ok("Order updated successfully"));
+                
                 
                 return ResponseEntity.ok("Order updated successfully");
             } else {
@@ -429,7 +429,7 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
             
             OrderEntity updatedOrder1 = order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
             OrderEntity updatedOrder2 = order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName2, orderEntity);
-            System.out.println(orderEntity);
+            
             
             if (updatedOrder1 != null && updatedOrder2 != null) {
                 return ResponseEntity.ok("Order updated successfully");

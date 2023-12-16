@@ -103,7 +103,7 @@ public class HostImpl implements Host {
 
         
         UpdateItemResult response = commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
-        System.out.println(response);
+        .println(response);
 
         try {
             commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
@@ -341,7 +341,7 @@ public class HostImpl implements Host {
             orderEntity.setNameGuest(!timeStamp.isEmpty() ? name.substring(0, name.length() - 1) : "");
 
         } catch (Exception e) {
-            System.out.println("Error occurred while fetching host rating and review: " + e.getMessage());
+            .println("Error occurred while fetching host rating and review: " + e.getMessage());
             e.printStackTrace();
         }
         return orderEntity;
