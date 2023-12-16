@@ -42,8 +42,6 @@ public class MyController {
     @Autowired
     private Meal meal;
     @Autowired
-    private TimeSlot timeSlot;
-    @Autowired
     private Order order;
     @Autowired
     private ConstantCharges constantCharges;
@@ -413,43 +411,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         return capacity;
     }
 
-    //    ------------------------------------------------------------------------------------------------------
-//    **************************************TimeSlot controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
-    @PostMapping("/host/timeSlot")
-    public TimeSlotEntity createTimeSlot(@RequestBody TimeSlotEntity timeentity) {
-        // Replace "host" with "time" and append a random number
-        String newUuidTime = timeentity.getUuidTime().replace("host#", "");
-        // Update the TimeSlotEntity with the new UUID
-        timeentity.setUuidTime(newUuidTime);
-        System.out.println(timeentity);
-        return timeSlot.saveSlotTime(timeentity);
-    }
 
-    @GetMapping("/guest/host/timeSlot")
-    public TimeSlotEntity getTimeSlot(@RequestHeader String id) {
-        String[] idSplit = id.split("#");
-        TimeSlotEntity x = timeSlot.getTimeSlot("time#" + idSplit[1]);
-        System.out.println(x);
-        return x;
-//        return timeSlot.getTimeSlot("time#" + idSplit[1]);
-    }
-
-    @PutMapping("/host/timeSlot")
-    public TimeSlotEntity updateTimeSlot(@RequestBody TimeSlotEntity timeentity) {
-        return timeSlot.updateTimeSlot(timeentity.getUuidTime(), timeentity);
-    }
-
-    //-----------------------------
-//    this controller of will be used to fetch both the time slot and item of a host
-//-----------------------------
-    @GetMapping("/guest/host/itemSlot")
-    public List<ItemEntity> getItemsTimeSlot(@RequestParam String ids) {
-        String[] idSplit = ids.split("#");
-        item.getItems("item#" + idSplit[1]);
-        timeSlot.getTimeSlot("time#" + idSplit[1]);
-        return null;
-    }
 
     //    ------------------------------------------------------------------------------------------------------
 //    **************************************Order controllers******************************************
@@ -629,11 +591,6 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
             }
         }
 
-        if (email != null) {
-            String subject = "Your OTP Code";
-            String senderAddress = "noreply@yourdomain.com"; // replace with your email
-            PinpointClass.sendEmail(subject, senderAddress, email, generatedOtp); // I assumed your sendEmail method might also need the actual OTP content.
-        }
 
         return ResponseEntity.ok("OTP generated and sent successfully.");
     }

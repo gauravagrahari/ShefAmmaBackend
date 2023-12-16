@@ -98,15 +98,6 @@ public class  OrderEntity implements Serializable {
     @DynamoDBAttribute(attributeName="amtPack")
     private String amtPackaging;
 
-
-//    @DynamoDBAttribute(attributeName = "nOG")
-//    private int noOfGuest;
-//    @DynamoDBAttribute(attributeName = "pkUp")
-//    private String pickUp;
-//    @DynamoDBAttribute(attributeName = "stTm")
-//    private int startTime;
-    @DynamoDBAttribute(attributeName = "ordItms")
-    private List<OrderedItem> orderedItems;
     public String addressToString(AdressSubEntity address) {
         return String.format("%s, %s, %s, %s, %s",
                 address.getHouseName(),

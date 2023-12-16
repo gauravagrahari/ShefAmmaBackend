@@ -48,8 +48,6 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 .requestMatchers("/hostSignup", "/hostLogin","/guestSignup","/guestLogin","/host/**","/devBoySignup","/devBoyLogin","/admin/Login","/generateOtp","/otpPhone","/otpEmail","/guest/checkService","/api/**").permitAll()
                 .and()
-//                .authorizeHttpRequests().requestMatchers("/gaurav")
-//                .authorizeHttpRequests().requestMatchers("/devBoy/**")
                 .authorizeHttpRequests().requestMatchers("/guest/**","/devBoy/**","/admin/**")
                 .authenticated().and()
                 .sessionManagement()
@@ -57,7 +55,6 @@ public class SecurityConfig {
                 .and()
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)
-//                .addFilterBefore(jwtAuthFilterGuest(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
