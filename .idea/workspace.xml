@@ -231,11 +231,6 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/SmsService.java</url>
-          <line>53</line>
-          <option name="timeStamp" value="207" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/com/shefamma/shefamma/controller/SmsService.java</url>
           <line>39</line>
           <option name="timeStamp" value="208" />
         </line-breakpoint>

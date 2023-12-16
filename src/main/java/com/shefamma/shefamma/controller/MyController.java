@@ -53,12 +53,8 @@ public class MyController {
     private SmsService smsService;
 
     @Autowired
-//    @Qualifier("hostUserDetailsService")
     private UserDetailsService userDetailsService;
     @Autowired
-//    @Qualifier("userDetailsServiceGuest")
-//    private UserDetailsService userDetailsServiceGuest;
-//    @Autowired
     private AccountEntity hostAccountEntity;
     @Autowired
     private PasswordChangeRequestPOJO passwordChangeRequest;
@@ -74,16 +70,16 @@ public class MyController {
     private Capacity capacity;
     @Autowired
     private Pincode pincode;
-    private String generatedOtp; // Store the generated OTP here
-    //    ---------------------------------------------------------
-    private LocalDateTime otpExpirationTime; // Store the expiration time here
+    private String generatedOtp; 
+    
+    private LocalDateTime otpExpirationTime; 
     @Value("${map.host.radius}")
     private double radius;
 
 
-//    ----------------------------
-//    Pincode controller
-//    ---------------------------
+
+
+
 
 @GetMapping("/guest/checkService")
 public ResponseEntity<String> checkService(@RequestHeader String pinCode){
@@ -95,16 +91,16 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     }
 }
 
-//    @PostMapping("/admin/deactivatePincode")
-//    public ResponseEntity<String> deactivatePincode(@RequestBody String pin) {
-//        return pincode.deactivatePincode(pin);
-//    }
 
-// ------------------------------------------------------------------------------------------------------
-// **************************************Host controllers******************************************
-// ------------------------------------------------------------------------------------------------------
 
-    // @CrossOrigin(origins = "*")
+
+
+
+
+
+
+
+    
     @PostMapping("/host")
     public HostEntity saveHost(@RequestBody HostEntity hostEntity) throws Exception {
         GeocodingResult[] results = geocodingService.geocode(hostEntity.getAddressHost().convertToString());
@@ -115,17 +111,17 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         return host.saveHost(hostEntity);
     }
 
-    //the response might need change as we can only send the editted attribute, it would be better
-    ///host?attribute=val
+    
+    
     @PutMapping("/host")
     public HostEntity updateHost(@RequestBody HostEntity hostentity, @RequestParam String attributeName) {
         return host.update(hostentity.getUuidHost(), hostentity.getGeocode(), attributeName, hostentity);
     }
-    ///guest/hosts?radius=val
+    
     @PostMapping("/guest/hosts")
     public ResponseEntity<?> getHostsWithinRadius(
             @RequestHeader String uuidGuest,
-//            @RequestParam double radius,
+
             @RequestBody(required = false) String address) throws Exception {
 
         String guestAddress;
@@ -134,7 +130,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
 
         if (address != null && !address.trim().isEmpty()) {
             guestAddress = address;
-            // Parse the address string to extract the pincode
+            
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode addressNode = objectMapper.readTree(address);
             pinCode = addressNode.get("address").get("pinCode").asText();
@@ -168,7 +164,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         return host.getDataUsingPk(uuidHost);
     }
 
-    // /guest/host?item=val&radius=val
+    
     @GetMapping("/guest/hosts/itemSearch")
     public List<HostCardEntity> getHostsItemSearchFilter(@RequestHeader("UUID") String uuidGuest, @RequestParam String address, @RequestParam("item") String itemValue, @RequestParam double radius) throws Exception {
         GeocodingResult[] results;
@@ -181,19 +177,19 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         double longitude = results[0].geometry.location.lng;
         return host.getHostsItemSearchFilter(latitude, longitude, radius, itemValue.toLowerCase());
     }
-    //    not required controllers******************************************
-//    .....some mistake, here list shall be returned
-//    @GetMapping("/guest/hosts")
-//    public HostEntity getHosts(@RequestBody HostEntity hostentity) {
-//        return host.getHost(hostentity.getUuidHost(), hostentity.getNameHost());
-//    }
-    //        /guest/host?category=val
+    
+
+
+
+
+
+    
     @GetMapping("/guest/host/categoryFilter")
     public List<HostEntity> getHostsCategorySearchFilter(@RequestParam("category") String categoryValue) {
         return host.getHostsCategorySearchFilter(categoryValue);
     }
 
-    //        /guest/host?startTime=val&endTime=val
+    
     @GetMapping("/guest/host/slotFilter")
     public List<HostEntity> getHostsTimeSlotSearchFilter(@RequestParam String startTime, @RequestParam String endTime, @RequestParam String timeDuration) {
         return host.getHostsTimeSlotSearchFilter(Integer.parseInt(startTime), Integer.parseInt(endTime), timeDuration);
@@ -204,37 +200,37 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         return host.getHostRatingReview(hostEntity);
     }
 
-    //    ------------------------------------------------------------------------------------------------------
-//    **************************************Guest controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
-//@PostMapping("/guest")
-//public GuestEntity saveGuest(
-//        @RequestPart("uuidGuest") String uuidGuest,
-//        @RequestPart("geocode") String geocode,
-//        @RequestPart("name") String name
-//        @RequestPart("DP") MultipartFile DP
-//        @RequestPart("addressGuest") String addressGuestJson
-//)
-//        throws IOException {
-//
-//    ObjectMapper objectMapper = new ObjectMapper();
-//    AdressSubEntity addressGuest = objectMapper.readValue(addressGuestJson, AdressSubEntity.class);
-//
-//    GuestEntity guestEntity = new GuestEntity();
-//    guestEntity.setUuidGuest(uuidGuest);
-//    guestEntity.setGeocode(geocode);
-//    guestEntity.setName(name);
-//    guestEntity.setDP(DP.getBytes());
-//    guestEntity.setAddressGuest(addressGuest);
-//
-//    return guest.saveGuest(guestEntity);
-//}
-//    @RequestHeader("Authorization") String token
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     @PostMapping("/guest")
     public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity) throws Exception {
         System.out.println(guestEntity);
 
-        // Check if geocode needs to be generated (for new entities)
+        
         if (guestEntity.getGeocode() == null || guestEntity.getGeocode().isEmpty()) {
             GeocodingResult[] results = geocodingService.geocode(guestEntity.getAddressGuest().convertToString());
             double latitude = results[0].geometry.location.lat;
@@ -243,7 +239,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
             guestEntity.setGeocode(coordinates);
         }
 
-        // Always calculate geocode for office address if provided and not empty
+        
         if (guestEntity.getOfficeAddress() != null &&
                 isNotEmpty(guestEntity.getOfficeAddress().getStreet()) &&
                 isNotEmpty(guestEntity.getOfficeAddress().getHouseName()) &&
@@ -263,7 +259,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         return guest.saveGuest(guestEntity);
     }
 
-    // Helper method to check if a string is not empty
+    
     private boolean isNotEmpty(String string) {
         return string != null && !string.isEmpty();
     }
@@ -281,29 +277,29 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     public GuestEntity getGuestUsingPk(@RequestHeader String uuidGuest) {
         return guest.getGuestUsingPk(uuidGuest);
     }
-    ///guest?attributeName=val
+    
     @PutMapping("/guest")
     public GuestEntity updateGuest(@RequestBody GuestEntity guestentity, @RequestParam String attributeName) {
         System.out.println(attributeName);
         return guest.updateGuest(guestentity.getUuidGuest(), guestentity.getGeocode(), attributeName, guestentity);
     }
-//    @PutMapping("/guestEdit")
-//    public GuestEntity updateGuest(@RequestBody GuestEntity guestentity, @RequestParam List<String> fields) {
-//        System.out.println(fields);
-//        return guest.updateGuest(guestentity.getUuidGuest(), guestentity.getGeocode(), fields, guestentity);
-//    }
 
-    //    ------------------------------------------------------------------------------------------------------
-//    **************************************Item controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
+
+
+
+
+
+    
+
+
     @PostMapping("/host/menuItem")
     public List<ItemEntity> createItems(@NotNull @RequestBody List<ItemEntity> itemEntities) {
         List<ItemEntity> items = new ArrayList<>();
         for (ItemEntity itemEntity : itemEntities) {
             String uuidItem = itemEntity.getUuidItem();
-//            if (uuidItem.startsWith("host#")) {
+
             itemEntity.setUuidItem(uuidItem.replace("host#", ""));
-//            }
+
             ItemEntity savedItem = item.saveItem(itemEntity);
             items.add(savedItem);
         }
@@ -319,14 +315,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     public ItemEntity updateItemAttribute(@RequestBody ItemEntity itementity, @RequestParam String attributeName) {
         return item.updateItemAttribute(itementity.getUuidItem(), itementity.getNameItem(),attributeName, itementity);
     }
-    //    @GetMapping("/guest/host/menuItems")
-//    public List<ItemEntity> getItems(@RequestHeader String id) {
-//        String[] idSplit = id.split("#");
-//        List<ItemEntity> x=item.getItems("item#" + idSplit[1]);
-//        System.out.println(x);
-//        return x;
-////        return item.getItems("item#" + idSplit[1]);
-//    }
+
     @GetMapping("/guest/host/menuItems")
     public List<ItemEntity> getItems(@RequestHeader String id) {
         try {
@@ -347,11 +336,6 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     public ItemEntity getItem(@RequestBody ItemEntity itementity) {
         return item.getItem(itementity.getUuidItem(), itementity.getNameItem(), itementity);
     }
-
-    //    ------------------------------------------------------------------------------------------------------
-//    **************************************Meal controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
-
     @PostMapping("/host/meal")
     public ResponseEntity<MealEntity> createMeal(@RequestBody MealEntity mealEntity) {
         String uuid = mealEntity.getUuidMeal();
@@ -387,9 +371,9 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     public MealEntity getItem(@RequestBody MealEntity mealEntity) {
         return meal.getItem(mealEntity.getUuidMeal(), mealEntity.getMealType(), mealEntity);
     }
-    //    ------------------------------------------------------------------------------------------------------
-//    **************************************Capacity controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
+    
+
+
     @PostMapping("/host/capacity")
     public CapacityEntity createCapacity(@RequestBody CapacityEntity capacityEntity) {
         String uuid = capacityEntity.getUuidCapacity();
@@ -411,14 +395,9 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         return capacity;
     }
 
-
-
-    //    ------------------------------------------------------------------------------------------------------
-//    **************************************Order controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
     @PostMapping("/guest/order")
     public ResponseEntity<?> createOrder(@RequestBody OrderEntity orderEntity, @RequestHeader String capacityUuid) throws Exception {
-        // Extracting geocode and pincode from the orderEntity
+        
          String geoHost = orderEntity.getGeoHost();
         AdressSubEntity deliveryAddress = orderEntity.getDelAddress();
         String guestPinCode = deliveryAddress.getPinCode();
@@ -429,32 +408,29 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         double deliveryLongitude = resultsDelivery[0].geometry.location.lng;
         String geoDelivery = String.format("%.6f,%.6f", deliveryLatitude, deliveryLongitude);
 
-        // Check if the two addresses are within the specified radius (4 km)
+        
         if (!host.areAddressesWithinRadius(geoHost, geoDelivery, radius)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order cannot be placed due to long distance between you and cook.");
         }
 
-        // Check if service is available at the provided pincode
+        
         boolean isAvailable = pincode.checkPincodeAvailability(guestPinCode);
         if (!isAvailable) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Service is not available at pincode - "+guestPinCode);
         }
 
-        // Proceed with order creation if both checks pass
+        
         ResponseEntity<String> capacityUpdateResponse = capacity.updateCapacity(orderEntity.getMealType(), capacityUuid, Integer.parseInt(orderEntity.getNoOfServing()));
 
-        // Check if the capacity was updated successfully
+        
         if (capacityUpdateResponse.getStatusCode() == HttpStatus.OK) {
             OrderEntity createdOrder = order.createOrder(orderEntity);
             return ResponseEntity.ok(createdOrder);
         } else {
-            // Return the response from the capacity update (either an error about the number of meals or another issue)
+            
             return capacityUpdateResponse;
         }
     }
-    //need to make changes in the bwloe controller to get orders based on status, i.e in-progress, completed
-//host/orders?status=val
-//instead of sending orderEntity in body send the hostUuid or guestUUid as that would keep the logic in the backend
 
     @GetMapping("/host/orders")
     public List<OrderEntity> getHostOrders(@RequestHeader String hostID) {
@@ -477,62 +453,43 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
     @PutMapping("/guest/order")
     public ResponseEntity<String> updateOrder(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName) {
         try {
-            // Attempt to update the orderEntity
+            
             OrderEntity updatedOrder = order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
              System.out.println(orderEntity);
             if (updatedOrder != null) {
                 System.out.println(ResponseEntity.ok("Order updated successfully"));
-                // Successfully updated the order
+                
                 return ResponseEntity.ok("Order updated successfully");
             } else {
-                // Order update failed (handle this case as needed)
+                
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update order");
             }
         } catch (Exception e) {
-            // Handle exceptions (e.g., validation errors, database errors)
+            
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
         }
     }
     @PutMapping("/devBoy/updateOrder")
     public ResponseEntity<String> updateOrderDevBoy(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName,@RequestParam String attributeName2) {
         try {
-            // Attempt to update the orderEntity
+            
             OrderEntity updatedOrder1 = order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
             OrderEntity updatedOrder2 = order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName2, orderEntity);
             System.out.println(orderEntity);
-            // Check if the update was successful based on updatedOrder1 and updatedOrder2
+            
             if (updatedOrder1 != null && updatedOrder2 != null) {
                 return ResponseEntity.ok("Order updated successfully");
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update order");
             }
         } catch (Exception e) {
-            // Handle exceptions (e.g., validation errors, database errors)
+            
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
         }
     }
-//@PutMapping("/devBoy/updateOrder")
-//public ResponseEntity<String> updateOrderDevBoy(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName,@RequestParam String attributeName2) {
-//    try {
-//        // Attempt to update the orderEntity
-//        OrderEntity updatedOrder = order.updateOrderStatus(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName,attributeName2, orderEntity);
-//        System.out.println(orderEntity);
-//        if (updatedOrder != null) {
-//            System.out.println(ResponseEntity.ok("Order updated successfully"));
-//            // Successfully updated the order
-//            return ResponseEntity.ok("Order updated successfully");
-//        } else {
-//            // Order update failed (handle this case as needed)
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update order");
-//        }
-//    } catch (Exception e) {
-//        // Handle exceptions (e.g., validation errors, database errors)
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
-//    }
-//}
     @PutMapping("/host/payment")
     public void updatePayment(@RequestBody OrderEntity orderEntity) {
-//        return order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), "pyMd", orderEntity);
+
         order.updatePayment(orderEntity);
     }
     @GetMapping("/devBoy/ipDevBoyOrders")
@@ -542,26 +499,19 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
     @GetMapping("/devBoy/devBoyOrders")
     public List<OrderEntity> devBoyOrders(@RequestHeader String uuidDevBoy) {
         return order.getAllOrders(uuidDevBoy,"gsi2");
-//        return order.getInProgressDevBoyOrders(uuidDevBoy);
-    }
 
-    //    @PostMapping("/guest/order/rating")
-//    public OrderEntity updateOrderRating(){
-//    }
-//    ------------------------------------------------------------------------------------------------------
-//    **************************************Otp controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
-    @PostMapping("/generateOtp")
+    }
+ @PostMapping("/generateOtp")
     public ResponseEntity<String> generateOtp(@RequestBody Map<String, String> payload) {
         String phone = payload.get("phone");
         String email = payload.get("email");
 
-        // Check if neither phone nor email is provided
+        
         if (phone == null && email == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please provide either phone or email.");
         }
 
-        // If phone is provided, check if user exists with that phone number
+        
         if (phone != null) {
             try {
                 userDetailsService.loadUserByUsername(phone);
@@ -570,7 +520,7 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
             }
         }
 
-        // If email is provided, check if user exists with that email
+        
         if (email != null) {
             try {
                 userDetailsService.loadUserByUsername(email);
@@ -579,11 +529,11 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
             }
         }
 
-        // If we've reached here, then the user doesn't exist with either phone or email
+        
         generatedOtp = PinpointClass.generateOTPWithExpiration();
         otpExpirationTime = LocalDateTime.now().plusSeconds(PinpointClass.getOtpExpirationSeconds());
 
-        // Send OTP
+        
         if (phone != null) {
             ResponseEntity<SmsService.SmsResponse> response = smsService.sendOtpSms(phone, generatedOtp);
             if (response.getStatusCode() != HttpStatus.OK) {
@@ -619,18 +569,7 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
         LocalDateTime currentTime = LocalDateTime.now();
         return currentTime.isAfter(otpExpirationTime);
     }
-    //    @PostMapping("/host/otpMob")
-//    public ResponseEntity<?> verifySmsGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
-//        return verifyOtp(otpVerificationClass.getPhoneOtp());
-//    }
-//
-//        @PostMapping("/host/otpEmail")
-//    public ResponseEntity<?> verifyEmailGuest(@RequestBody OtpVerificationClass otpVerificationClass) {
-//        return verifyOtp(otpVerificationClass.getEmailOtp());
-//    }
-//    -----------------------------------------
-//Constant Charges
-//    -----------------------------------------
+
 @PostMapping("/admin/addCharges")
 public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity constantChargesEntity) {
     return constantCharges.addCharges(constantChargesEntity);
@@ -641,11 +580,6 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
     public ResponseEntity<ConstantChargesEntity> getCharges() {
         return constantCharges.getCharges();
     }
-
-    //    ------------------------------------------------------------------------------------------------------
-//    **************************************HostAccount controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
-
     @PostMapping("/hostSignup")
     public ResponseEntity<?> getUser(@RequestBody AccountEntity hostEntity) {
         try {
@@ -653,17 +587,17 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
             String errorMessage = "User already exists for phone: " + hostEntity.getPhone();
             return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
         } catch (UsernameNotFoundException e) {
-            // Check if email already exists
+            
             AccountEntity existingUser = account.findUserByEmail(hostEntity.getEmail());
             if (existingUser != null) {
                 String errorMessage = "User already exists for email: " + hostEntity.getEmail();
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
             }
            hostEntity.setRole("host");
-            // User doesn't exist, proceed with saving the details
+            
             AccountEntity newAccountEntity = account.saveSignup(hostEntity, "host");
 
-            // Generate the JWT token for the new user
+            
             String token = jwtServices.generateToken(hostEntity.getPhone());
             String uuidHost = account.storeHostUuid();
             String hostTimestamp = account.storeTimestamp();
@@ -699,9 +633,9 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
         }
     }
 
-    //    ------------------------------------------------------------------------------------------------------
-    //    **************************************GuestAccount controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
+    
+    
+
     @PostMapping("/guestLogin")
     public ResponseEntity<?> guestLogin(@RequestBody AccountEntity authRequest) {
         try {
@@ -736,10 +670,10 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
         } catch (UsernameNotFoundException e) {
 
             guestEntity.setRole("guest");
-            // User doesn't exist, proceed with saving the details
+            
             AccountEntity newAccountEntity = account.saveSignup(guestEntity, "guest");
 
-            // Generate the JWT token for the new user
+            
             String token = jwtServices.generateToken(guestEntity.getPhone());
             String uuidGuest = account.storeGuestUuid();
             String timestamp = account.storeTimestamp();
@@ -754,9 +688,9 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
         }
     }
 
-    //    ------------------------------------------------------------------------------------------------------
-    //    **************************************DevBoyAccount controllers******************************************
-//    ------------------------------------------------------------------------------------------------------
+    
+    
+
     @PostMapping("/devBoySignup")
     public ResponseEntity<?> getUserDev(@RequestBody AccountEntity devBoyEntity) {
         try {
@@ -766,10 +700,10 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
             return ResponseEntity.status(HttpStatus.CONFLICT).body(errorMessage);
         } catch (UsernameNotFoundException e) {
             devBoyEntity.setRole("devBoy");
-            // User doesn't exist, proceed with saving the details
+            
             AccountEntity newAccountEntity = account.saveSignup(devBoyEntity, "devBoy");
 
-            // Generate the JWT token for the new user
+            
             String token = jwtServices.generateToken(devBoyEntity.getPhone());
             String uuidDevBoy = account.storeDevBoyUuid();
             String timestamp = account.storeTimestamp();
@@ -789,7 +723,7 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
 
             if (authentication.isAuthenticated()) {
                 AccountEntityUserDetails userDetails = (AccountEntityUserDetails) authentication.getPrincipal();
-                String userRole = userDetails.getRole(); // Extract role
+                String userRole = userDetails.getRole(); 
 
                 if (!userRole.equals("devBoy")) {
                     return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied for role: " + userRole);
@@ -823,7 +757,7 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
         DevBoyEntity savedEntity = devBoy.saveDevBoy(devBoyEntity);
         return ResponseEntity.ok(savedEntity);
     }
-//    **************************************************
+
 @PostMapping("/admin/Login")
 public ResponseEntity<?> adminLogin(@RequestBody AccountEntity authRequest) {
     try {
@@ -832,7 +766,7 @@ public ResponseEntity<?> adminLogin(@RequestBody AccountEntity authRequest) {
 
         if (authentication.isAuthenticated()) {
             AccountEntityUserDetails userDetails = (AccountEntityUserDetails) authentication.getPrincipal();
-            String userRole = userDetails.getRole(); // Extract role
+            String userRole = userDetails.getRole(); 
 
             if (!userRole.equals("admin")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied for role: " + userRole);
@@ -861,9 +795,9 @@ public DevBoyEntity updateDevBoy(@RequestBody DevBoyEntity hostentity, @RequestP
     return devBoy.update(hostentity.getUuidDevBoy(), hostentity.getGeocode(), attributeName, hostentity);
 }
 
-    //    -----------------------------------------
-//change password
-//    -----------------------------------------
+    
+
+
     @PostMapping("/host/changePassword")
     public ResponseEntity<?> changePasswordHost(@RequestBody PasswordChangeRequestPOJO passwordChangeRequest) {
         return processChangePassword(passwordChangeRequest);
@@ -876,7 +810,7 @@ public DevBoyEntity updateDevBoy(@RequestBody DevBoyEntity hostentity, @RequestP
 
     private ResponseEntity<?> processChangePassword(PasswordChangeRequestPOJO passwordChangeRequest) {
         try {
-            // Verify old password
+            
             boolean isPasswordCorrect = account.isPasswordCorrect(passwordChangeRequest.getPhone(),
                     passwordChangeRequest.getOldPassword());
 
@@ -885,7 +819,7 @@ public DevBoyEntity updateDevBoy(@RequestBody DevBoyEntity hostentity, @RequestP
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(createResponse(false, errorMessage));
             }
 
-            // Save the new password
+            
             String newPassword = passwordChangeRequest.getNewPassword();
             account.changePassword(passwordChangeRequest.getPhone(), passwordChangeRequest.getTimeStamp(), newPassword);
 
@@ -904,7 +838,4 @@ public DevBoyEntity updateDevBoy(@RequestBody DevBoyEntity hostentity, @RequestP
         return response;
     }
 
-
-
 }
-//    -------------------------------------------
