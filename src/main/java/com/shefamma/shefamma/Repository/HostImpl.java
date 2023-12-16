@@ -303,44 +303,6 @@ public class HostImpl implements Host {
                 })
                 .collect(Collectors.toList());
     }
-
-    @Override
-    public List<HostEntity> getHostsTimeSlotSearchFilter(int t1, int t2, String timeDuration) {
-        DynamoDBQueryExpression<TimeSlotEntity> queryExpression = new DynamoDBQueryExpression<TimeSlotEntity>()
-                .withConsistentRead(false)
-                .withKeyConditionExpression("ends_with(pk, :pk) and #duration = :duration")
-                .withFilterExpression("slots[0].startTime BETWEEN :t1 AND :t2")
-                .withProjectionExpression("pk")
-                .withExpressionAttributeNames(new HashMap<String, String>() {{
-                    put("#duration", "sk");
-                }})
-                .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
-                    put(":pk", new AttributeValue().withS("#time"));
-                    put(":duration", new AttributeValue().withS(timeDuration));
-                    put(":t1", new AttributeValue().withN(String.valueOf(t1)));
-                    put(":t2", new AttributeValue().withN(String.valueOf(t2)));
-                }})
-                .withScanIndexForward(true);
-
-        List<TimeSlotEntity> items = dynamoDBMapper.query(TimeSlotEntity.class, queryExpression);
-
-        List<String> hostIds = new ArrayList<>();
-        for (TimeSlotEntity item : items) {
-            String id;
-            String[] splitted;
-            id = item.getUuidTime();
-            splitted = id.split("#");
-            hostIds.add(splitted[0] + "#host");
-        }
-
-        Map<String, List<Object>> resultMap = dynamoDBMapper.batchLoad((Iterable<?>) Collections.singletonMap(HostEntity.class, hostIds));
-
-        return resultMap.values().stream()
-                .flatMap(Collection::stream)
-                .map(obj -> (HostEntity) obj)
-                .collect(Collectors.toList());
-    }
-    
     @Override
     public OrderEntity getHostRatingReview(HostEntity hostEntity) {
         OrderEntity orderEntity = new OrderEntity();

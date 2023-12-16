@@ -28,8 +28,8 @@ public class MealImpl implements  Meal{
             dynamoDBMapper.save(mealEntity);
             return new ResponseEntity<>(mealEntity, HttpStatus.CREATED);
         } catch (Exception e) {
-            // Log the error and return an appropriate error response
-            // For example, you might return a 500 Internal Server Error
+            
+            
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -65,9 +65,8 @@ public class MealImpl implements  Meal{
                 value = itemEntity.getAmount();
                 attributeName = "amnt";
                 break;
-            // Add more cases for other attributes if needed
+            
             default:
-                // Invalid attribute name provided
                 throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
         commonMethods.updateAttributeWithSortKey(partition,sort,attributeName,value);
@@ -79,7 +78,7 @@ public class MealImpl implements  Meal{
         expressionAttributeValues.put(":pk", new AttributeValue().withS(mealId));
 
         DynamoDBQueryExpression<MealEntity> queryExpression = new DynamoDBQueryExpression<MealEntity>()
-                .withKeyConditionExpression("pk = :pk") //we need to use the attribute available in the dynamodbtable
+                .withKeyConditionExpression("pk = :pk") 
                 .withExpressionAttributeValues(expressionAttributeValues);
         return dynamoDBMapper.query(MealEntity.class, queryExpression);
     }

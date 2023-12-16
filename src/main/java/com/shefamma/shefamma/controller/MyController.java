@@ -177,54 +177,16 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         double longitude = results[0].geometry.location.lng;
         return host.getHostsItemSearchFilter(latitude, longitude, radius, itemValue.toLowerCase());
     }
-    
-
-
-
-
-
-    
     @GetMapping("/guest/host/categoryFilter")
     public List<HostEntity> getHostsCategorySearchFilter(@RequestParam("category") String categoryValue) {
         return host.getHostsCategorySearchFilter(categoryValue);
     }
 
-    
-    @GetMapping("/guest/host/slotFilter")
-    public List<HostEntity> getHostsTimeSlotSearchFilter(@RequestParam String startTime, @RequestParam String endTime, @RequestParam String timeDuration) {
-        return host.getHostsTimeSlotSearchFilter(Integer.parseInt(startTime), Integer.parseInt(endTime), timeDuration);
-    }
 
     @GetMapping("/host/ratingReview")
     public OrderEntity getHostRatingReview(@RequestBody HostEntity hostEntity) {
         return host.getHostRatingReview(hostEntity);
     }
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     @PostMapping("/guest")
     public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity) throws Exception {
@@ -283,14 +245,6 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         System.out.println(attributeName);
         return guest.updateGuest(guestentity.getUuidGuest(), guestentity.getGeocode(), attributeName, guestentity);
     }
-
-
-
-
-
-
-    
-
 
     @PostMapping("/host/menuItem")
     public List<ItemEntity> createItems(@NotNull @RequestBody List<ItemEntity> itemEntities) {
@@ -794,10 +748,6 @@ public ResponseEntity<?> adminLogin(@RequestBody AccountEntity authRequest) {
 public DevBoyEntity updateDevBoy(@RequestBody DevBoyEntity hostentity, @RequestParam String attributeName) {
     return devBoy.update(hostentity.getUuidDevBoy(), hostentity.getGeocode(), attributeName, hostentity);
 }
-
-    
-
-
     @PostMapping("/host/changePassword")
     public ResponseEntity<?> changePasswordHost(@RequestBody PasswordChangeRequestPOJO passwordChangeRequest) {
         return processChangePassword(passwordChangeRequest);

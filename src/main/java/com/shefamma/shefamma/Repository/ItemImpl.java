@@ -22,7 +22,7 @@ public class ItemImpl implements Item {
 
     @Override
     public ItemEntity saveItem(ItemEntity itementity) {
-//        itementity.setHostId_Item(itementity.getHostId_Item()+"#item");
+
         dynamoDBMapper.save(itementity);
         return itementity;
     }
@@ -34,7 +34,7 @@ public class ItemImpl implements Item {
 
 
         DynamoDBQueryExpression<ItemEntity> queryExpression = new DynamoDBQueryExpression<ItemEntity>()
-                .withKeyConditionExpression("pk = :pk") //we need to use the attribute available in the dynamodbtable
+                .withKeyConditionExpression("pk = :pk") 
                 .withExpressionAttributeValues(expressionAttributeValues);
         return dynamoDBMapper.query(ItemEntity.class, queryExpression);
     }
@@ -84,9 +84,9 @@ public class ItemImpl implements Item {
             case "specialIngredient":
                 value = itemEntity.getSpecialIngredient();
                 break;
-            // Add more cases for other attributes if needed
+            
             default:
-                // Invalid attribute name provided
+                
                 throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
         commonMethods.updateAttributeWithSortKey(partition,sort,attributeName,value);

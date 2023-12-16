@@ -18,7 +18,6 @@ public interface Host {
 
     List<HostEntity> getHostsCategorySearchFilter(double latitude, double longitude, double radius, String dineCategoryValue);
 
-    List<HostEntity> getHostsTimeSlotSearchFilter(int startTime, int endTime, String timeDuration);
 
     boolean areAddressesWithinRadius(String geoHost, String geoDelivery, double radius);
 
