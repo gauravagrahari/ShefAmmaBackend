@@ -38,10 +38,6 @@ public class AdminDashboardController {
         }
         return ResponseEntity.status(response.getStatusCode()).body(Collections.singletonMap("message", response.getBody()));
     }
-//    @PostMapping("/admin/signup") // Changed the mapping URL to "/admin/signup"
-//    public ResponseEntity<String> adminSignup(@RequestBody AdminDashboardEntity adminDashboardEntity) {
-//        return adminDashboard.saveSignup(adminDashboardEntity);
-//    }
 @GetMapping("/admin/getCharges")
 public ResponseEntity<ConstantChargesEntity> getCharges() {
     return constantCharges.getCharges();
@@ -155,9 +151,6 @@ public ResponseEntity<String> deactivatePincode(@RequestHeader String pin) {
         }
         return ResponseEntity.ok(pincodes);
     }
-//    @GetMapping("/admin/allPincodes")
-//    public List<PincodeEntity> getAllPincodes() {
-//        return pincode.getAllPincodes();
-//    }
+
 
 }

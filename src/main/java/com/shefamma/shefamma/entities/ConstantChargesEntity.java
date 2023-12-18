@@ -13,14 +13,14 @@ import org.springframework.stereotype.Component;
 @DynamoDBTable(tableName = "ShefAmma")
 public class ConstantChargesEntity {
 
-    // Primary key for the entity (you can customize as needed)
+    
     @DynamoDBHashKey(attributeName = "pk")
-    private String constantCharges = "constantCharges"; // You can choose any suitable value for the primary key
+    private String constantCharges = "constantCharges"; 
 
     @DynamoDBRangeKey(attributeName = "sk")
-    private String sk = "default"; // You can choose any suitable value for the range key
+    private String sk = "default"; 
 
-    // Variables for constant charges and discounts
+    
     @DynamoDBAttribute(attributeName = "delCh")
     private String deliveryCharges;
 
@@ -51,9 +51,9 @@ public class ConstantChargesEntity {
     private String lunchBookTime;
     @DynamoDBAttribute(attributeName = "DinnerBookTime")
     private String dinnerBookTime;
-    // Additional variables for other constant charges, if needed
-    // @DynamoDBAttribute( attributeName = "otherConstantCharge")
-    // private double otherConstantCharge;
+    
+    
+    
 
-    // Getter and Setter methods for the variables
+    
 }

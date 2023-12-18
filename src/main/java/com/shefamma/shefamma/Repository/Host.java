@@ -27,5 +27,5 @@ public interface Host {
 
     HostEntity updateHostRating(String hostId, String geoHost, double userRating);
 
-//    HostEntity updateHostAttribute(String attributName, HostEntity host);
+
 }

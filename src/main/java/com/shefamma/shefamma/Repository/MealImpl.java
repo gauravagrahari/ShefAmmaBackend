@@ -3,7 +3,6 @@ package com.shefamma.shefamma.Repository;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
-import com.shefamma.shefamma.entities.HostEntity;
 import com.shefamma.shefamma.entities.MealEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,8 +19,7 @@ public class MealImpl implements  Meal{
     private DynamoDBMapper dynamoDBMapper;
     @Autowired
     private CommonMethods commonMethods;
-    @Autowired
-    HostEntity hostentity;
+
     @Override
     public ResponseEntity<MealEntity> createMeal(MealEntity mealEntity) {
         try {
@@ -35,39 +33,37 @@ public class MealImpl implements  Meal{
     }
     @Override
     public MealEntity updateMealAttribute(String partition, String sort, String attributeName, MealEntity itemEntity) {
-        String value = null;
+        String value;
         switch (attributeName) {
-            case "itemNames":
+            case "itemNames" -> {
                 value = itemEntity.getNameItem();
                 attributeName = "sk";
-                break;
-            case "dishcategory":
+            }
+            case "dishcategory" -> {
                 value = itemEntity.getDishcategory();
                 attributeName = "provMeals";
-                break;
-            case "DP":
+            }
+            case "DP" -> {
                 value = itemEntity.getDp();
                 attributeName = "dp";
-                break;
-            case "status":
+            }
+            case "status" -> {
                 value = itemEntity.getStatus();
                 attributeName = "stts";
-                break;
-            case "description":
+            }
+            case "description" -> {
                 value = itemEntity.getDescription();
                 attributeName = "dsec";
-                break;
-            case "vegetarian":
+            }
+            case "vegetarian" -> {
                 value = itemEntity.getVegetarian();
                 attributeName = "veg";
-                break;
-            case "amount":
+            }
+            case "amount" -> {
                 value = itemEntity.getAmount();
                 attributeName = "amnt";
-                break;
-            
-            default:
-                throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
+            }
+            default -> throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
         commonMethods.updateAttributeWithSortKey(partition,sort,attributeName,value);
         return itemEntity;

@@ -21,27 +21,27 @@ public class HostCardEntity {
 
 
 
-//    List<String> itemNames;
-//    List<String> mealTypes; // Add List<String> for mealTypes
-//    List<String> imageMeal; // Add List<String> for mealTypes
-//
-//    public List<String> getItemNames() {
-//        return itemNames;
-//    }
-//    public void setItemNames(List<String> itemNames) {
-//        this.itemNames = itemNames;
-//    }
-//    public List<String> getMealTypes() {
-//        return mealTypes;
-//    }
-//    public void setMealTypes(List<String> mealTypes) {
-//        this.mealTypes = mealTypes;
-//    }
-//    public List<String> getImageMeal() {
-//        return imageMeal;
-//    }
-//    public void setImageMeal(List<String> imageMeal) {
-//        this.imageMeal = imageMeal;
-//    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 }

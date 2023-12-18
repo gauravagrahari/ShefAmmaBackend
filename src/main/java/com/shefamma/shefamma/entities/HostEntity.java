@@ -21,7 +21,7 @@ public class HostEntity {
         return this;
     }
 
-    public void setGsiSk(String gsiSk) { //need to add gsiSk
+    public void setGsiSk(String gsiSk) { 
         if (gsiSk.startsWith("host#")) {
             this.gsiSk = gsiSk;
         } else {
@@ -55,9 +55,9 @@ public class HostEntity {
     @DynamoDBAttribute(attributeName = "noOfRat")
     private String noOfRating;
     @DynamoDBAttribute(attributeName = "provMeals")
-    private String providedMeals;//bld meaning breakfast lunch dinner
+    private String providedMeals;
 
-//    -------------------------------
+
     @DynamoDBAttribute(attributeName = "DP")
     private String DP;
     @DynamoDBAttribute(attributeName = "DDP")
@@ -66,16 +66,16 @@ public class HostEntity {
     private String dineCategory;
     @DynamoDBAttribute(attributeName = "curMes")
     private String currentMessage;
-//    @DynamoDBAttribute(attributeName = "bCap")
-//    private String breakfastCapacity;
-//    @DynamoDBAttribute(attributeName = "curBCap")
-//    private String currentBreakfastCapacity;
-//    @DynamoDBAttribute(attributeName = "lCap")
-//    private String lunchCapacity;
-//    @DynamoDBAttribute(attributeName = "curLCap")
-//    private String currentLunchCapacity;
-//    @DynamoDBAttribute(attributeName = "dCap")
-//    private String dinnerCapacity;
-//    @DynamoDBAttribute(attributeName = "curDCap")
-//    private String currentDinnerCapacity;
+
+
+
+
+
+
+
+
+
+
+
+
 }

@@ -16,6 +16,6 @@ public class PasswordChangeRequestPOJO {
     private String oldPassword;
     private String newPassword;
 
-    // getters and setters
+    
 
 }

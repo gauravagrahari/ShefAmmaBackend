@@ -19,18 +19,14 @@ public class HostImpl implements Host {
     private DynamoDBMapper dynamoDBMapper;
     @Autowired
     private CommonMethods commonMethods;
-    @Autowired
-    private HostCardEntity hostCardEntity;
-    @Autowired
-    private OrderEntity orderEntity;
+
     public HostEntity saveHost(HostEntity host) {
         dynamoDBMapper.save(host);
         return host;
     }
 
     public HostEntity getHost(String hostId, String geocode) {
-        HostEntity host= dynamoDBMapper.load(HostEntity.class, hostId, geocode);
-        return host;
+        return dynamoDBMapper.load(HostEntity.class, hostId, geocode);
     }
     public HostEntity getDataUsingPk(String pk) {
         HostEntity hashKeyValues = new HostEntity();
@@ -57,53 +53,42 @@ public class HostImpl implements Host {
 
     @Override
     public HostEntity update(String partition, String sort, String attributeName, HostEntity hostentity) {
-        String value = null;
-        
-        switch (attributeName) {
-            case "geocode":
-                value = hostentity.getGeocode();
+        String value;
 
-                break;
-            case "dineCategory":
+        switch (attributeName) {
+            case "geocode" -> value = hostentity.getGeocode();
+            case "dineCategory" -> {
                 value = hostentity.getDineCategory();
                 attributeName = "dCaT";
-                break;
-            case "DDP":
+            }
+            case "DDP" -> {
                 value = hostentity.getDDP();
                 attributeName = "DDP";
-                break;
-            case "nameHost":
+            }
+            case "nameHost" -> {
                 value = hostentity.getNameHost();
                 attributeName = "name";
-                break;
-            case "DP":
+            }
+            case "DP" -> {
                 value = hostentity.getDP();
                 attributeName = "DP";
-                break;
-            case "descriptionHost":
+            }
+            case "descriptionHost" -> {
                 value = hostentity.getDescriptionHost();
                 attributeName = "dsec";
-                break;
-            case "currentMessage":
-                value = hostentity.getCurrentMessage();
-                break;
-            case "status":
+            }
+            case "currentMessage" -> value = hostentity.getCurrentMessage();
+            case "status" -> {
                 value = hostentity.getStatus();
                 attributeName = "stts";
-                break;
-            case "providedMeals":
+            }
+            case "providedMeals" -> {
                 value = hostentity.getProvidedMeals();
                 attributeName = "provMeals";
-                break;
-            
-            default:
-                
-                throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
+            }
+            default -> throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
-
-        
-        UpdateItemResult response = commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
-        .println(response);
+commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
 
         try {
             commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
@@ -272,7 +257,7 @@ public class HostImpl implements Host {
                 .withConsistentRead(false)
                 .withKeyConditionExpression("ends_with(pk, :pk) AND dineCategory = :val")
 
-                .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
+                .withExpressionAttributeValues(new HashMap<>() {{
                     put(":pk", new AttributeValue().withS("#host"));
                     put(":val", new AttributeValue().withS(dineCategoryValue));
                 }})
@@ -341,7 +326,6 @@ public class HostImpl implements Host {
             orderEntity.setNameGuest(!timeStamp.isEmpty() ? name.substring(0, name.length() - 1) : "");
 
         } catch (Exception e) {
-            .println("Error occurred while fetching host rating and review: " + e.getMessage());
             e.printStackTrace();
         }
         return orderEntity;

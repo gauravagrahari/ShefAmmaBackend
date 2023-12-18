@@ -26,6 +26,3 @@ public class AccountEntity {
     @DynamoDBAttribute(attributeName = "role")
     private String role;
 }
-//    @DynamoDBIndexHashKey(attributeName = "gpk2",globalSecondaryIndexName = "gsi2")
-//    @DynamoDBRangeKey(attributeName = "sk")
-//    @DynamoDBIndexRangeKey(attributeName = "gsk",globalSecondaryIndexName = "gsi")

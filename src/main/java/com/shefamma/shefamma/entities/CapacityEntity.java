@@ -20,7 +20,7 @@ public class CapacityEntity {
         }
     }
     @DynamoDBHashKey(attributeName = "pk")
-    private String uuidCapacity;//uuid will be of guest
+    private String uuidCapacity;
     @DynamoDBRangeKey(attributeName = "sk")
     private String sk="capacity";
 

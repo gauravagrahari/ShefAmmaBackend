@@ -19,7 +19,7 @@ public class ItemEntity {
         }
     }
     public void setNameItem(String nameItem) {
-        // Convert the nameItem to lowercase before setting the value
+        
         this.nameItem = nameItem.toLowerCase();
     }
     @DynamoDBHashKey(attributeName = "pk")
@@ -36,7 +36,7 @@ public class ItemEntity {
     private String description;
     @DynamoDBAttribute(attributeName = "veg")
     private String vegetarian;
-    @DynamoDBAttribute(attributeName = "amnt")//earlier here was amnt, in db also there is amnt
+    @DynamoDBAttribute(attributeName = "amnt")
     private String amount;
     @DynamoDBAttribute(attributeName = "ser")
     private String serveQuantity;

@@ -15,15 +15,15 @@ import lombok.NoArgsConstructor;
 @DynamoDBTable(tableName = "ShefAmma")
 public class MealEntity {
 
-//    public void setUuidMeal(String uuidMeal) {
-//        if (uuidMeal.startsWith("item#")) {
-//            this.uuidMeal = uuidMeal;
-//        } else {
-//            this.uuidMeal = "item#" + uuidMeal;
-//        }
-//    }
+
+
+
+
+
+
+
     public void setMealType(String mealType) {
-        // Convert the nameItem to lowercase before setting the value
+        
         this.mealType = mealType.toLowerCase();
     }
 
@@ -32,7 +32,7 @@ public class MealEntity {
     @DynamoDBRangeKey(attributeName = "sk")
     private String nameItem;
     @DynamoDBAttribute(attributeName = "meal")
-    private String mealType;//breakfast,lunch,dinner(b,l,d)
+    private String mealType;
     @DynamoDBAttribute(attributeName = "dp")
     private String dp;
     @DynamoDBAttribute(attributeName = "stts")
@@ -41,14 +41,14 @@ public class MealEntity {
     private String description;
     @DynamoDBAttribute(attributeName = "veg")
     private String vegetarian;
-    @DynamoDBAttribute(attributeName = "amnt")//earlier here was amnt, in db also there is amnt
+    @DynamoDBAttribute(attributeName = "amnt")
     private String amount;
 
-    //These are not mandatory fields for mealItems
+    
     @DynamoDBAttribute(attributeName = "ser")
     private String serveQuantity;
     @DynamoDBAttribute(attributeName = "serTy")
-    private String serveType;//volume, weight, peices, plate
+    private String serveType;
     @DynamoDBAttribute(attributeName = "spIng")
     private String specialIngredient;
     @DynamoDBAttribute(attributeName = "gsk")

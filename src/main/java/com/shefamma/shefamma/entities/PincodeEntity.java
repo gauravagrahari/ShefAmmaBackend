@@ -22,10 +22,10 @@ public class PincodeEntity {
     @DynamoDBRangeKey(attributeName = "sk")
     private String pincode;
 
-    // Getter and setter for status
+    
     @Getter
     @DynamoDBAttribute(attributeName = "status")
-    private boolean status; // New attribute for active/inactive status
+    private boolean status; 
 
     public PincodeEntity setPincode(String pincode) {
         this.pincode = pincode;

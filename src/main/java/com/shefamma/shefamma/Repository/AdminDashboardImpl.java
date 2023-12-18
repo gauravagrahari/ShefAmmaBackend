@@ -37,10 +37,10 @@ public class AdminDashboardImpl implements AdminDashboard{
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials for id: " + adminDashboardEntity.getId());
         }
 
-        // Generate JWT token
+        
         String token = jwtServices.generateToken(adminDashboardEntity.getId());
 
-        return ResponseEntity.status(HttpStatus.OK).body(token); // Return the token to the client
+        return ResponseEntity.status(HttpStatus.OK).body(token); 
     }
 
     private AdminDashboardEntity findUserById(String id) {
@@ -63,19 +63,19 @@ public class AdminDashboardImpl implements AdminDashboard{
             throw new UsernameNotFoundException("User not found for id: " + id);
         }
 
-        // Check if the password matches
+        
         return passwordEncoder.matches(oldPassword, accountEntity.getPassword());
     }
     @Override
     public ResponseEntity<String> saveSignup(AdminDashboardEntity adminDashboardEntity) {
-        // Check if the user with the provided ID (or another unique attribute) already exists
+        
         AdminDashboardEntity existingAdmin = findUserById(adminDashboardEntity.getId());
         if (existingAdmin != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("An admin with the given ID already exists.");
         }
-        // Encode the password
+        
         adminDashboardEntity.setPassword(passwordEncoder.encode(adminDashboardEntity.getPassword()));
-        // Save the new admin entity to DynamoDB
+        
         dynamoDBMapper.save(adminDashboardEntity);
         return ResponseEntity.status(HttpStatus.CREATED).body("Signup successful");
     }

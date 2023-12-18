@@ -49,7 +49,7 @@ public class CapacityImpl implements Capacity {
     public String getCurrentCapacity(String mealType,   String partition) {
 
 
-        // Mapping meal types to their respective attribute names and retrieval methods
+        
         Map<String, String> attributeMap = new HashMap<>() {{
             put("b", "curBCap");
             put("l", "curLCap");
@@ -71,7 +71,7 @@ public class CapacityImpl implements Capacity {
                 .withKeyConditionExpression("pk = :partition")
                 .withExpressionAttributeValues(eav)
                 .withProjectionExpression(attributeName)
-                .withConsistentRead(false); // Use eventually consistent read for reduced RCU cost
+                .withConsistentRead(false); 
 
         List<CapacityEntity> results = dynamoDBMapper.query(CapacityEntity.class, queryExpression);
 
@@ -81,7 +81,7 @@ public class CapacityImpl implements Capacity {
             System.out.println(valueDB);
             return valueDB;
         } else {
-            // Handle the case where no matching item was found...
+            
             return null;
         }
     }
@@ -108,8 +108,8 @@ public class CapacityImpl implements Capacity {
                         String.valueOf(updatedValue)
                 );
 
-                // If you want to make use of 'result', you can do so here
-                // For now, we'll simply return a success message
+                
+                
                 return ResponseEntity.ok("Capacity updated successfully.");
 
             } catch (RuntimeException e) {

@@ -2,7 +2,6 @@ package com.shefamma.shefamma.Repository;
 
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBSaveExpression;
 import com.amazonaws.services.dynamodbv2.model.*;
 import com.shefamma.shefamma.entities.GuestEntity;
 import com.shefamma.shefamma.entities.HostEntity;
@@ -20,10 +19,6 @@ public class OrderImpl implements Order{
 
     @Autowired
     private DynamoDBMapper dynamoDBMapper;
-    @Autowired
-    private OrderEntity orderEntity;
-    @Autowired
-    private GuestEntity guestEntity;
     @Autowired
     private CommonMethods commonMethods;
     @Autowired
@@ -44,8 +39,7 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
     String modifiedUuidOrder = "order#" + parts[1];
     orderEntity.setUuidOrder(modifiedUuidOrder);
     dynamoDBMapper.save(orderEntity);
-  .println(orderEntity);
-    
+
 
     return orderEntity;
 }
@@ -61,11 +55,8 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
                 .withIndexName(gsiName) 
                 .withHashKeyValues(gsiKeyCondition)
                 .withConsistentRead(false);
-        List<OrderEntity> allOrders=dynamoDBMapper.query(OrderEntity.class, queryExpression);
-        for (OrderEntity order : allOrders) {
-            .println("dev order ---->"+order);
-        }
-        return allOrders;
+
+        return dynamoDBMapper.query(OrderEntity.class, queryExpression);
     }
 
 
@@ -186,8 +177,7 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
         queryFilter.put("stts", new Condition().withComparisonOperator(ComparisonOperator.EQ).withAttributeValueList(new AttributeValue().withS(status)));
         queryExpression.withQueryFilter(queryFilter);
 
-        List<OrderEntity> list = dynamoDBMapper.query(OrderEntity.class, queryExpression);
-        return list;
+        return dynamoDBMapper.query(OrderEntity.class, queryExpression);
     }
     public List<OrderEntity> getAllOrdersByStatus(List<String> ids, String gsiName, String status) {
         List<OrderEntity> allOrders = new ArrayList<>();
@@ -213,9 +203,7 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
 
             allOrders.addAll(ordersForId);
         }
-        for (OrderEntity order : allOrders) {
-            .println(order);
-        }
+
 
         return allOrders;
     }
@@ -238,17 +226,12 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
                 .withHashKeyValues(keyCondition)
                 .withConsistentRead(false);
 
-        List<OrderEntity> result = dynamoDBMapper.query(OrderEntity.class, queryExpression);
 
-        for (OrderEntity order : result) {
-            .println(order);
-        }
-
-        return result;
+        return dynamoDBMapper.query(OrderEntity.class, queryExpression);
     }
     @Override
     public OrderEntity updateOrder(String partition, String sort, String attributeName, OrderEntity orderEntity) {
-        String value = null;
+        String value;
 
         switch (attributeName) {
             case "status" ->{ value = orderEntity.getStatus();
@@ -261,8 +244,8 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
                 value = orderEntity.getRating();
                 attributeName="rat";
 
-                HostEntity hostEntity=host.updateHostRating(orderEntity.getUuidHost(),orderEntity.getGeoHost(), Double.parseDouble(value));
-                .println(hostEntity);
+               host.updateHostRating(orderEntity.getUuidHost(),orderEntity.getGeoHost(), Double.parseDouble(value));
+
             }
             case "payment" -> value =orderEntity.getPayMode();
             case "uuidDevBoy" ->{
@@ -292,49 +275,6 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
             throw new RuntimeException("Failed to update order"); 
         }
     }
-    @Override
-    public OrderEntity updateOrderStatus(String uuidOrder, String timeStamp, String attributeName, String attributeName2, OrderEntity orderEntity) {
-        String value = null;
-        String value2 = null;
-
-        if(attributeName=="status"){
-            value = orderEntity.getStatus();
-            attributeName="stts";
-        }
-
-        switch (attributeName2) {
-            case "pickUpTime" ->{
-                attributeName2="pTime";
-                value2 = orderEntity.getPickUpTime();}
-            case "deliverTime" -> {
-                value2 = orderEntity.getDeliverTime();
-                attributeName2="dTime";
-            }
-            default ->
-                
-                    throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
-        }
-        commonMethods.updateTwoAttributesWithSortKey(uuidOrder,timeStamp,attributeName,value,attributeName2,value2);
-        return orderEntity;
-    }
-    @Override
-
-    public OrderEntity updateOrderDevBoyUuid(String partition, String sort, String attributeName, String uuidDevBoy) {
-        commonMethods.updateAttributeWithSortKey(partition,sort,attributeName,uuidDevBoy);
-        return orderEntity;
-    }
-    
-    @Override
-    public OrderEntity cancelOrder(OrderEntity orderEntity) {
-        String partition=orderEntity.getUuidOrder();
-        String sort=orderEntity.getTimeStamp();
-        DynamoDBSaveExpression saveExpression = new DynamoDBSaveExpression()
-                .withExpectedEntry("pk", new ExpectedAttributeValue(new AttributeValue(partition)))
-                .withExpectedEntry("sk", new ExpectedAttributeValue(new AttributeValue(sort)));
-
-        dynamoDBMapper.save(orderEntity, saveExpression);
-        return orderEntity;
-    }
 
     @Override
     public void updatePayment(OrderEntity orderEntity) {
@@ -345,6 +285,12 @@ public OrderEntity  createOrder(OrderEntity orderEntity) {
 
         commonMethods.updateMultipleAttributes(orderEntity.getUuidOrder(),orderEntity.getTimeStamp(), attributeUpdates);
     }
+
+    @Override
+    public OrderEntity updateOrderStatus(String uuidOrder, String timeStamp, String attributeName, String attributeName2, OrderEntity orderEntity) {
+        return null;
+    }
+
     @Override
     public List<OrderEntity> getOrdersBetweenTimestamps(String gsiName, String startTimestamp, String endTimestamp) {
         String keyConditionExpression = "gpk = :gpk AND gsk BETWEEN :startTs AND :endTs";

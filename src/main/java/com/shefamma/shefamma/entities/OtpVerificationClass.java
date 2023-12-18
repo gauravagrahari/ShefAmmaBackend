@@ -15,9 +15,3 @@ public class OtpVerificationClass {
     String email;
     String emailOtp;
 }
-//{
-//  "phone": "1234567890",
-//  "phoneOtp": "1234",
-//  "email": "example@example.com",
-//  "emailOtp": "5678"
-//}

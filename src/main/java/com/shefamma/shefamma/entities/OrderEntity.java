@@ -28,7 +28,7 @@ public class  OrderEntity implements Serializable {
         }
     }
     @DynamoDBHashKey(attributeName = "pk")
-    private String uuidOrder;//uuid will be of guest
+    private String uuidOrder;
     @DynamoDBRangeKey(attributeName = "sk")
     private String timeStamp;
     @DynamoDBIndexHashKey(attributeName = "gpk", globalSecondaryIndexName = "gsi1")
@@ -41,21 +41,21 @@ public class  OrderEntity implements Serializable {
     private String timeStampGsiDev;
 
     @DynamoDBAttribute(attributeName = "nameG")
-    private String nameGuest;//this name will be name of the guest
+    private String nameGuest;
      @DynamoDBAttribute(attributeName = "nameH")
-    private String nameHost;//this name will be name of the host
+    private String nameHost;
     @DynamoDBAttribute(attributeName = "phoneG")
-    private String phoneGuest;//this name will be name of the guest
+    private String phoneGuest;
     @DynamoDBAttribute(attributeName = "phoneGAlt")
-    private String phoneGuestAlt;//this name will be name of the guest
+    private String phoneGuestAlt;
     @DynamoDBAttribute(attributeName = "phoneH")
-    private String phoneHost;//this name will be name of  the host
+    private String phoneHost;
     @DynamoDBAttribute(attributeName = "geo1")
     private String geoGuest;
     @DynamoDBAttribute(attributeName = "geo2")
     private String geoHost;
     @DynamoDBAttribute(attributeName = "stts")
-    private String status;//new,inProgress,pickedUp,completed,cancelled,unpicked,undelivered(new,ip,pkd,com,can,unpkd,undel)
+    private String status;
     @DynamoDBAttribute(attributeName = "amtTot")
     private String amount;
 
@@ -76,9 +76,9 @@ public class  OrderEntity implements Serializable {
     private String delTimeAndDay;
     @DynamoDBAttribute(attributeName = "delAdd")
     private AdressSubEntity delAddress;
-//    for meals
+
     @DynamoDBAttribute(attributeName = "meal")
-    private String mealType;//b, d, l
+    private String mealType;
 
 
     @DynamoDBAttribute(attributeName="name")
@@ -107,35 +107,35 @@ public class  OrderEntity implements Serializable {
                 address.getPinCode());
     }
 
-//    public OrderEntity(String s) {
-////        this.s = s;
-//    }
+
+
+
 }
-//{
-//        "uuidOrder": "order123",
-//        "timeStamp": "2023-06-11T10:00:00.000Z",
-//        "hostId": "host123",
-//        "status": "placed",
-//        "amount": "100.00",
-//        "itemQuantity": "3",
-//        "noOfGuest": 2,
-//
-//        "rating": "4.5",
-//        "review": "Great experience!",
-//        "pickUp": "Yes",
-//        "startTime": 14,
-//        "orderedItems": [
-//        {
-//        "itemId": "item1",
-//        "noOfServing": "2"
-//        },
-//        {
-//        "itemId": "item2",
-//        "noOfServing": "1"
-//        },
-//        {
-//        "itemId": "item3",
-//        "noOfServing": "3"
-//        }
-//        ]
-//        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

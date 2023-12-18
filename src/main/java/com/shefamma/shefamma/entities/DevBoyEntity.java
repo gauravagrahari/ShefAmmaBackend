@@ -43,9 +43,9 @@ public class DevBoyEntity {
     @DynamoDBAttribute(attributeName = "DP")
     private String DP;
     @DynamoDBAttribute(attributeName = "adr")
-    private AdressSubEntity locationDevBoy;//this might be about the current location of the devboy or maybe the initial location
+    private AdressSubEntity locationDevBoy;
     @DynamoDBAttribute(attributeName = "stts")
-    private String status;//Occupied, Available, OnLeave
+    private String status;
     @DynamoDBAttribute(attributeName ="veh")
     private String vehicleType;
 }
