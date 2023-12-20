@@ -101,6 +101,11 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
+    <list>
+      <item itemvalue="Application.RedisTestApplication" />
+      <item itemvalue="Application.ShefammaApplication" />
+      <item itemvalue="Application.VrpDistmatTest" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Application.ShefammaApplication" />
