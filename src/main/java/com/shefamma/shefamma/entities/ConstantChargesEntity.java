@@ -51,9 +51,7 @@ public class ConstantChargesEntity {
     private String lunchBookTime;
     @DynamoDBAttribute(attributeName = "DinnerBookTime")
     private String dinnerBookTime;
-    
-    
-    
 
-    
+    @DynamoDBAttribute(attributeName = "cancelCutOffTime")
+    private String cancelCutOffTime;
 }

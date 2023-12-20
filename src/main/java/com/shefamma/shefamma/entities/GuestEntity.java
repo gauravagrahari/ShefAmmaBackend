@@ -20,7 +20,7 @@ public class GuestEntity {
         } else {
             this.uuidGuest = "guest#" + uuidGuest;
         }
-        return this;  
+        return this;
     }
 
     @DynamoDBHashKey(attributeName = "pk")
@@ -36,7 +36,6 @@ public class GuestEntity {
     @DynamoDBAttribute(attributeName = "adr")
     private AdressSubEntity addressGuest;
     @DynamoDBAttribute(attributeName = "adrOff")
-
     private AdressSubEntity officeAddress;
     @DynamoDBAttribute(attributeName = "dob")
     private String dob;
@@ -46,8 +45,6 @@ public class GuestEntity {
     private String phone;
     @DynamoDBAttribute(attributeName = "phoneA")
     private String alternateMobile;
-
-
 
 }
 
