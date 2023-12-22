@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -27,6 +28,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -133,38 +135,54 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     @PostMapping("/guest/hosts")
     public ResponseEntity<?> getHostsWithinRadius(
             @RequestHeader String uuidGuest,
-//            @RequestParam double radius,
-            @RequestBody(required = false) String address) throws Exception {
+            @RequestBody(required = false) String address) {
 
-        String guestAddress;
-        System.out.println("Received address: '" + address + "'");
-        String pinCode = null;
-
-        if (address != null && !address.trim().isEmpty()) {
-            guestAddress = address;
-            // Parse the address string to extract the pincode
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode addressNode = objectMapper.readTree(address);
-            pinCode = addressNode.get("address").get("pinCode").asText();
-            System.out.println("Extracted pinCode: " + pinCode);
-        } else {
-            guestAddress = guest.getGuestAddress(uuidGuest).convertToString();
+        if (address == null || address.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Address is required.");
         }
 
-        GeocodingResult[] results = geocodingService.geocode(guestAddress);
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode addressNode;
+        try {
+            addressNode = objectMapper.readTree(address);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid address format.");
+        }
+
+        JsonNode pinCodeNode = addressNode.path("address").path("pinCode");
+        if (pinCodeNode.isMissingNode() || pinCodeNode.asText().trim().isEmpty()) {
+            return ResponseEntity.badRequest().body("Unable to detect pinCode");
+        }
+        String pinCode = pinCodeNode.asText();
+
+        String guestAddress = String.format("%s, %s, %s, %s",
+                addressNode.path("address").path("street").asText(),
+                addressNode.path("address").path("city").asText(),
+                addressNode.path("address").path("state").asText(),
+                pinCode);
+
+        GeocodingResult[] results;
+        try {
+            results = geocodingService.geocode(guestAddress);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("We're having trouble locating your address. Please try again later.");
+        }
+
+        if (results.length == 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("We couldn't find a location for the address you provided. Please check your address for accuracy and ensure it's specific enough.");
+        }
+
         double latitude = results[0].geometry.location.lat;
         double longitude = results[0].geometry.location.lng;
 
         boolean isAvailable = pincode.checkPincodeAvailability(pinCode);
 
-        if (isAvailable) {
-            List<HostCardEntity> hosts = host.findRestaurantsWithinRadius(latitude, longitude, radius);
-            return ResponseEntity.ok(hosts);
-        } else {
-            return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Service is not available in your area.");
+        if (!isAvailable) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Service is not available in your area.");
         }
+
+        List<HostCardEntity> hosts = host.findRestaurantsWithinRadius(latitude, longitude, radius);
+        return ResponseEntity.ok(hosts);
     }
 
     @GetMapping("/guest/getHostUsingPk")
@@ -768,13 +786,18 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
                 response.put("guestDetails", guestDetails);
                 return ResponseEntity.ok(response);
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials"); 
             }
+        } catch (BadCredentialsException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect credentials");
+        } catch (UsernameNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Account not found");
         } catch (AuthenticationException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Authentication failed");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error");
         }
     }
-
     @PostMapping("/guestSignup")
     public ResponseEntity<?> getUserGuest(@RequestBody AccountEntity guestEntity) {
         try {
