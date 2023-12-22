@@ -130,10 +130,15 @@ commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
 
         PaginatedQueryList<HostEntity> queryResult = dynamoDBMapper.query(HostEntity.class, queryExpression);
 
-        return queryResult.stream()
-                .filter(restaurant -> isWithinRadius(restaurant.getGeocode(), latitude, longitude, radius))
-                .map(host -> fetchFullHostDetails(host.getUuidHost(),host.getGeocode()))
-                .filter(Objects::nonNull) 
+        List<HostDistancePair> hostsWithDistance = queryResult.stream()
+                .map(host -> new HostDistancePair(host, calculateDistance(host.getGeocode(), latitude, longitude)))
+                .filter(hostDistancePair -> hostDistancePair.distance <= radius)
+                .sorted(Comparator.comparingDouble(hostDistancePair -> hostDistancePair.distance))
+                .collect(Collectors.toList());
+
+        return hostsWithDistance.stream()
+                .map(hostDistancePair -> fetchFullHostDetails(hostDistancePair.host.getUuidHost(), hostDistancePair.host.getGeocode()))
+                .filter(Objects::nonNull)
                 .map(this::createHostCardEntity)
                 .collect(Collectors.toList());
     }
@@ -142,7 +147,15 @@ commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
 
         return dynamoDBMapper.load(HostEntity.class, pk,sk);
     }
+    private static class HostDistancePair {
+        HostEntity host;
+        double distance;
 
+        HostDistancePair(HostEntity host, double distance) {
+            this.host = host;
+            this.distance = distance;
+        }
+    }
     private boolean isWithinRadius(String geocode, double latitude, double longitude, double radius) {
         String[] geocodeParts = geocode.split(",");
         double lat = Double.parseDouble(geocodeParts[0]);
@@ -151,7 +164,13 @@ commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
         double distance = haversineDistance(latitude, longitude, lat, lng);
         return distance <= radius;
     }
+    private double calculateDistance(String geocode, double latitude, double longitude) {
+        String[] geocodeParts = geocode.split(",");
+        double lat = Double.parseDouble(geocodeParts[0]);
+        double lng = Double.parseDouble(geocodeParts[1]);
 
+        return haversineDistance(latitude, longitude, lat, lng);
+    }
     private HostCardEntity createHostCardEntity(HostEntity host) {
         String hostId = host.getUuidHost();
         String itemId = "item#" + hostId.split("#")[1];

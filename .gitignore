@@ -25,6 +25,7 @@
 hs_err_pid*
 replay_pid*
 .yml
+*.class
 
 # Application configuration files
 **/application.properties
@@ -32,3 +33,4 @@ replay_pid*
 src/main/resources/application.properties
 src/main/resources/application-local.yml
 target/classes/application.properties
+.idea/workspace.xml
