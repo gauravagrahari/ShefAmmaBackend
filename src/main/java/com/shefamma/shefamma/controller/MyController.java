@@ -96,6 +96,10 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         hostEntity.setGeocode(coordinates);
         return host.saveHost(hostEntity);
     }
+    @GetMapping("/")
+    public String index() {
+        return "API is running";
+    }
     @PutMapping("/host")
     public HostEntity updateHost(@RequestBody HostEntity hostentity, @RequestParam String attributeName) {
         return host.update(hostentity.getUuidHost(), hostentity.getGeocode(), attributeName, hostentity);
