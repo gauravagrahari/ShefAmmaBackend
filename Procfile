@@ -1,1 +1,1 @@
-web: java -jar target/shefamma-0.0.1-SNAPSHOT.jar
+web: java -Dserver.$PORT -jar target/shefamma-0.0.1-SNAPSHOT.jar

@@ -9,6 +9,8 @@ public class ShefammaApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ShefammaApplication.class, args);
+		System.out.println("Server port: " + System.getenv("PORT"));
+
 	}
 
 }
