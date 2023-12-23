@@ -78,11 +78,6 @@ public class MyController {
     @Value("${map.host.radius}")
     private double radius;
 
-
-
-
-
-
 @GetMapping("/guest/checkService")
 public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     boolean isAvailable = pincode.checkPincodeAvailability(pinCode);
@@ -92,17 +87,6 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sorry, service is not available in your area.");
     }
 }
-
-
-
-
-
-
-
-
-
-
-    
     @PostMapping("/host")
     public HostEntity saveHost(@RequestBody HostEntity hostEntity) throws Exception {
         GeocodingResult[] results = geocodingService.geocode(hostEntity.getAddressHost().convertToString());
@@ -112,9 +96,6 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         hostEntity.setGeocode(coordinates);
         return host.saveHost(hostEntity);
     }
-
-    
-    
     @PutMapping("/host")
     public HostEntity updateHost(@RequestBody HostEntity hostentity, @RequestParam String attributeName) {
         return host.update(hostentity.getUuidHost(), hostentity.getGeocode(), attributeName, hostentity);
