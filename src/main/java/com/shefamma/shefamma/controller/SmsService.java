@@ -51,8 +51,8 @@ public class SmsService {
                 SmsResponse smsResponse = response.getBody();
                 logger.info("SMS response: {}", smsResponse); // Log the entire response
 
-                if (smsResponse != null) {
-//                if (smsResponse != null && smsResponse.isSuccess()) {
+//                if (smsResponse != null) {
+                if (smsResponse != null && smsResponse.isSuccess()) {
                     logger.info("SMS sent successfully: {}", smsResponse.getMessage());
                     return ResponseEntity.ok(smsResponse);
                 } else {
@@ -113,16 +113,23 @@ public class SmsService {
         private String tool;
     }
 
-    @Component
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     public static class SmsResponse {
-        private String apiId;
-        private boolean success;
+        @JsonProperty("ApiId")
+        private String apiId; // Ensure the field names match the JSON property names
+
+        @JsonProperty("Success")
+        private boolean success; // This should be a boolean as per your API's response
+
+        @JsonProperty("Message")
         private String message;
+
+        @JsonProperty("MessageUUID")
         private String messageUUID;
     }
+
     public static class ServiceException extends RuntimeException {
         public ServiceException(String message, Throwable cause) {
             super(message, cause);
