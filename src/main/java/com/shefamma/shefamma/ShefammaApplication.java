@@ -11,11 +11,10 @@ public class ShefammaApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(ShefammaApplication.class, args);
-		System.out.println("Server port is: " + System.getenv("PORT"));
 	}
-	@Bean
-	public WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> webServerFactoryCustomizer() {
-		return factory -> factory.setPort(Integer.parseInt(System.getenv("PORT")));
-	}
+//	@Bean
+//	public WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> webServerFactoryCustomizer() {
+//		return factory -> factory.setPort(Integer.parseInt(System.getenv("PORT")));
+//	} 
 }
 
