@@ -293,11 +293,27 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
     private boolean isNotEmpty(String string) {
         return string != null && !string.isEmpty();
     }
-
-
     @PutMapping("/guest/updateDetails")
     public GuestEntity updateDetails(@RequestBody GuestEntity guestEntity) throws Exception {
-        return saveGuest(guestEntity);
+        System.out.println(guestEntity);
+        // Always calculate geocode for office address if provided and not empty
+        if (guestEntity.getOfficeAddress() != null &&
+                isNotEmpty(guestEntity.getOfficeAddress().getStreet()) &&
+                isNotEmpty(guestEntity.getOfficeAddress().getHouseName()) &&
+                isNotEmpty(guestEntity.getOfficeAddress().getCity()) &&
+                isNotEmpty(guestEntity.getOfficeAddress().getState()) &&
+                isNotEmpty(guestEntity.getOfficeAddress().getPinCode())) {
+
+            String officeAddress = guestEntity.getOfficeAddress().convertToString();
+            GeocodingResult[] resultsOffice = geocodingService.geocode(officeAddress);
+            double officeLatitude = resultsOffice[0].geometry.location.lat;
+            double officeLongitude = resultsOffice[0].geometry.location.lng;
+            String officeCoordinates = String.format("%.6f,%.6f", officeLatitude, officeLongitude);
+            guestEntity.setGeocodeOffice(officeCoordinates);
+        }
+
+        System.out.println("the data is guest entity - "+guestEntity);
+        return guest.saveGuest(guestEntity);
 }
     @GetMapping("/host/guest")
     public GuestEntity getGuest(@RequestHeader String uuidGuest, @RequestHeader String geocode) {
