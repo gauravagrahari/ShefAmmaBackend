@@ -13,7 +13,7 @@ public class CommonMethods {
     @Autowired
     private AmazonDynamoDB amazonDynamoDB;
 
-    String tableName="ShefAmma";
+    String tableName="ShefAmmaProd";
 
     public void updateAttribute(String partitionKeyValue, String attributeName, String newValue) {
         try {

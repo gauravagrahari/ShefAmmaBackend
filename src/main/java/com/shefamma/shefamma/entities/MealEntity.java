@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@DynamoDBTable(tableName = "ShefAmma")
+@DynamoDBTable(tableName = "ShefAmmaProd")
 public class MealEntity {
 
 

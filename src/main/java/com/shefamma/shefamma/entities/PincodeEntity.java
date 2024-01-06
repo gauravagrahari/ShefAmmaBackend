@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@DynamoDBTable(tableName = "ShefAmma")
+@DynamoDBTable(tableName = "ShefAmmaProd")
 public class PincodeEntity {
     @DynamoDBHashKey(attributeName = "pk")
     private String pk = "pin";

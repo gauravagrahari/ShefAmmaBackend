@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@DynamoDBTable(tableName = "ShefAmma")
+@DynamoDBTable(tableName = "ShefAmmaProd")
 public class HostEntity {
     public HostEntity setUuidHost(String uuidHost) {
         if (uuidHost.startsWith("host#")) {

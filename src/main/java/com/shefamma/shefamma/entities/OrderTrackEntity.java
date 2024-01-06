@@ -11,7 +11,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@DynamoDBTable(tableName = "ShefAmma")
+@DynamoDBTable(tableName = "ShefAmmaProd")
 public class OrderTrackEntity {
 
     @DynamoDBHashKey(attributeName = "pk")
