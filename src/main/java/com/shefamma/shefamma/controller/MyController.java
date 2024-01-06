@@ -193,19 +193,14 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
 
     @PostMapping("/guest")
     public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity) throws Exception {
-        
-
-        
-        if (guestEntity.getGeocode() == null || guestEntity.getGeocode().isEmpty()) {
+         if (guestEntity.getGeocode() == null || guestEntity.getGeocode().isEmpty()) {
             GeocodingResult[] results = geocodingService.geocode(guestEntity.getAddressGuest().convertToString());
             double latitude = results[0].geometry.location.lat;
             double longitude = results[0].geometry.location.lng;
             String coordinates = String.format("%.6f,%.6f", latitude, longitude);
             guestEntity.setGeocode(coordinates);
         }
-
-        
-        if (guestEntity.getOfficeAddress() != null &&
+  if (guestEntity.getOfficeAddress() != null &&
                 isNotEmpty(guestEntity.getOfficeAddress().getStreet()) &&
                 isNotEmpty(guestEntity.getOfficeAddress().getHouseName()) &&
                 isNotEmpty(guestEntity.getOfficeAddress().getCity()) &&
