@@ -44,6 +44,8 @@ public class HostEntity {
     private String gsiSk;
     @DynamoDBAttribute(attributeName = "phone")
     private String phone;
+    @DynamoDBAttribute(attributeName = "phoneA")
+    private String altPhone;
      @DynamoDBAttribute(attributeName = "name")
     private String nameHost;
     @DynamoDBAttribute(attributeName = "dsec")

@@ -788,21 +788,30 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
     @PostMapping("/guestLogin")
     public ResponseEntity<?> guestLogin(@RequestBody AccountEntity authRequest) {
         try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getPhone(), authRequest.getPassword()));
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authRequest.getPhone(), authRequest.getPassword()));
 
             if (authentication.isAuthenticated()) {
                 String token = jwtServices.generateToken(authRequest.getPhone());
-                String x = account.storeGuestUuid();
+                String uuidGuest = account.storeGuestUuid();
                 String timestamp = account.storeTimestamp();
-                GuestEntity guestDetails=guest.getGuestUsingPk(x);
+                GuestEntity guestDetails = guest.getGuestUsingPk(uuidGuest);
+
                 Map<String, Object> response = new HashMap<>();
-                response.put("uuidGuest", x );
+                response.put("uuidGuest", uuidGuest);
                 response.put("token", token);
                 response.put("timeStamp", timestamp);
-                response.put("guestDetails", guestDetails);
+
+                // Check if guestDetails is null
+                if (guestDetails == null) {
+                    response.put("message", "User details not available.");
+                } else {
+                    response.put("guestDetails", guestDetails);
+                }
+
                 return ResponseEntity.ok(response);
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials"); 
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
             }
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect credentials");
@@ -814,6 +823,7 @@ public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity cons
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error");
         }
     }
+
     @PostMapping("/guestSignup")
     public ResponseEntity<?> getUserGuest(@RequestBody AccountEntity guestEntity) {
         try {
