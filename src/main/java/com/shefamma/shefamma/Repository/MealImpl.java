@@ -43,7 +43,8 @@ public class MealImpl implements  Meal{
                 value = itemEntity.getDishcategory();
                 attributeName = "provMeals";
             }
-            case "DP" -> {
+
+            case "dp" ->{
                 value = itemEntity.getDp();
                 attributeName = "dp";
             }
