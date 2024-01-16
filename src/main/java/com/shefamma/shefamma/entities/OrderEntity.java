@@ -47,7 +47,9 @@ public class  OrderEntity implements Serializable {
     @DynamoDBAttribute(attributeName = "phoneG")
     private String phoneGuest;//this name will be name of the guest
     @DynamoDBAttribute(attributeName = "phoneGAlt")
-    private String phoneGuestAlt;//this name will be name of the guest
+    private String phoneGuestAlt;
+    @DynamoDBAttribute(attributeName = "phoneHAlt")
+    private String phoneHostAlt;
     @DynamoDBAttribute(attributeName = "phoneH")
     private String phoneHost;//this name will be name of  the host
     @DynamoDBAttribute(attributeName = "geo1")
@@ -80,7 +82,8 @@ public class  OrderEntity implements Serializable {
     @DynamoDBAttribute(attributeName = "meal")
     private String mealType;//b, d, l
 
-
+    @DynamoDBAttribute(attributeName = "meal")
+    private String mealType;
     @DynamoDBAttribute(attributeName="name")
     private String itemName;
     @DynamoDBAttribute(attributeName="amt")
