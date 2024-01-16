@@ -10,4 +10,7 @@ public interface Capacity {
 
     String getCurrentCapacity(String mealType,  String partition);
     ResponseEntity<String> updateCapacity(String mealType,   String partition, int noOfMeals);
+
+
+    ResponseEntity<String> increaseCapacity(String mealType, String partition, int noOfMeals);
 }

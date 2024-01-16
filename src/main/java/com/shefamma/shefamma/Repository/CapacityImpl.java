@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 @Repository
@@ -86,20 +85,20 @@ public class CapacityImpl implements Capacity {
         }
     }
 
-    @Override
-    public ResponseEntity<String> updateCapacity(String mealType,  String partition, int noOfMeals) {
+    private ResponseEntity<String> modifyCapacity(String mealType, String partition, int noOfMeals, boolean increase) {
         String valueDb = getCurrentCapacity(mealType, partition);
+        int currentCapacity = Integer.parseInt(valueDb);
 
-        if (noOfMeals <= Integer.parseInt(valueDb)) {
-            Map<String, String> attributeMap = new HashMap<>() {{
-                put("b", "curBCap");
-                put("l", "curLCap");
-                put("d", "curDCap");
-            }};
+        Map<String, String> attributeMap = new HashMap<>() {{
+            put("b", "curBCap");
+            put("l", "curLCap");
+            put("d", "curDCap");
+        }};
 
-            String attributeName = attributeMap.get(mealType);
-            int updatedValue = Integer.parseInt(valueDb) - noOfMeals;
+        String attributeName = attributeMap.get(mealType);
+        int updatedValue = increase ? currentCapacity + noOfMeals : currentCapacity - noOfMeals;
 
+        if ((increase && updatedValue >= currentCapacity) || (!increase && noOfMeals <= currentCapacity)) {
             try {
                 UpdateItemResult result = commonMethods.updateAttributeWithSortKey(
                         partition,
@@ -107,19 +106,25 @@ public class CapacityImpl implements Capacity {
                         attributeName,
                         String.valueOf(updatedValue)
                 );
-
-                // If you want to make use of 'result', you can do so here
-                // For now, we'll simply return a success message
                 return ResponseEntity.ok("Capacity updated successfully.");
-
             } catch (RuntimeException e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body("Failed to update capacity: " + e.getMessage());
             }
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body("No. of meals exceeds available capacity.");
+                    .body("Invalid capacity modification request.");
         }
+    }
+
+    @Override
+    public ResponseEntity<String> updateCapacity(String mealType, String partition, int noOfMeals) {
+        return modifyCapacity(mealType, partition, noOfMeals, false);
+    }
+
+    @Override
+    public ResponseEntity<String> increaseCapacity(String mealType, String partition, int noOfMeals) {
+        return modifyCapacity(mealType, partition, noOfMeals, true);
     }
 
 

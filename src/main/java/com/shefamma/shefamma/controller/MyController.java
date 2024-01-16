@@ -137,7 +137,7 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
             @RequestHeader String uuidGuest,
             @RequestBody(required = false) String address) {
 
-        if (address == null || address.trim().isEmpty()) {
+            if (address == null || address.trim().isEmpty()) {
             return ResponseEntity.badRequest().body("Address is required.");
         }
 
@@ -507,7 +507,6 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         double deliveryLongitude = resultsDelivery[0].geometry.location.lng;
         String geoDelivery = String.format("%.6f,%.6f", deliveryLatitude, deliveryLongitude);
 
-        // Check if the two addresses are within the specified radius (4 km)
         if (!host.areAddressesWithinRadius(geoHost, geoDelivery, radius)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order cannot be placed due to long distance between you and cook.");
         }
@@ -589,7 +588,39 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request: " + e.getMessage());
         }
     }
-//@PutMapping("/devBoy/updateOrder")
+    @PutMapping("/guest/cancelOrder")
+    public ResponseEntity<String> cancelOrderGuest(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName, @RequestParam String attributeName2) {
+        try {
+            // Replace host# with capacity#
+            String capacityUuid = orderEntity.getUuidHost().replace("host#", "capacity#");
+
+            // First, attempt to increase the capacity
+            ResponseEntity<String> capacityUpdateResponse = capacity.increaseCapacity(orderEntity.getMealType(), capacityUuid, Integer.parseInt(orderEntity.getNoOfServing()));
+            if (!capacityUpdateResponse.getStatusCode().is2xxSuccessful()) {
+                // If capacity update is not successful, return the capacity update's response
+                return capacityUpdateResponse;
+            }
+
+            // Update order status and time only if capacity update is successful
+            OrderEntity updatedOrder1 = order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName, orderEntity);
+            OrderEntity updatedOrder2 = order.updateOrder(orderEntity.getUuidOrder(), orderEntity.getTimeStamp(), attributeName2, orderEntity);
+
+            // Check if both updates were successful
+            if (updatedOrder1 != null && updatedOrder2 != null) {
+                return ResponseEntity.ok("Order updated and capacity adjusted successfully.");
+            } else {
+                // Handle partial or complete failure of order updates
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update order status or time.");
+            }
+        } catch (NumberFormatException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid number format: " + e.getMessage());
+        } catch (Exception e) {
+            // Handle other exceptions
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request: " + e.getMessage());
+        }
+    }
+
+    //@PutMapping("/devBoy/updateOrder")
 //public ResponseEntity<String> updateOrderDevBoy(@RequestBody OrderEntity orderEntity, @RequestParam String attributeName,@RequestParam String attributeName2) {
 //    try {
 //        // Attempt to update the orderEntity
