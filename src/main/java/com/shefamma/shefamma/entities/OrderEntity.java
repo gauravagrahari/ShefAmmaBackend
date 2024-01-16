@@ -79,8 +79,6 @@ public class  OrderEntity implements Serializable {
     @DynamoDBAttribute(attributeName = "delAdd")
     private AdressSubEntity delAddress;
 
-    @DynamoDBAttribute(attributeName = "meal")
-    private String mealType;
     @DynamoDBAttribute(attributeName="name")
     private String itemName;
     @DynamoDBAttribute(attributeName="amt")
