@@ -485,8 +485,7 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request: " + e.getMessage());
         }
     }
-
-   @PutMapping("/host/payment")
+    @PutMapping("/host/payment")
     public void updatePayment(@RequestBody OrderEntity orderEntity) {
 
         order.updatePayment(orderEntity);

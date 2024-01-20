@@ -28,7 +28,7 @@ public class  OrderEntity implements Serializable {
         }
     }
     @DynamoDBHashKey(attributeName = "pk")
-    private String uuidOrder;
+    private String uuidOrder;//uuid will be of guest
     @DynamoDBRangeKey(attributeName = "sk")
     private String timeStamp;
     @DynamoDBIndexHashKey(attributeName = "gpk", globalSecondaryIndexName = "gsi1")
@@ -39,7 +39,6 @@ public class  OrderEntity implements Serializable {
     private String uuidDevBoy;
     @DynamoDBIndexRangeKey(attributeName = "gsk2",globalSecondaryIndexName = "gsi2")
     private String timeStampGsiDev;
-
     @DynamoDBAttribute(attributeName = "nameG")
     private String nameGuest;
      @DynamoDBAttribute(attributeName = "nameH")
@@ -78,9 +77,8 @@ public class  OrderEntity implements Serializable {
     private String delTimeAndDay;
     @DynamoDBAttribute(attributeName = "delAdd")
     private AdressSubEntity delAddress;
-
     @DynamoDBAttribute(attributeName = "meal")
-    private String mealType;
+    private String mealType;//b, d, l
 
     @DynamoDBAttribute(attributeName="name")
     private String itemName;
@@ -99,6 +97,7 @@ public class  OrderEntity implements Serializable {
     @DynamoDBAttribute(attributeName="amtPack")
     private String amtPackaging;
 
+
     public String addressToString(AdressSubEntity address) {
         return String.format("%s, %s, %s, %s, %s",
                 address.getHouseName(),
@@ -107,36 +106,4 @@ public class  OrderEntity implements Serializable {
                 address.getState(),
                 address.getPinCode());
     }
-
-
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
