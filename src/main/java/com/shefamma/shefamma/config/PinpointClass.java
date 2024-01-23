@@ -27,11 +27,26 @@ public class PinpointClass {
 
     @Value("${aws.pinpoint.appId}")
     public static String appId;
-    private static final int OTP_EXPIRATION_SECONDS = 45;
+    private static final int OTP_EXPIRATION_SECONDS = 250;
     @Value("${aws.access.key}")
     public static String awsAccessKey;
     @Value("${aws.private.key}")
     public static String awsPrivateKey;
+
+    public static String generateOTP() {
+        StringBuilder otp = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < OTP_LENGTH; i++) {
+            int randomIndex = random.nextInt(OTP_CHARACTERS.length());
+            otp.append(OTP_CHARACTERS.charAt(randomIndex));
+        }
+        return otp.toString();
+    }
+
+    public static int getOtpExpirationSeconds() {
+        return OTP_EXPIRATION_SECONDS;
+    }
+
     public static void sendEmail(String subject, String senderAddress, String toAddress, String otpContent) {
         AwsCredentials credentials = AwsBasicCredentials.create(awsAccessKey, awsPrivateKey);
 
@@ -146,38 +161,6 @@ public class PinpointClass {
         }
     }
 
-
-    public static String generateOTPWithExpiration() {
-        StringBuilder otp = new StringBuilder();
-        Random random = new Random();
-        for (int i = 0; i < OTP_LENGTH; i++) {
-            int randomIndex = random.nextInt(OTP_CHARACTERS.length());
-            char randomChar = OTP_CHARACTERS.charAt(randomIndex);
-            otp.append(randomChar);
-        }
-
-        LocalDateTime createdTime = LocalDateTime.now();
-        LocalDateTime expirationTime = createdTime.plusSeconds(OTP_EXPIRATION_SECONDS);
-
-        System.out.println("Created Time: " + createdTime);
-        System.out.println("Expiration Time: " + expirationTime);
-
-        if (isOTPExpired(createdTime)) {
-            System.out.println("OTP has expired.");
-        } else {
-            System.out.println("OTP is valid.");
-        }
-        System.out.println(otp);
-        return otp.toString();
-    }
-
-    public static boolean isOTPExpired(LocalDateTime createdTime) {
-        LocalDateTime currentTime = LocalDateTime.now();
-        return createdTime.plusSeconds(OTP_EXPIRATION_SECONDS).isBefore(currentTime);
-    }
-    public static int getOtpExpirationSeconds() {
-        return OTP_EXPIRATION_SECONDS;
-    }
 
 //    The provided code for generating and verifying OTP should work fine in a production environment. However, it's important to consider a few aspects and potential issues to ensure the reliability and security of your OTP system:
 //

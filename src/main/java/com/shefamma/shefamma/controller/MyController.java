@@ -11,6 +11,7 @@ import com.shefamma.shefamma.config.GeocodingService;
 import com.shefamma.shefamma.config.PinpointClass;
 import com.shefamma.shefamma.entities.*;
 import com.shefamma.shefamma.services.JwtServices;
+import com.shefamma.shefamma.services.OTPService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,8 @@ public class MyController {
     @Autowired
     private HomeEntity homeEntity;
     @Autowired
-//    @Qualifier("hostUserDetailsService")
+    private OTPService otpService;
+    @Autowired
     private UserDetailsService userDetailsService;
     @Autowired
 //    @Qualifier("userDetailsServiceGuest")
@@ -664,6 +666,7 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
     public ResponseEntity<String> generateOtp(@RequestBody Map<String, String> payload) {
         String phone = payload.get("phone");
         String email = payload.get("email");
+        String identifier = (phone != null) ? phone : email; // Choose phone or email as identifier
 
         // Check if neither phone nor email is provided
         if (phone == null && email == null) {
@@ -688,46 +691,40 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
             }
         }
 
-        // If we've reached here, then the user doesn't exist with either phone or email
-        generatedOtp = PinpointClass.generateOTPWithExpiration();
-        otpExpirationTime = LocalDateTime.now().plusSeconds(PinpointClass.getOtpExpirationSeconds());
-
-        // Send OTP
-        if (phone != null) {
-            ResponseEntity<SmsService.SmsResponse> response = smsService.sendOtpSms(phone, generatedOtp);
-            if (response.getStatusCode() != HttpStatus.OK) {
-                return ResponseEntity.status(response.getStatusCode()).body("Failed to send OTP SMS");
-            }
-        }
-
-        if (email != null) {
-            String subject = "Your OTP Code";
-            String senderAddress = "noreply@yourdomain.com"; // replace with your email
-            PinpointClass.sendEmail(subject, senderAddress, email, generatedOtp); // I assumed your sendEmail method might also need the actual OTP content.
-        }
-
+        otpService.generateAndSendOtp(identifier);
         return ResponseEntity.ok("OTP generated and sent successfully.");
     }
 
 
+
     @PostMapping("/otpPhone")
     public ResponseEntity<?> verifySms(@RequestBody OtpVerificationClass otpVerificationClass) {
-        return verifyOtp(otpVerificationClass.getPhoneOtp());
+        boolean isValid = otpService.verifyOtp(otpVerificationClass.getPhone(), otpVerificationClass.getPhoneOtp());
+        if (isValid) {
+            return ResponseEntity.ok("SUCCESS");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired OTP");
+        }
     }
 
     @PostMapping("/otpEmail")
     public ResponseEntity<?> verifyEmail(@RequestBody OtpVerificationClass otpVerificationClass) {
-        return verifyOtp(otpVerificationClass.getEmailOtp());
-    }
-    private ResponseEntity<?> verifyOtp(String userOtp) {
-        if (isOTPExpired()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("OTP has expired");
-        }
-        if (Objects.equals(userOtp, generatedOtp)) {
+        boolean isValid = otpService.verifyOtp(otpVerificationClass.getEmail(), otpVerificationClass.getEmailOtp());
+        if (isValid) {
             return ResponseEntity.ok("SUCCESS");
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired OTP");
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid OTP");
     }
+//    private ResponseEntity<?> verifyOtp(String userOtp) {
+//        if (isOTPExpired()) {
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("OTP has expired");
+//        }
+//        if (Objects.equals(userOtp, generatedOtp)) {
+//            return ResponseEntity.ok("SUCCESS");
+//        }
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid OTP");
+//    }
 
     private boolean isOTPExpired() {
         LocalDateTime currentTime = LocalDateTime.now();
@@ -1032,7 +1029,21 @@ public DevBoyEntity updateDevBoy(@RequestBody DevBoyEntity hostentity, @RequestP
         response.put("message", message);
         return response;
     }
+    @PostMapping("/guest/resetPassword")
+    public ResponseEntity<?> resetPasswordGuest(@RequestBody PasswordResetRequestPOJO passwordResetRequest) {
+        return processResetPassword(passwordResetRequest);
+    }
 
+    private ResponseEntity<?> processResetPassword(PasswordResetRequestPOJO passwordResetRequest) {
+        try {
+            // Directly update the new password
+            account.changePassword(passwordResetRequest.getPhone(), passwordResetRequest.getTimeStamp(), passwordResetRequest.getNewPassword());
+            return ResponseEntity.ok(createResponse(true, "Password reset successfully"));
+        } catch (Exception e) {
+            String errorMessage = "An error occurred: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createResponse(false, errorMessage));
+        }
+    }
 
 
 }
