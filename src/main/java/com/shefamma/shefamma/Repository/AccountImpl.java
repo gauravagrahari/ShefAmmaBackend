@@ -26,9 +26,29 @@ public class AccountImpl implements Account, UserDetailsService{
     private PasswordEncoder passwordEncoder;
     @Autowired
     private CommonMethods commonMethods;
-    String storedUuid;
-    private String storedTimestamp;
+    private ThreadLocal<String> storedUuid = new ThreadLocal<>();
+    private ThreadLocal<String> storedTimestamp = new ThreadLocal<>();
 
+    // Accessors and Mutators
+    public String getStoredUuid() {
+        return storedUuid.get();
+    }
+
+    public void setStoredUuid(String uuid) {
+        storedUuid.set(uuid);
+    }
+
+    public String getStoredTimestamp() {
+        return storedTimestamp.get();
+    }
+
+    public void setStoredTimestamp(String timestamp) {
+        storedTimestamp.set(timestamp);
+    }
+
+    //    public void setStoredTimestamp(String storedTimestamp) {
+//        this.storedTimestamp = storedTimestamp;
+//    }
     @Override
     public AccountEntity saveSignup(AccountEntity accountEntity,String user) {
         accountEntity.setPassword(passwordEncoder.encode(accountEntity.getPassword()));
@@ -111,44 +131,52 @@ public class AccountImpl implements Account, UserDetailsService{
     }
     @Override
     public String storeHostUuid() {
-        if (storedUuid != null && !storedUuid.startsWith("host#")) {
-            return "host#" + storedUuid;
+        String currentUuid = getStoredUuid(); // Get the string value first
+        if (currentUuid != null && !currentUuid.startsWith("host#")) {
+            return "host#" + currentUuid;
         }
-        return storedUuid;
+        return currentUuid;
     }
     @Override
     public String storeGuestUuid() {
-        if (storedUuid != null && !storedUuid.startsWith("guest#")) {
-            return "guest#" + storedUuid;
+        String currentUuid = getStoredUuid(); // Correctly access the String value
+        if (currentUuid != null && !currentUuid.startsWith("guest#")) {
+            currentUuid = "guest#" + currentUuid;
+            setStoredUuid(currentUuid); // Update the storedUuid with the new value
         }
-        return storedUuid;
-    }
-    @Override
-    public String storeDevBoyUuid() {
-        if (storedUuid != null && !storedUuid.startsWith("devBoy#")) {
-            return "devBoy#" + storedUuid;
-        }
-        return storedUuid;
+        return currentUuid;
     }
 
-    public void setStoredUuid(String storedUuid) {
-        this.storedUuid = storedUuid;
+    @Override
+    public String storeDevBoyUuid() {
+        String currentUuid = getStoredUuid(); // Correctly access the String value
+        if (currentUuid != null && !currentUuid.startsWith("devBoy#")) {
+            currentUuid = "devBoy#" + currentUuid;
+            setStoredUuid(currentUuid); // Update the storedUuid with the new value
+        }
+        return currentUuid;
     }
-    public String storeTimestamp() {
-        return storedTimestamp;
-    }
+
+//    public void setStoredUuid(String storedUuid) {
+//        this.storedUuid = storedUuid;
+//    }
+public String storeTimestamp() {
+    return storedTimestamp.get(); // Correctly access and return the String value
+}
+
 
     @Override
     public String storeAdminUuid() {
-        if (storedUuid != null && !storedUuid.startsWith("admin#")) {
-            return "admin#" + storedUuid;
+        String currentUuid = getStoredUuid(); // Correctly access the String value
+        if (currentUuid != null && !currentUuid.startsWith("admin#")) {
+            currentUuid = "admin#" + currentUuid;
+            setStoredUuid(currentUuid); // Update the storedUuid with the new value
         }
-        return storedUuid;
+        return currentUuid;
     }
 
-    public void setStoredTimestamp(String storedTimestamp) {
-        this.storedTimestamp = storedTimestamp;
-    }
+
+
 }
 
 
