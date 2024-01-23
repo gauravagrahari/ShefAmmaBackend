@@ -24,6 +24,7 @@
 hs_err_pid*
 replay_pid*
 .yml
+application.properties
 *.class
 pom.properties
 # Application configuration files
