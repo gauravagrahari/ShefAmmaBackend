@@ -523,18 +523,18 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
         return order.getAllOrders(uuidDevBoy,"gsi2");
 
     }
- @PostMapping("/generateOtp")
+    @PostMapping("/generateOtp")
     public ResponseEntity<String> generateOtp(@RequestBody Map<String, String> payload) {
         String phone = payload.get("phone");
         String email = payload.get("email");
         String identifier = (phone != null) ? phone : email; // Choose phone or email as identifier
 
-        
+        // Check if neither phone nor email is provided
         if (phone == null && email == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please provide either phone or email.");
         }
 
-        
+        // If phone is provided, check if user exists with that phone number
         if (phone != null) {
             try {
                 userDetailsService.loadUserByUsername(phone);
@@ -543,20 +543,12 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
             }
         }
 
-        
+        // If email is provided, check if user exists with that email
         if (email != null) {
             try {
                 userDetailsService.loadUserByUsername(email);
                 return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists for email: " + email);
             } catch (UsernameNotFoundException ignored) {
-            }
-        }
-
-
-        if (phone != null) {
-            ResponseEntity<SmsService.SmsResponse> response = smsService.sendOtpSms(phone, generatedOtp);
-            if (response.getStatusCode() != HttpStatus.OK) {
-                return ResponseEntity.status(response.getStatusCode()).body("Failed to send OTP SMS");
             }
         }
 
