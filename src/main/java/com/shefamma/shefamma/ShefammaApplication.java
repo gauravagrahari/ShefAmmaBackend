@@ -12,9 +12,6 @@ public class ShefammaApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(ShefammaApplication.class, args);
 	}
-//	@Bean
-//	public WebServerFactoryCustomizer<ConfigurableServletWebServerFactory> webServerFactoryCustomizer() {
-//		return factory -> factory.setPort(Integer.parseInt(System.getenv("PORT")));
-//	}
+
 }
 
