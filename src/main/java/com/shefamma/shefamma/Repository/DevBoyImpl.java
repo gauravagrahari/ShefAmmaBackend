@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Repository
 public class DevBoyImpl implements DevBoy{
-
+    @Autowired
     private DynamoDBMapper dynamoDBMapper;
     @Autowired
     private CommonMethods commonMethods;
