@@ -21,7 +21,7 @@ import java.util.Map;
 public class DevBoyImpl implements DevBoy{
     @Autowired
     private RedisOrderImpl redisOrderImpl;
-
+@Autowired
     private DynamoDBMapper dynamoDBMapper;
 
     @Autowired
