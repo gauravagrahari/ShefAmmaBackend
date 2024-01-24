@@ -196,29 +196,29 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
 
     @PostMapping("/guest")
     public GuestEntity saveGuest(@RequestBody GuestEntity guestEntity) throws Exception {
-         if (guestEntity.getGeocode() == null || guestEntity.getGeocode().isEmpty()) {
+        if (guestEntity.getGeocode() == null || guestEntity.getGeocode().isEmpty()) {
             GeocodingResult[] results = geocodingService.geocode(guestEntity.getAddressGuest().convertToString());
             double latitude = results[0].geometry.location.lat;
             double longitude = results[0].geometry.location.lng;
             String coordinates = String.format("%.6f,%.6f", latitude, longitude);
             guestEntity.setGeocode(coordinates);
         }
-  if (guestEntity.getOfficeAddress() != null &&
-                isNotEmpty(guestEntity.getOfficeAddress().getStreet()) &&
-                isNotEmpty(guestEntity.getOfficeAddress().getHouseName()) &&
-                isNotEmpty(guestEntity.getOfficeAddress().getCity()) &&
-                isNotEmpty(guestEntity.getOfficeAddress().getState()) &&
-                isNotEmpty(guestEntity.getOfficeAddress().getPinCode())) {
+//        if (guestEntity.getOfficeAddress() != null &&
+//                isNotEmpty(guestEntity.getOfficeAddress().getStreet()) &&
+//                isNotEmpty(guestEntity.getOfficeAddress().getHouseName()) &&
+//                isNotEmpty(guestEntity.getOfficeAddress().getCity()) &&
+//                isNotEmpty(guestEntity.getOfficeAddress().getState()) &&
+//                isNotEmpty(guestEntity.getOfficeAddress().getPinCode())) {
+//
+//            String officeAddress = guestEntity.getOfficeAddress().convertToString();
+//            GeocodingResult[] resultsOffice = geocodingService.geocode(officeAddress);
+//            double officeLatitude = resultsOffice[0].geometry.location.lat;
+//            double officeLongitude = resultsOffice[0].geometry.location.lng;
+//            String officeCoordinates = String.format("%.6f,%.6f", officeLatitude, officeLongitude);
+//            guestEntity.setGeocodeOffice(officeCoordinates);
+//        }
 
-            String officeAddress = guestEntity.getOfficeAddress().convertToString();
-            GeocodingResult[] resultsOffice = geocodingService.geocode(officeAddress);
-            double officeLatitude = resultsOffice[0].geometry.location.lat;
-            double officeLongitude = resultsOffice[0].geometry.location.lng;
-            String officeCoordinates = String.format("%.6f,%.6f", officeLatitude, officeLongitude);
-            guestEntity.setGeocodeOffice(officeCoordinates);
-        }
 
-        
         return guest.saveGuest(guestEntity);
     }
 
