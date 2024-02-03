@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 import com.shefamma.shefamma.entities.*;
+import com.shefamma.shefamma.services.MealCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -115,7 +116,7 @@ commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":gpk", new AttributeValue().withS("h"));
         eav.put(":gsk", new AttributeValue().withS("host#"));
-        eav.put(":statusVal", new AttributeValue().withS("true")); 
+        eav.put(":statusVal", new AttributeValue().withS("true")); // Add this line
 
         String projectionExpression = "pk, sk";
         String filterExpression = "stts = :statusVal";
@@ -142,6 +143,35 @@ commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
                 .map(this::createHostCardEntity)
                 .collect(Collectors.toList());
     }
+    private HostCardEntity createHostCardEntity(HostEntity host) {
+        String hostId = host.getUuidHost();
+        String itemId = "item#" + hostId.split("#")[1];
+
+        DynamoDBQueryExpression<MealEntity> itemQueryExpression = new DynamoDBQueryExpression<MealEntity>()
+                .withConsistentRead(false)
+                .withKeyConditionExpression("pk = :pk")
+                .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
+                    put(":pk", new AttributeValue().withS(itemId));
+                }})
+                .withScanIndexForward(true);
+
+        List<MealEntity> meals = new ArrayList<>();
+
+        List<MealEntity> queriedMeals = dynamoDBMapper.query(MealEntity.class, itemQueryExpression);
+
+        for (MealEntity meal : queriedMeals) {
+            MealEntity cachedMeal = MealCache.getMeal(meal.getUuidMeal(), meal.getNameItem());
+            if (cachedMeal == null) {
+                MealCache.putMeal(meal.getUuidMeal(), meal.getNameItem(), meal); // Correctly use putMeal
+                meals.add(meal);
+            } else {
+                meals.add(cachedMeal); // Use the cached version
+            }
+        }
+
+        return new HostCardEntity(host, meals);
+    }
+
 
     private HostEntity fetchFullHostDetails(String pk,String sk) {
 
@@ -171,30 +201,9 @@ commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
 
         return haversineDistance(latitude, longitude, lat, lng);
     }
-    private HostCardEntity createHostCardEntity(HostEntity host) {
-        String hostId = host.getUuidHost();
-        String itemId = "item#" + hostId.split("#")[1];
 
-        DynamoDBQueryExpression<MealEntity> itemQueryExpression = new DynamoDBQueryExpression<MealEntity>()
-                .withConsistentRead(false)
-                .withKeyConditionExpression("pk = :pk")
-                .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
-                    put(":pk", new AttributeValue().withS(itemId));
-                }})
-                .withScanIndexForward(true);
-
-        List<MealEntity> meals = dynamoDBMapper.query(MealEntity.class, itemQueryExpression);
-
-        return new HostCardEntity(host, meals);
-
-
-
-
-
-
-    }
     private double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
-        final int R = 6371; 
+        final int R = 6371; // Earth's radius in km
         double dLat = Math.toRadians(lat2 - lat1);
         double dLon = Math.toRadians(lon2 - lon1);
         lat1 = Math.toRadians(lat1);
@@ -205,7 +214,6 @@ commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     }
-
     @Override
     public List<HostCardEntity> getHostsItemSearchFilter(double latitude, double longitude, double radius, String itemValue) {
 

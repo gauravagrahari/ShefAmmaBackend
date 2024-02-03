@@ -3,6 +3,7 @@ package com.shefamma.shefamma.Repository;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.shefamma.shefamma.Repository.ConstantCharges;
 import com.shefamma.shefamma.entities.ConstantChargesEntity;
+import com.shefamma.shefamma.services.CacheUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,12 +28,18 @@ public class ConstantChargesImpl implements ConstantCharges {
     @Override
     public ResponseEntity<String> updateCharges(ConstantChargesEntity constantCharges) {
         try {
+            // First, attempt to update the charges in the database
             dynamoDBMapper.save(constantCharges);
-            return ResponseEntity.status(HttpStatus.OK).body("Charges updated successfully");
+
+            // If the database update is successful, update the cache with the new charges
+            CacheUtility.updateConstantCharges(constantCharges);
+
+            return ResponseEntity.status(HttpStatus.OK).body("Charges updated successfully.");
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update charges");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to update charges: " + e.getMessage());
         }
     }
+
 
     @Override
     public ResponseEntity<ConstantChargesEntity> getCharges() {
