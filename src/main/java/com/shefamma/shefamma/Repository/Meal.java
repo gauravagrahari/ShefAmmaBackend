@@ -10,6 +10,9 @@ public interface Meal {
     MealEntity updateMealAttribute(String partition, String sort, String attributeName, MealEntity itemEntity);
     List<MealEntity> getItems(String itemId);
     MealEntity getItem(String hostId, String nameItem, MealEntity itementity);
+
+
+    MealEntity getOneMeal(String hostId, String nameItem);
 }
 
 

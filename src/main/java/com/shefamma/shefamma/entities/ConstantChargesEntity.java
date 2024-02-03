@@ -54,4 +54,8 @@ public class ConstantChargesEntity {
 
     @DynamoDBAttribute(attributeName = "cancelCutOffTime")
     private String cancelCutOffTime;
+    @DynamoDBAttribute(attributeName = "maxMeal")
+    private String maxMeal;
+    @DynamoDBAttribute(attributeName = "eHanCh")
+    private String extraHandlingCharges;
 }
