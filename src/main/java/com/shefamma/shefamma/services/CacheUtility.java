@@ -8,10 +8,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CacheUtility {
     private static final ConcurrentHashMap<String, MealEntity> mealCache = new ConcurrentHashMap<>();
     private static ConstantChargesEntity constantCharges;
-
-    // Meal caching methods as previously defined
-
-    // Method to get constant charges from the cache
     public static ConstantChargesEntity getConstantCharges() {
         return constantCharges;
     }
