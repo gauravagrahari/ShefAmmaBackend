@@ -556,8 +556,8 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
 
         // Verify the total amount against what's sent by the client
         double clientAmount = Double.parseDouble(orderEntity.getAmount());
-        if (Math.abs(clientAmount - totalAmount) > 8) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The calculated total amount does not match the amount sent.");
+        if (Math.abs(clientAmount - totalAmount) > 5) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Price mismatch detected. Please refresh data for the latest prices in Home Page or start a new Session");
         }
         ResponseEntity<String> capacityUpdateResponse = capacity.updateCapacity(orderEntity.getMealType(), capacityUuid, noOfServings);
 
