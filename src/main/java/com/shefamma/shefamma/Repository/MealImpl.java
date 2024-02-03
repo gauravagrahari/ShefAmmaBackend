@@ -87,4 +87,8 @@ public class MealImpl implements  Meal{
     public MealEntity getItem(String hostId, String nameItem, MealEntity itementity) {
         return dynamoDBMapper.load(MealEntity.class, hostId, nameItem);
     }
+    @Override
+    public MealEntity getOneMeal(String mealId, String nameItem) {
+        return dynamoDBMapper.load(MealEntity.class, mealId, nameItem);
+    }
 }

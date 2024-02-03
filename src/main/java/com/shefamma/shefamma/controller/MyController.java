@@ -10,7 +10,9 @@ import com.shefamma.shefamma.config.AccountEntityUserDetails;
 import com.shefamma.shefamma.config.GeocodingService;
 import com.shefamma.shefamma.config.PinpointClass;
 import com.shefamma.shefamma.entities.*;
+import com.shefamma.shefamma.services.CacheUtility;
 import com.shefamma.shefamma.services.JwtServices;
+import com.shefamma.shefamma.services.MealCache;
 import com.shefamma.shefamma.services.OTPService;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -405,13 +407,26 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
             mealEntity.setUuidMeal(newUuidMeal);
         }
 
-        return meal.createMeal(mealEntity);
+        ResponseEntity<MealEntity> responseEntity = meal.createMeal(mealEntity);
+        MealEntity createdMeal = responseEntity.getBody();
+
+        if (createdMeal != null) {
+            // Update cache with new meal using uuidMeal and nameItem as key components
+            MealCache.putMeal(createdMeal.getUuidMeal(), createdMeal.getNameItem(), createdMeal);
+        }
+
+        return ResponseEntity.ok(createdMeal);
     }
 
     @PutMapping("/host/meal")
     public MealEntity updateMealAttribute(@RequestBody MealEntity mealEntity, @RequestParam String attributeName) {
-        return meal.updateMealAttribute(mealEntity.getUuidMeal(), mealEntity.getMealType(),attributeName, mealEntity);
+        MealEntity updatedMeal = meal.updateMealAttribute(mealEntity.getUuidMeal(), mealEntity.getMealType(), attributeName, mealEntity);
+        // Ensure cache is updated with the new details of the meal
+        MealCache.putMeal(updatedMeal.getUuidMeal(), updatedMeal.getNameItem(), updatedMeal);
+        return updatedMeal;
     }
+
+
     @GetMapping("/guest/host/mealItems")
     public List<MealEntity> getMealItems(@RequestHeader String id) {
         try {
@@ -498,12 +513,12 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
 //    ------------------------------------------------------------------------------------------------------
     @PostMapping("/guest/order")
     public ResponseEntity<?> createOrder(@RequestBody OrderEntity orderEntity, @RequestHeader String capacityUuid) throws Exception {
-        // Extracting geocode and pincode from the orderEntity
-         String geoHost = orderEntity.getGeoHost();
+        // Initial geographical checks remain unchanged
+        String geoHost = orderEntity.getGeoHost();
         AdressSubEntity deliveryAddress = orderEntity.getDelAddress();
         String guestPinCode = deliveryAddress.getPinCode();
 
-        String deliveryAddressStr = orderEntity.addressToString(orderEntity.getDelAddress());
+        String deliveryAddressStr = orderEntity.addressToString(deliveryAddress);
         GeocodingResult[] resultsDelivery = geocodingService.geocode(deliveryAddressStr);
         double deliveryLatitude = resultsDelivery[0].geometry.location.lat;
         double deliveryLongitude = resultsDelivery[0].geometry.location.lng;
@@ -513,24 +528,55 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Order cannot be placed due to long distance between you and cook.");
         }
 
-        // Check if service is available at the provided pincode
-        boolean isAvailable = pincode.checkPincodeAvailability(guestPinCode);
-        if (!isAvailable) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Service is not available at pincode - "+guestPinCode);
+        if (!pincode.checkPincodeAvailability(guestPinCode)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Service is not available at pincode - " + guestPinCode);
         }
 
-        // Proceed with order creation if both checks pass
-        ResponseEntity<String> capacityUpdateResponse = capacity.updateCapacity(orderEntity.getMealType(), capacityUuid, Integer.parseInt(orderEntity.getNoOfServing()));
+        // Convert hostUuid to mealUuid and fetch meal details from cache
+        String mealUuid = orderEntity.getUuidHost().replace("host", "item");
+        String mealName = orderEntity.getItemName();
+        MealEntity mealDetail = MealCache.getMeal(mealUuid, mealName);
+        if (mealDetail == null) {
+            // Implement fetchMealFromDatabase and putMeal if meal is not in cache
+            mealDetail =meal.getOneMeal(mealUuid,mealName);
+            MealCache.putMeal(mealUuid, mealName, mealDetail);
+        }
 
-        // Check if the capacity was updated successfully
+        // Fetch constant charges either from cache or database
+        ConstantChargesEntity charges = CacheUtility.getConstantCharges();
+        if (charges == null) {
+            charges = constantCharges.getCharges().getBody(); // This method needs to be implemented
+            CacheUtility.updateConstantCharges(charges);
+        }
+
+        // Calculate total amount based on the meal price, quantity, and constant charges
+        double mealPrice = Double.parseDouble(mealDetail.getAmount());
+        int noOfServings = Integer.parseInt(orderEntity.getNoOfServing());
+        double totalAmount = calculateTotalAmount(mealPrice, noOfServings, charges);
+
+        // Verify the total amount against what's sent by the client
+        double clientAmount = Double.parseDouble(orderEntity.getAmount());
+        if (Math.abs(clientAmount - totalAmount) > 8) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("The calculated total amount does not match the amount sent.");
+        }
+        ResponseEntity<String> capacityUpdateResponse = capacity.updateCapacity(orderEntity.getMealType(), capacityUuid, noOfServings);
+
         if (capacityUpdateResponse.getStatusCode() == HttpStatus.OK) {
             OrderEntity createdOrder = order.createOrder(orderEntity);
             return ResponseEntity.ok(createdOrder);
         } else {
-            // Return the response from the capacity update (either an error about the number of meals or another issue)
             return capacityUpdateResponse;
         }
     }
+
+    private double calculateTotalAmount(double mealPrice, int noOfServings, ConstantChargesEntity charges) {
+        double totalAmount = mealPrice * noOfServings;
+        totalAmount += Double.parseDouble(charges.getDeliveryCharges());
+        totalAmount += Double.parseDouble(charges.getPackagingCharges());
+        totalAmount += Double.parseDouble(charges.getHandlingCharges()) - Double.parseDouble(charges.getDiscount());
+        return totalAmount;
+    }
+
     //need to make changes in the bwloe controller to get orders based on status, i.e in-progress, completed
 //host/orders?status=val
 //instead of sending orderEntity in body send the hostUuid or guestUUid as that would keep the logic in the backend
@@ -740,17 +786,29 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
 //        return verifyOtp(otpVerificationClass.getEmailOtp());
 //    }
 //    -----------------------------------------
-//Constant Charges
+//Constant Charges controller
 //    -----------------------------------------
-@PostMapping("/admin/addCharges")
-public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity constantChargesEntity) {
-    return constantCharges.addCharges(constantChargesEntity);
-}
+    @PostMapping("/admin/addCharges")
+    public ResponseEntity<String> addCharges(@RequestBody ConstantChargesEntity constantChargesEntity) {
+        ResponseEntity<String> response = constantCharges.addCharges(constantChargesEntity);
+        if (response.getStatusCode() == HttpStatus.OK) {
+            CacheUtility.updateConstantCharges(constantChargesEntity); // Update cache with new charges
+        }
+        return response;
+    }
 
 
     @GetMapping("/guest/getCharges")
     public ResponseEntity<ConstantChargesEntity> getCharges() {
-        return constantCharges.getCharges();
+        ConstantChargesEntity charges = CacheUtility.getConstantCharges();
+        if (charges == null) {
+            ResponseEntity<ConstantChargesEntity> response = constantCharges.getCharges();
+            if (response.getStatusCode() == HttpStatus.OK) {
+                CacheUtility.updateConstantCharges(response.getBody()); // Cache the charges
+            }
+            return response;
+        }
+        return ResponseEntity.ok(charges);
     }
 
     //    ------------------------------------------------------------------------------------------------------

@@ -6,6 +6,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.UpdateItemResult;
 import com.shefamma.shefamma.entities.*;
+import com.shefamma.shefamma.services.MealCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -157,6 +158,35 @@ public class HostImpl implements Host {
                 .map(this::createHostCardEntity)
                 .collect(Collectors.toList());
     }
+    private HostCardEntity createHostCardEntity(HostEntity host) {
+        String hostId = host.getUuidHost();
+        String itemId = "item#" + hostId.split("#")[1];
+
+        DynamoDBQueryExpression<MealEntity> itemQueryExpression = new DynamoDBQueryExpression<MealEntity>()
+                .withConsistentRead(false)
+                .withKeyConditionExpression("pk = :pk")
+                .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
+                    put(":pk", new AttributeValue().withS(itemId));
+                }})
+                .withScanIndexForward(true);
+
+        List<MealEntity> meals = new ArrayList<>();
+
+        List<MealEntity> queriedMeals = dynamoDBMapper.query(MealEntity.class, itemQueryExpression);
+
+        for (MealEntity meal : queriedMeals) {
+            MealEntity cachedMeal = MealCache.getMeal(meal.getUuidMeal(), meal.getNameItem());
+            if (cachedMeal == null) {
+                MealCache.putMeal(meal.getUuidMeal(), meal.getNameItem(), meal); // Correctly use putMeal
+                meals.add(meal);
+            } else {
+                meals.add(cachedMeal); // Use the cached version
+            }
+        }
+
+        return new HostCardEntity(host, meals);
+    }
+
 
     private HostEntity fetchFullHostDetails(String pk,String sk) {
 
@@ -186,28 +216,7 @@ public class HostImpl implements Host {
 
         return haversineDistance(latitude, longitude, lat, lng);
     }
-    private HostCardEntity createHostCardEntity(HostEntity host) {
-        String hostId = host.getUuidHost();
-        String itemId = "item#" + hostId.split("#")[1];
 
-        DynamoDBQueryExpression<MealEntity> itemQueryExpression = new DynamoDBQueryExpression<MealEntity>()
-                .withConsistentRead(false)
-                .withKeyConditionExpression("pk = :pk")
-                .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
-                    put(":pk", new AttributeValue().withS(itemId));
-                }})
-                .withScanIndexForward(true);
-//                .withProjectionExpression("dp, meal, sk"); // Projection for meal entity
-        List<MealEntity> meals = dynamoDBMapper.query(MealEntity.class, itemQueryExpression);
-
-        return new HostCardEntity(host, meals);
-//        List<MealEntity> items = dynamoDBMapper.query(MealEntity.class, itemQueryExpression);
-//        List<String> itemNames = items.stream().map(MealEntity::getNameItem).collect(Collectors.toList());
-//        List<String> mealTypes = items.stream().map(MealEntity::getMealType).collect(Collectors.toList());
-//        List<String> imageMeal = items.stream().map(MealEntity::getDp).collect(Collectors.toList());
-//
-//        return new HostCardEntity(host, itemNames, mealTypes, imageMeal); // Modify HostCardEntity constructor accordingly
-    }
     private double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
         final int R = 6371; // Earth's radius in km
         double dLat = Math.toRadians(lat2 - lat1);
