@@ -6,7 +6,10 @@ import org.springframework.http.ResponseEntity;
 public interface Account {
 
     AccountEntity saveSignup(AccountEntity hostAccountEntity,String user);
-//    ResponseEntity<HostAccountEntity> saveHostSignup(HostAccountEntity hostAccountEntity);
+
+    String sendTimeStamp(String number);
+
+    //    ResponseEntity<HostAccountEntity> saveHostSignup(HostAccountEntity hostAccountEntity);
     String storeHostUuid();
 
     String storeGuestUuid();
