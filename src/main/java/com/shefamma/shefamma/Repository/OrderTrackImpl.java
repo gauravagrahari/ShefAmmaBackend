@@ -26,7 +26,7 @@ public class OrderTrackImpl implements OrderTrack{
 
         return dynamoDBMapper.query(OrderTrackEntity.class, queryExpression);
     }
-    @Autowired
+//    @Autowired
     public List<OrderTrackEntity> getOrderTrackByMealTypeAndDateRange(String mealType, String startTime, String endTime) {
         // Construct the partition key value based on meal type
         String partitionKeyValue = "orderTrack#" + mealType;
@@ -43,7 +43,7 @@ public class OrderTrackImpl implements OrderTrack{
 
         return dynamoDBMapper.query(OrderTrackEntity.class, queryExpression);
     }
-    @Autowired
+//    @Autowired
     public Integer getOrderDetailForHost(String mealType, String startDate, String endDate, String hostUuid) {
         // Fetch order tracks for a given meal type within the specified date range
         List<OrderTrackEntity> orderTracks = getOrderTrackByMealTypeAndDateRange(mealType, startDate, endDate);
