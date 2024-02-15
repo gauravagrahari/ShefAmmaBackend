@@ -4,6 +4,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.shefamma.shefamma.entities.MealEntity;
+import com.shefamma.shefamma.services.MealCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +25,7 @@ public class MealImpl implements  Meal{
     public ResponseEntity<MealEntity> createMeal(MealEntity mealEntity) {
         try {
             dynamoDBMapper.save(mealEntity);
+            MealCache.putMeal(mealEntity.getUuidMeal(), mealEntity.getNameItem(), mealEntity);
             return new ResponseEntity<>(mealEntity, HttpStatus.CREATED);
         } catch (Exception e) {
             
@@ -67,6 +69,8 @@ public class MealImpl implements  Meal{
             default -> throw new IllegalArgumentException("Invalid attribute name: " + attributeName);
         }
         commonMethods.updateAttributeWithSortKey(partition,sort,attributeName,value);
+        MealEntity updatedMeal = dynamoDBMapper.load(MealEntity.class,partition,sort);
+        MealCache.putMeal(partition, sort, updatedMeal);
         return itemEntity;
     }
     @Override

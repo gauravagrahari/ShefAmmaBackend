@@ -147,31 +147,32 @@ commonMethods.updateAttributeWithSortKey(partition, sort, attributeName, value);
         String hostId = host.getUuidHost();
         String itemId = "item#" + hostId.split("#")[1];
 
+        Set<MealEntity> cachedMeals = MealCache.getMealsByUuid(itemId);
+        List<MealEntity> meals = new ArrayList<>(cachedMeals);
+
+        // If meals were found in the cache, use them directly
+        if (!cachedMeals.isEmpty()) {
+            return new HostCardEntity(host, meals);
+        }
+
+        // Query the database if no cached meals are found
         DynamoDBQueryExpression<MealEntity> itemQueryExpression = new DynamoDBQueryExpression<MealEntity>()
                 .withConsistentRead(false)
                 .withKeyConditionExpression("pk = :pk")
-                .withExpressionAttributeValues(new HashMap<String, AttributeValue>() {{
-                    put(":pk", new AttributeValue().withS(itemId));
-                }})
+                .withExpressionAttributeValues(Collections.singletonMap(":pk", new AttributeValue().withS(itemId)))
                 .withScanIndexForward(true);
-
-        List<MealEntity> meals = new ArrayList<>();
 
         List<MealEntity> queriedMeals = dynamoDBMapper.query(MealEntity.class, itemQueryExpression);
 
+        // Cache newly queried meals
         for (MealEntity meal : queriedMeals) {
-            MealEntity cachedMeal = MealCache.getMeal(meal.getUuidMeal(), meal.getNameItem());
-            if (cachedMeal == null) {
-                MealCache.putMeal(meal.getUuidMeal(), meal.getNameItem(), meal); // Correctly use putMeal
-                meals.add(meal);
-            } else {
-                meals.add(cachedMeal); // Use the cached version
-            }
+            MealCache.putMeal(meal.getUuidMeal(), meal.getNameItem(), meal);
         }
 
+        // Return all meals, prioritizing cached meals but including any new ones from the query
+        meals.addAll(queriedMeals.stream().filter(meal -> !cachedMeals.contains(meal)).collect(Collectors.toList()));
         return new HostCardEntity(host, meals);
     }
-
 
     private HostEntity fetchFullHostDetails(String pk,String sk) {
 

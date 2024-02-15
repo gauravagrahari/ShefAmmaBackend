@@ -584,7 +584,17 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
         return ResponseEntity.ok("OTP generated and sent successfully.");
     }
 
+    @PostMapping("/generateForgotPassOtp")
+    public ResponseEntity<String> generateOtpForgotPassword(@RequestBody Map<String, String> payload) {
+        String phone = payload.get("phone");
 
+        // Check if neither phone nor email is provided
+        if (phone == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please provide either phone or email.");
+        }
+        otpService.generateAndSendOtp(phone);
+        return ResponseEntity.ok("OTP generated and sent successfully.");
+    }
 
     @PostMapping("/otpPhone")
     public ResponseEntity<?> verifySms(@RequestBody OtpVerificationClass otpVerificationClass) {
@@ -882,6 +892,34 @@ public DevBoyEntity updateDevBoy(@RequestBody DevBoyEntity hostentity, @RequestP
     @PostMapping("/guest/changePassword")
     public ResponseEntity<?> changePasswordGuest(@RequestBody PasswordChangeRequestPOJO passwordChangeRequest) {
         return processChangePassword(passwordChangeRequest);
+    }
+    @PostMapping("/changeForgottenPassword")
+    public ResponseEntity<?> changeForgottenPassword(@RequestBody PasswordChangeRequestPOJO passwordChangeRequest) {
+        return processUpdatePassword(passwordChangeRequest);
+    }
+    private ResponseEntity<?> processUpdatePassword(PasswordChangeRequestPOJO passwordChangeRequest) {
+        try {
+            // Attempt to retrieve the timestamp associated with the account
+            String timeStamp = account.sendTimeStamp(passwordChangeRequest.getPhone());
+
+            // Assuming timeStamp being null or empty is an error condition
+            if (timeStamp == null || timeStamp.isEmpty()) {
+                String errorMessage = "Account not found for the provided phone number.";
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponse(false, errorMessage));
+            }
+
+            // Save the new password using the timestamp
+            String newPassword = passwordChangeRequest.getNewPassword();
+            account.changePassword(passwordChangeRequest.getPhone(), timeStamp, newPassword);
+
+            return ResponseEntity.ok(createResponse(true, "Password changed successfully"));
+        } catch (UsernameNotFoundException e) {
+            String errorMessage = "Account not found: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(createResponse(false, errorMessage));
+        } catch (Exception e) {
+            String errorMessage = "An error occurred while changing the password: " + e.getMessage();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(createResponse(false, errorMessage));
+        }
     }
 
     private ResponseEntity<?> processChangePassword(PasswordChangeRequestPOJO passwordChangeRequest) {
