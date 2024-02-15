@@ -608,14 +608,12 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
     @PostMapping("/generateForgotPassOtp")
     public ResponseEntity<String> generateOtpForgotPassword(@RequestBody Map<String, String> payload) {
         String phone = payload.get("phone");
-        String email = payload.get("email");
-        String identifier = (phone != null) ? phone : email; // Choose phone or email as identifier
 
         // Check if neither phone nor email is provided
         if (phone == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please provide either phone or email.");
         }
-        otpService.generateAndSendOtp(identifier);
+        otpService.generateAndSendOtp(phone);
         return ResponseEntity.ok("OTP generated and sent successfully.");
     }
 
