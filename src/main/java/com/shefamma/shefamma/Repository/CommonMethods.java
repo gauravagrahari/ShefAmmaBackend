@@ -15,7 +15,7 @@ public class CommonMethods {
 
     String tableName="ShefAmma";
 
-    public void updateAttribute(String partitionKeyValue, String attributeName, String newValue) {
+    public UpdateItemResult updateAttribute(String partitionKeyValue, String attributeName, String newValue) {
         try {
             Map<String, AttributeValue> key = new HashMap<>();
             key.put("pk", new AttributeValue(partitionKeyValue));
@@ -29,10 +29,11 @@ public class CommonMethods {
                     .withUpdateExpression("SET " + attributeName + " = :newValue")
                     .withExpressionAttributeValues(expressionAttributeValues);
 
-            amazonDynamoDB.updateItem(updateItemRequest);
+            return amazonDynamoDB.updateItem(updateItemRequest);
         } catch (Exception e) {
-            
-            e.printStackTrace();
+            // Handle exceptions as appropriate for your application
+            throw new RuntimeException("An error occurred: " + e.getMessage());
+
         }
     }
 

@@ -107,9 +107,8 @@ public class AccountImpl implements Account, UserDetailsService{
             String errorMessage = "User not found for phone: " + phone;
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
         }
-
         UpdateItemResult result = commonMethods.updateAttributeWithSortKey(phone, timeStamp, "pass", passwordEncoder.encode(newPassword));
-
+        
         if (result != null && result.getAttributes() != null && !result.getAttributes().isEmpty()) {
             return ResponseEntity.ok("Password updated successfully.");
         } else {
@@ -126,9 +125,18 @@ public class AccountImpl implements Account, UserDetailsService{
             throw new UsernameNotFoundException("User not found for uuid: " + uuidHost);
         }
 
-        
         return passwordEncoder.matches(oldPassword, accountEntity.getPassword());
     }
+    @Override
+    public String sendTimeStamp(String number){
+        AccountEntity accountEntity = findUserByPhone(number);
+
+        if (accountEntity == null) {
+            throw new UsernameNotFoundException("User not found for uuid: " + number);
+        }
+        return accountEntity.getTimeStamp();
+    }
+
     @Override
     public String storeHostUuid() {
         String currentUuid = getStoredUuid(); // Get the string value first

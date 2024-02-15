@@ -7,6 +7,10 @@ public interface Account {
 
     AccountEntity saveSignup(AccountEntity hostAccountEntity,String user);
 
+    String sendTimeStamp(String number);
+
+    //    ResponseEntity<HostAccountEntity> saveHostSignup(HostAccountEntity hostAccountEntity);
+
     String storeHostUuid();
 
     String storeGuestUuid();
