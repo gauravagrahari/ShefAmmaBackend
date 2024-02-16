@@ -423,7 +423,8 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         // Calculate total amount based on the meal price, quantity, and constant charges
         double mealPrice = Double.parseDouble(mealDetail.getAmount());
         int noOfServings = Integer.parseInt(orderEntity.getNoOfServing());
-        double totalAmount = calculateTotalAmount(mealPrice, noOfServings, charges);
+        int cutleryCount=Integer.parseInt(orderEntity.getCutleryCount());
+        double totalAmount = calculateTotalAmount(mealPrice, noOfServings,cutleryCount, charges);
 
         // Verify the total amount against what's sent by the client
         double clientAmount = Double.parseDouble(orderEntity.getAmount());
@@ -441,15 +442,14 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         }
     }
 
-    private double calculateTotalAmount(double mealPrice, int noOfServings, ConstantChargesEntity charges) {
+    private double calculateTotalAmount(double mealPrice, int noOfServings,int cutleryCount, ConstantChargesEntity charges) {
         double totalAmount = mealPrice * noOfServings;
         totalAmount += Double.parseDouble(charges.getDeliveryCharges());
         totalAmount += Double.parseDouble(charges.getPackagingCharges());
+        totalAmount += cutleryCount*Double.parseDouble(charges.getCutleryCharge());
         totalAmount += Double.parseDouble(charges.getHandlingCharges()) - Double.parseDouble(charges.getDiscount());
         return totalAmount;
     }
-
-
 
     @GetMapping("/host/orders")
     public List<OrderEntity> getHostOrders(@RequestHeader String hostID) {
@@ -612,6 +612,12 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
         // Check if neither phone nor email is provided
         if (phone == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Please provide either phone or email.");
+        }
+        try {
+            userDetailsService.loadUserByUsername(phone);
+        } catch (UsernameNotFoundException e) {
+            // If user not found, return a response indicating to create a new account
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Your Phone Number is unregistered with us, please create a new account.");
         }
         otpService.generateAndSendOtp(phone);
         return ResponseEntity.ok("OTP generated and sent successfully.");
