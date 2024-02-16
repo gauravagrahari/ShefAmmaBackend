@@ -99,7 +99,8 @@ public class  OrderEntity implements Serializable {
     @DynamoDBAttribute(attributeName="amtPack")
     private String amtPackaging;
 
-
+    @DynamoDBAttribute(attributeName="cutleryCount")
+    private String cutleryCount;
 //    @DynamoDBAttribute(attributeName = "nOG")
 //    private int noOfGuest;
 //    @DynamoDBAttribute(attributeName = "pkUp")
