@@ -58,4 +58,6 @@ public class ConstantChargesEntity {
     private String maxMeal;
     @DynamoDBAttribute(attributeName = "eHanCh")
     private String extraHandlingCharges;
+    @DynamoDBAttribute(attributeName = "cutleryCh")
+    private String cutleryCharge;
 }
