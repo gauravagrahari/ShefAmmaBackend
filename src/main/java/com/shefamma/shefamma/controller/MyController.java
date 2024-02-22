@@ -14,6 +14,7 @@ import com.shefamma.shefamma.services.CacheUtility;
 import com.shefamma.shefamma.services.JwtServices;
 import com.shefamma.shefamma.services.MealCache;
 import com.shefamma.shefamma.services.OTPService;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,8 +78,10 @@ public class MyController {
     private Capacity capacity;
     @Autowired
     private Pincode pincode;
-    private String generatedOtp; 
-    
+    @Autowired
+    private ServiceAvailabilityRepository serviceAvailabilityRepository;
+    private String generatedOtp; // Store the generated OTP here
+    //    ---------------------------------------------------------
     private LocalDateTime otpExpirationTime; 
     @Value("${map.host.radius}")
     private double radius;
@@ -92,6 +95,34 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Sorry, service is not available in your area.");
     }
 }
+
+//    ----------------------------
+//    Service Availability controller
+//    ---------------------------
+@PutMapping("/admin/updateService")
+public ResponseEntity<?> updateServiceMessage(@RequestBody Map<String, String> payload) {
+    String message = payload.get("message");
+    if (message == null || message.trim().isEmpty()) {
+        return ResponseEntity.badRequest().body("Message cannot be empty.");
+    }
+    serviceAvailabilityRepository.updateServiceMessage(message);
+    return ResponseEntity.ok("Service message updated successfully.");
+}
+
+    @GetMapping("/guest/services")
+    public ResponseEntity<?> getServiceMessage() {
+        ServiceAvailability serviceAvailability = serviceAvailabilityRepository.getServiceMessage();
+        if (serviceAvailability == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(serviceAvailability.getServiceMessage());
+    }
+// ------------------------------------------------------------------------------------------------------
+// **************************************Host controllers******************************************
+// ------------------------------------------------------------------------------------------------------
+
+    // @CrossOrigin(origins = "*")
+
     @PostMapping("/host")
     public HostEntity saveHost(@RequestBody HostEntity hostEntity) throws Exception {
         GeocodingResult[] results = geocodingService.geocode(hostEntity.getAddressHost().convertToString());
@@ -379,6 +410,16 @@ public ResponseEntity<String> checkService(@RequestHeader String pinCode){
         CapacityEntity capacity = this.capacity.getCapacity("capacity#" + idSplit[1]);
         
         return capacity;
+    }
+    @PutMapping("/updateFixedCapacity")
+    public ResponseEntity<String> updateFixedCapacity(@RequestParam String partition, @RequestParam String mealType, @RequestParam String newFixedCapacity) {
+        return capacity.updateFixedCapacity(partition, mealType, newFixedCapacity);
+    }
+    @Getter
+    public static class CapacityUpdateRequest {
+        private String partition;
+        private String mealType;
+        private String newFixedCapacity;
     }
 
     @PostMapping("/guest/order")
