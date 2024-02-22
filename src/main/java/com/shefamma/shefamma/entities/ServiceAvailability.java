@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@DynamoDBTable(tableName = "ShefAmma")
+@DynamoDBTable(tableName = "ShefAmmaProd")
 public class ServiceAvailability {
     @DynamoDBHashKey(attributeName = "pk")
     private String serviceDetails = "serviceDetails";
