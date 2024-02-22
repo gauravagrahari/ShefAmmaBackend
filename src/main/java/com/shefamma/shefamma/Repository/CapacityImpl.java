@@ -127,5 +127,63 @@ public class CapacityImpl implements Capacity {
         return modifyCapacity(mealType, partition, noOfMeals, true);
     }
 
+    @Override
+    public ResponseEntity<String> updateFixedCapacity(String partition, String mealType, String newFixedCapacityStr) {
+        int newFixedCapacity = Integer.parseInt(newFixedCapacityStr);
+
+        CapacityEntity currentCapacityEntity = dynamoDBMapper.load(CapacityEntity.class, "capacity#" + partition, "capacity");
+        if (currentCapacityEntity == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Capacity entity not found.");
+        }
+
+        int currentFixedCapacity;
+        int currentCap;
+
+        switch (mealType) {
+            case "b" -> {
+                currentFixedCapacity = Integer.parseInt(currentCapacityEntity.getBreakfastCapacity());
+                currentCap = Integer.parseInt(currentCapacityEntity.getCurrentBreakfastCapacity());
+            }
+            case "l" -> {
+                currentFixedCapacity = Integer.parseInt(currentCapacityEntity.getLunchCapacity());
+                currentCap = Integer.parseInt(currentCapacityEntity.getCurrentLunchCapacity());
+            }
+            case "d" -> {
+                currentFixedCapacity = Integer.parseInt(currentCapacityEntity.getDinnerCapacity());
+                currentCap = Integer.parseInt(currentCapacityEntity.getCurrentDinnerCapacity());
+            }
+            default -> {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid meal type provided.");
+            }
+        }
+
+        int diff = newFixedCapacity - currentFixedCapacity;
+
+        // Prevent reducing fixed capacity if it results in a negative current capacity
+        if (currentCap + diff < 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Capacity can't be reduced to the given value without affecting current orders.");
+        }
+
+        // Update the fixed and current capacities accordingly
+        switch (mealType) {
+            case "b" -> {
+                currentCapacityEntity.setBreakfastCapacity(Integer.toString(newFixedCapacity));
+                currentCapacityEntity.setCurrentBreakfastCapacity(Integer.toString(currentCap + diff));
+            }
+            case "l" -> {
+                currentCapacityEntity.setLunchCapacity(Integer.toString(newFixedCapacity));
+                currentCapacityEntity.setCurrentLunchCapacity(Integer.toString(currentCap + diff));
+            }
+            case "d" -> {
+                currentCapacityEntity.setDinnerCapacity(Integer.toString(newFixedCapacity));
+                currentCapacityEntity.setCurrentDinnerCapacity(Integer.toString(currentCap + diff));
+            }
+        }
+
+        dynamoDBMapper.save(currentCapacityEntity); // Save the updated entity
+
+        return ResponseEntity.ok("Capacity updated successfully.");
+    }
+
 
 }

@@ -13,4 +13,6 @@ public interface Capacity {
 
 
     ResponseEntity<String> increaseCapacity(String mealType, String partition, int noOfMeals);
+
+    ResponseEntity<String> updateFixedCapacity(String partition, String attributeName, String newValue);
 }
