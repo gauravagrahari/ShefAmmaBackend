@@ -51,11 +51,11 @@ public ResponseEntity<ConstantChargesEntity> getCharges() {
         return constantCharges.updateCharges(constantChargesEntity);
     }
 
-    @PostMapping("/admin/getAllHosts") // Changed the mapping URL to "/admin/signup"
+    @PostMapping("/admin/getAllHosts")
     public List<HostEntity> getAllHosts() {
       return adminDashboard.getAllHosts();
     }
-    @PostMapping("/admin/getAllDevBoys") // Changed the mapping URL to "/admin/signup"
+    @PostMapping("/admin/getAllDevBoys")
     public List<DevBoyEntity> getAllDevBoys() {
          return adminDashboard.getAllDevBoys();
     }
