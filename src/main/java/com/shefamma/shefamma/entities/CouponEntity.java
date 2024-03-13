@@ -23,7 +23,8 @@ public class CouponEntity {
 
     @DynamoDBAttribute(attributeName = "totalEmployees")
     private int totalEmployees; // Total number of employees in the company
-
+    @DynamoDBAttribute(attributeName = "desc")
+    private int description; // Total number of employees in the company
     @DynamoDBAttribute(attributeName = "maxUsesPerEmployee")
     private int maxUsesPerEmployee; // Maximum number of times each employee can use the coupon
 
@@ -50,5 +51,4 @@ public class CouponEntity {
         }
         return this;
     }
-    // Additional getters and setters...
 }
