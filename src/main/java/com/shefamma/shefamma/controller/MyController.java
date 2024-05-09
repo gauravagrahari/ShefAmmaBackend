@@ -496,7 +496,10 @@ public ResponseEntity<?> updateServiceMessage(@RequestBody Map<String, String> p
     public List<OrderEntity> getHostOrders(@RequestHeader String hostID) {
         return order.getAllOrders(hostID,"gsi1");
     }
-
+    @GetMapping("/host/getOrdersByStatus")
+    public List<OrderEntity> getOrdersByStatus(@RequestHeader String id,@RequestParam String status){
+        return order.getOrdersByStatus(id,"gsi1",status);
+    }
     @GetMapping("/host/ipOrders")
     public List<OrderEntity> getInProgressHostOrders(@RequestHeader String hostID) {
         return order.getInProgressOrders(hostID,"gsi1" );
@@ -723,6 +726,26 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
         }
         return ResponseEntity.ok(charges);
     }
+
+    @GetMapping("/host/getCharges")
+    public ResponseEntity<ConstantChargesEntity> gethostCharges() {
+         ConstantChargesEntity charges = CacheUtility.getConstantCharges();
+        if (charges == null) {
+            ResponseEntity<ConstantChargesEntity> response = constantCharges.getCharges();
+            if (response.getStatusCode() == HttpStatus.OK) {
+                CacheUtility.updateConstantCharges(response.getBody()); // Cache the charges
+            }
+            return response;
+        }
+        return ResponseEntity.ok(charges);
+    }
+
+
+    //    ---   ---------------------------------------------------------------------------------------------------
+//    **************************************HostAccount controllers******************************************
+//    ------------------------------------------------------------------------------------------------------
+
+
     @PostMapping("/hostSignup")
     public ResponseEntity<?> getUser(@RequestBody AccountEntity hostEntity) {
         try {
@@ -758,6 +781,12 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getPhone(), authRequest.getPassword()));
 
             if (authentication.isAuthenticated()) {
+                AccountEntityUserDetails userDetails = (AccountEntityUserDetails) authentication.getPrincipal();
+                String userRole = userDetails.getRole(); // Extract role
+
+                if (!userRole.equals("host")) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied for role: " + userRole);
+                }
                 String token = jwtServices.generateToken(authRequest.getPhone());
                 String uuidHost = account.storeHostUuid();
                 String timestamp = account.storeTimestamp();
@@ -780,23 +809,34 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
     
 
     @PostMapping("/guestLogin")
-    public ResponseEntity<?> guestLogin(@RequestBody AccountEntity authRequest) {
+    public ResponseEntity<?> guestLogin(@RequestBody AccountEntity authRequest, @RequestParam String expoToken) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getPhone(), authRequest.getPassword()));
 
             if (authentication.isAuthenticated()) {
+                AccountEntityUserDetails userDetails = (AccountEntityUserDetails) authentication.getPrincipal();
+                String userRole = userDetails.getRole(); // Extract role
+
+                if (!userRole.equals("guest")) {
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied for role    : " + userRole);
+                }
                 String token = jwtServices.generateToken(authRequest.getPhone());
                 String uuidGuest = account.storeGuestUuid();
                 String timestamp = account.storeTimestamp();
                 GuestEntity guestDetails = guest.getGuestUsingPk(uuidGuest);
 
+                if (expoToken != null) {
+                    guestDetails.setExpoPushToken(expoToken);
+                    guest.saveGuest(guestDetails);
+                }
+
                 Map<String, Object> response = new HashMap<>();
                 response.put("uuidGuest", uuidGuest);
                 response.put("token", token);
                 response.put("timeStamp", timestamp);
+                response.put("guestDetails", guestDetails != null ? guestDetails : "User details not available.");
 
-                // Check if guestDetails is null
                 if (guestDetails == null) {
                     response.put("message", "User details not available.");
                 } else {
@@ -846,8 +886,9 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
         }
     }
 
-    
-    
+    //    ------------------------------------------------------------------------------------------------------
+    //    **************************************DevBoyAccount controllers******************************************
+    //    ------------------------------------------------------------------------------------------------------
 
     @PostMapping("/devBoySignup")
     public ResponseEntity<?> getUserDev(@RequestBody AccountEntity devBoyEntity) {
