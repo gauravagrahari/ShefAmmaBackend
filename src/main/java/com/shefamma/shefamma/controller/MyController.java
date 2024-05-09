@@ -936,7 +936,7 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
     //    **************************************GuestAccount controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
     @PostMapping("/guestLogin")
-    public ResponseEntity<?> guestLogin(@RequestBody AccountEntity authRequest) {
+    public ResponseEntity<?> guestLogin(@RequestBody AccountEntity authRequest, @RequestParam String expoToken) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(authRequest.getPhone(), authRequest.getPassword()));
@@ -946,19 +946,24 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
                 String userRole = userDetails.getRole(); // Extract role
 
                 if (!userRole.equals("guest")) {
-                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied for role: " + userRole);
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied for role    : " + userRole);
                 }
                 String token = jwtServices.generateToken(authRequest.getPhone());
                 String uuidGuest = account.storeGuestUuid();
                 String timestamp = account.storeTimestamp();
                 GuestEntity guestDetails = guest.getGuestUsingPk(uuidGuest);
 
+                if (expoToken != null) {
+                    guestDetails.setExpoPushToken(expoToken);
+                    guest.saveGuest(guestDetails);
+                }
+
                 Map<String, Object> response = new HashMap<>();
                 response.put("uuidGuest", uuidGuest);
                 response.put("token", token);
                 response.put("timeStamp", timestamp);
+                response.put("guestDetails", guestDetails != null ? guestDetails : "User details not available.");
 
-                // Check if guestDetails is null
                 if (guestDetails == null) {
                     response.put("message", "User details not available.");
                 } else {

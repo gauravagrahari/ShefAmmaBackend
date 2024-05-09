@@ -27,6 +27,8 @@ public class GuestEntity {
     private String uuidGuest;
     @DynamoDBRangeKey(attributeName = "sk")
     private String geocode;
+    @DynamoDBAttribute(attributeName ="expoPushToken")
+    private String expoPushToken;
     @DynamoDBAttribute(attributeName = "geoOff")
     private String geocodeOffice;
     @DynamoDBAttribute(attributeName = "name")
