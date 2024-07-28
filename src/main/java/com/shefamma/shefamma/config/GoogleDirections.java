@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 
 public class GoogleDirections {
 
-//    private static final String API_KEY = "AIzaSyBgME4kzfk-uOisOH9Z1cUekeIAaf6z-FU";
+//    private static final String API_KEY = "add_here";
 //    private static final String BASE_URL = "https://maps.googleapis.com/maps/api/directions/json?origin=%s&destination=%s&key=%s";
 //
 //    public static void main(String[] args) throws Exception {
