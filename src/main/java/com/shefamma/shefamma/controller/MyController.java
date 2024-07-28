@@ -724,6 +724,7 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
 //    **************************************HostAccount controllers******************************************
 //    ------------------------------------------------------------------------------------------------------
 
+
     @PostMapping("/hostSignup")
     public ResponseEntity<?> getUser(@RequestBody AccountEntity hostEntity) {
         try {
@@ -867,6 +868,7 @@ public List<OrderEntity> getInProgress(@RequestHeader String uuidDevBoy){
     //    ------------------------------------------------------------------------------------------------------
     //    **************************************DevBoyAccount controllers******************************************
     //    ------------------------------------------------------------------------------------------------------
+
     @PostMapping("/devBoySignup")
     public ResponseEntity<?> getUserDev(@RequestBody AccountEntity devBoyEntity) {
         try {
